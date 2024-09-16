@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Page, Layout, Card, DataTable, Button, Badge, Frame } from '@shopify/polaris';
+import { Page, Layout, Card, DataTable, Button, Badge, Frame, Link } from '@shopify/polaris';
 
 export default function RequestTable() {
   const [isLoading, setIsLoading] = React.useState(true);
