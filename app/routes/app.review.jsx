@@ -42,9 +42,11 @@ export default function RequestTable() {
     <Button plain onClick={() => handleDownload(request.sheetUrl)}>
       Download
     </Button>,
-    <Button plain onClick={() => handleReview(request.requestId)}>
-      Review
-    </Button>,
+    <Button plain>
+      <Link to={`/metaview/${request.requestId}`}>
+        View
+      </Link>
+    </Button>
   ]);
 
   return (
