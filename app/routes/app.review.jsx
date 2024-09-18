@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { json, LoaderFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { useLoaderData, Link } from '@remix-run/react';
 import { Page, Layout, Card, DataTable, Button, Badge, Frame } from '@shopify/polaris';
 import { authenticate } from "../shopify.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
 
   const shopQuery = `
@@ -27,12 +27,12 @@ export const loader: LoaderFunction = async ({ request }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        customer_id: shop.data.shop.id, 
+        customer_id: shop.data.shop.id,
       }),
     });
 
     const requestData = await requestResponse.json();
-    console.log(requestData);
+
     if (requestData.api_action_status === 'success') {
       return json({
         shop: shop.data.shop,
@@ -73,7 +73,7 @@ export default function RequestTable() {
       Download
     </Button>,
     <Button plain>
-      <Link>
+      <Link to={`/metaview/${request.request_id}`}>
         View
       </Link>
     </Button>
