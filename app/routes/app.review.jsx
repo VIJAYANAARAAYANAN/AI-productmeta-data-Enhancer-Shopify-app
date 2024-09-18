@@ -61,11 +61,11 @@ export const loader = async ({ request }) => {
     return json({
       requestData: [
         {
-          request_id: 'not available',
-          request_status: 'not available',
-          request_date: 'not available',
-          num_products: 'not available',
-          download_link: 'not available',
+          request_id: 'NA',
+          request_status: 'NA',
+          request_date: 'NA',
+          num_products: 'NA',
+          download_link: 'NA',
         },
       ],
     });
