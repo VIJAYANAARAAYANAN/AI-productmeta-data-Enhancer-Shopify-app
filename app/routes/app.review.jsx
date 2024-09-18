@@ -16,8 +16,9 @@ export const loader = async ({ request }) => {
       }
     }
   `;
-
+  console.log(shopQuery);
   try {
+    console.log("Shop Data query executing);
     const response = await admin.graphql(shopQuery);
     const shop = await response.json();
     console.log("Shop data:", shop);
@@ -56,14 +57,9 @@ export const loader = async ({ request }) => {
     throw new Error("Error fetching request data");
 
   } catch (error) {
-    console.error("Error fetching shop details or request data:", error);
+    console.log("Error fetching shop details or request data:", error);
 
     return json({
-      shop: {
-        id: 'not available',
-        name: 'not available',
-        email: 'not available',
-      },
       requestData: [
         {
           request_id: 'not available',
@@ -78,8 +74,10 @@ export const loader = async ({ request }) => {
 };
 
 export default function RequestTable() {
-  const { shop, requestData } = useLoaderData();
+  const data = useLoaderData();
+  const fetcher = useFetcher();
   const [isLoading, setIsLoading] = React.useState(false);
+  const requestData = data.requestData
 
   React.useEffect(() => {
     if (!requestData || requestData.length === 0) {
