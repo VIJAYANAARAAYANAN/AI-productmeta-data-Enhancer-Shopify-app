@@ -30,13 +30,13 @@ export const loader = async ({ request }) => {
         customer_id: shop.data.shop.id,
       }),
     });
-
+    console.log(shop.data.shop.id);
     const requestData = await requestResponse.json();
-
+    console.log(requestData);
     if (requestData.api_action_status === 'success') {
       return json({
         shop: shop.data.shop,
-        requestData: requestData.request_data || [],  // Ensure requestData is an array
+        requestData: requestData.request_data || [],
       });
     }
 
