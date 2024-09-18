@@ -30,6 +30,9 @@ export const loader = async ({ request }) => {
         customer_id: shop.data.shop.id,
       }),
     });
+    if (!requestResponse.ok) {
+      throw new Error(`Request failed with status ${requestResponse.status}`);
+    }
     console.log(shop.data.shop.id);
     const requestData = await requestResponse.json();
     console.log(requestData);
