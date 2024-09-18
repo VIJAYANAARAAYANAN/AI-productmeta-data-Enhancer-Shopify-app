@@ -139,7 +139,7 @@ export default function Products() {
     };
     console.log(payload);
     try {
-      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image//', {
+      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +206,7 @@ export default function Products() {
               <BlockStack gap="400">
                 <div style={{ display: "flex", justifyContent: "flex-start" }}>
                   <Button onClick={handleSubmit} variant="primary">
-                    Submit Selected Products
+                    Majik🪄
                   </Button>
                 </div>
               </BlockStack>
