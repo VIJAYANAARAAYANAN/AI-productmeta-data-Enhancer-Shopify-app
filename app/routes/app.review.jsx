@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { json } from '@remix-run/node';
-import { useLoaderData, Link } from '@remix-run/react';
+import { useFetcher, useLoaderData, Link } from '@remix-run/react';
 import { Page, Layout, Card, DataTable, Button, Badge, Frame } from '@shopify/polaris';
 import { authenticate } from "../shopify.server";
 
