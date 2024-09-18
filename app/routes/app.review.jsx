@@ -49,7 +49,6 @@ export const loader = async ({ request }) => {
 
     if (requestData.api_action_status === 'success') {
       return json({
-        shop: shop.data.shop,
         requestData: requestData.request_data || [],
       });
     }
