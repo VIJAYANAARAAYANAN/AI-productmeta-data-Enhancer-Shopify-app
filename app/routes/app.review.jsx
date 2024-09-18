@@ -16,7 +16,7 @@ export const loader = async ({ request }) => {
       }
     }
   `;
-  console.log(shopQuery);
+  console.log("Query done");
   try {
     console.log("Shop Data query executing");
     const response = await admin.graphql(shopQuery);
