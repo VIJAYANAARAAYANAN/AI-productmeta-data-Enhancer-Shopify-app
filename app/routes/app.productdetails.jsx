@@ -139,7 +139,7 @@ export default function Products() {
     };
     console.log(payload);
     try {
-      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/', {
+      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
