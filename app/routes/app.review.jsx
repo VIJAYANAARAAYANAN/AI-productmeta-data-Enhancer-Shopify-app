@@ -20,7 +20,7 @@ export const loader = async ({ request }) => {
   try {
     const response = await admin.graphql(shopQuery);
     const shop = await response.json();
-
+    console.log("Calling");
     const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/genrequest/fetch', {
       method: 'POST',
       headers: {
@@ -31,7 +31,7 @@ export const loader = async ({ request }) => {
       }),
     });
     if (!requestResponse.ok) {
-      throw new Error(`Request failed with status ${requestResponse.status}`);
+      console.log(`Request failed with status ${requestResponse.status}`);
     }
     console.log(shop.data.shop.id);
     const requestData = await requestResponse.json();
