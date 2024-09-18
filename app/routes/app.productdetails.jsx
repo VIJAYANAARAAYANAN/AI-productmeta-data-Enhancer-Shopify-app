@@ -206,7 +206,7 @@ export default function Products() {
               <BlockStack gap="400">
                 <div style={{ display: "flex", justifyContent: "flex-start" }}>
                   <Button onClick={handleSubmit} variant="primary">
-                    Submit Selected Products
+                    Majik🪄
                   </Button>
                 </div>
               </BlockStack>
