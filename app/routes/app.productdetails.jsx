@@ -90,6 +90,28 @@ export default function Products() {
     );
   };
 
+  const downloadImageAsBase64 = async (imageUrl) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      return null;
+    }
+  };
+
+  const extractImageName = (url) => {
+    const parts = url.split('/');
+    const fileName = parts[parts.length - 1].split('?')[0];
+    return fileName;
+  };
+
   const handleSubmit = async () => {
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node.id))
@@ -97,17 +119,23 @@ export default function Products() {
         id: product.node.id,
         title: product.node.title,
         imageUrl: product.node.images.edges[0]?.node.originalSrc || "",
-        imageName: product.node.title.replace(/\s+/g, '_').toLowerCase(),
       }));
 
     const shopId = shopDetails.id;
 
+    const base64Images = await Promise.all(
+      selectedProductDetails.map(async (product) => {
+        const base64Image = await downloadImageAsBase64(product.imageUrl);
+        return {
+          image_name: extractImageName(product.imageUrl),
+          image_data: base64Image,
+        };
+      })
+    );
+
     const payload = {
       customer_id: shopId,
-      images: selectedProductDetails.map((product) => ({
-        image_name: product.imageName,
-        image_url: product.imageUrl,
-      })),
+      images: base64Images,
     };
     console.log(payload);
     try {
