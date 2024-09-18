@@ -1,49 +1,79 @@
 import * as React from 'react';
-import { Page, Layout, Card, DataTable, Button, Badge, Frame, Link } from '@shopify/polaris';
+import { json, LoaderFunction } from '@remix-run/node';
+import { useLoaderData, Link } from '@remix-run/react';
+import { Page, Layout, Card, DataTable, Button, Badge, Frame } from '@shopify/polaris';
+import { authenticate } from "../shopify.server";
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+
+  const shopQuery = `
+    {
+      shop {
+        id
+        name
+        email
+      }
+    }
+  `;
+
+  try {
+    const response = await admin.graphql(shopQuery);
+    const shop = await response.json();
+
+    const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/genrequest/fetch', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customer_id: shop.data.shop.id, 
+      }),
+    });
+
+    const requestData = await requestResponse.json();
+    console.log(requestData);
+    if (requestData.api_action_status === 'success') {
+      return json({
+        shop: shop.data.shop,
+        requestData: requestData.request_data,
+      });
+    }
+
+    return new Response("Error fetching request data", { status: 500 });
+
+  } catch (error) {
+    console.error("Error fetching shop details or request data:", error);
+    return new Response("Error fetching data", { status: 500 });
+  }
+};
 
 export default function RequestTable() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [requestData, setRequestData] = React.useState([]);
+  const { shop, requestData } = useLoaderData();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  // Mock API call to get request data
   React.useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const apiResponse = [
-        {
-          requestId: '6249020310',
-          requestStatus: 'COMPLETED',
-          requestDate: '31/08/2024',
-          numProducts: 1,
-          sheetUrl: '#',
-        },
-      ];
-
-      setRequestData(apiResponse);
-      setIsLoading(false);
-    }, 2000);
-  }, []);
+    if (requestData.length === 0) {
+      setIsLoading(true);
+    }
+  }, [requestData]);
 
   const handleDownload = (url) => {
-    window.location.href = url; 
-  };
-
-  const handleReview = (requestId) => {
-    console.log('Review button clicked for Request ID:', requestId);
+    window.location.href = url;
   };
 
   const rows = requestData.map((request) => [
-    request.requestId,
-    <Badge status={request.requestStatus === 'COMPLETED' ? 'success' : 'attention'}>
-      {request.requestStatus}
+    request.request_id,
+    <Badge status={request.request_status === 'COMPLETED' ? 'success' : 'attention'}>
+      {request.request_status}
     </Badge>,
-    request.requestDate,
-    request.numProducts,
-    <Button plain onClick={() => handleDownload(request.sheetUrl)}>
+    request.request_date,
+    request.num_products,
+    <Button plain onClick={() => handleDownload(request.download_link)}>
       Download
     </Button>,
     <Button plain>
-      <Link to={`/metaview/${request.requestId}`}>
+      <Link to={`/metaview/${request.request_id}`}>
         View
       </Link>
     </Button>
