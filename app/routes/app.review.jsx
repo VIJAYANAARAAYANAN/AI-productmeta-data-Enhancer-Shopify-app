@@ -42,7 +42,7 @@ export default function RequestTable() {
     <Button plain onClick={() => handleDownload(request.sheetUrl)}>
       Download
     </Button>,
-    <Button plain>
+    <Button onClick={handleReview} >
       <Link to={`/metaview/${request.requestId}`}>
         View
       </Link>
