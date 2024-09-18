@@ -73,7 +73,7 @@ export default function RequestTable() {
       Download
     </Button>,
     <Button plain>
-      <Link to={`/metaview/${request.request_id}`}>
+      <Link>
         View
       </Link>
     </Button>
