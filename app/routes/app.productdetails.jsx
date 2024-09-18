@@ -90,22 +90,6 @@ export default function Products() {
     );
   };
 
-  const downloadImageAsBase64 = async (imageUrl) => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      console.error('Error downloading image:', error);
-      return null;
-    }
-  };
-
   const handleSubmit = async () => {
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node.id))
@@ -118,21 +102,14 @@ export default function Products() {
 
     const shopId = shopDetails.id;
 
-    const base64Images = await Promise.all(
-      selectedProductDetails.map(async (product) => {
-        const base64Image = await downloadImageAsBase64(product.imageUrl);
-        return {
-          image_name: product.imageName,
-          image_data: base64Image,
-        };
-      })
-    );
-
     const payload = {
       customer_id: shopId,
-      images: base64Images,
+      images: selectedProductDetails.map((product) => ({
+        image_name: product.imageName,
+        image_url: product.imageUrl,
+      })),
     };
-    console.log(JSON.stringify(payload));
+
     try {
       const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload', {
         method: 'POST',
