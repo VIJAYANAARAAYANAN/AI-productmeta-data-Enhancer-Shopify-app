@@ -36,7 +36,7 @@ export const loader = async ({ request }) => {
     if (requestData.api_action_status === 'success') {
       return json({
         shop: shop.data.shop,
-        requestData: requestData.request_data,
+        requestData: requestData.request_data || [],  // Ensure requestData is an array
       });
     }
 
@@ -53,7 +53,7 @@ export default function RequestTable() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
-    if (requestData.length === 0) {
+    if (!requestData || requestData.length === 0) {
       setIsLoading(true);
     }
   }, [requestData]);
@@ -62,7 +62,7 @@ export default function RequestTable() {
     window.location.href = url;
   };
 
-  const rows = requestData.map((request) => [
+  const rows = (requestData || []).map((request) => [
     request.request_id,
     <Badge status={request.request_status === 'COMPLETED' ? 'success' : 'attention'}>
       {request.request_status}
