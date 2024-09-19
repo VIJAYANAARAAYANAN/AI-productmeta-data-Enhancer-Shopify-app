@@ -14,7 +14,6 @@ import {
   Checkbox,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import { useNavigate } from '@remix-run/react';
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
@@ -114,7 +113,6 @@ export default function Products() {
   };
 
   const handleSubmit = async () => {
-    const navigate = useNavigate();
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node.id))
       .map((product) => ({
@@ -153,7 +151,6 @@ export default function Products() {
 
       if (response.ok) {
         console.log('API action success:', result);
-        navigate("/app/review");
       } else {
         console.error('Error from API:', result);
       }
