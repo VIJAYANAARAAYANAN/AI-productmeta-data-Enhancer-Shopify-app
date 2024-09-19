@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://permissions-destination-alternatives-assembled.trycloudflare.com"
+application_url = "https://scary-robbie-europe-margaret.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://permissions-destination-alternatives-assembled.trycloudflare.com/auth/callback",
-  "https://permissions-destination-alternatives-assembled.trycloudflare.com/auth/shopify/callback",
-  "https://permissions-destination-alternatives-assembled.trycloudflare.com/api/auth/callback"
+  "https://scary-robbie-europe-margaret.trycloudflare.com/auth/callback",
+  "https://scary-robbie-europe-margaret.trycloudflare.com/auth/shopify/callback",
+  "https://scary-robbie-europe-margaret.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

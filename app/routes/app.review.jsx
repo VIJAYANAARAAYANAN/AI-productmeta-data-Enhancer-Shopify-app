@@ -1,7 +1,15 @@
-import * as React from 'react';
-import { json } from '@remix-run/node';
-import { useLoaderData, Link } from '@remix-run/react';
-import { Page, Layout, Card, DataTable, Button, Badge, Frame } from '@shopify/polaris';
+import * as React from "react";
+import { json } from "@remix-run/node";
+import { useLoaderData, Link } from "@remix-run/react";
+import {
+  Page,
+  Layout,
+  Card,
+  DataTable,
+  Button,
+  Badge,
+  Frame,
+} from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
 // Loader function with detailed logging
@@ -27,26 +35,34 @@ export const loader = async ({ request }) => {
     console.log("Shop data:", shop);
 
     if (!shop.data || !shop.data.shop) {
-      throw new Error('Shop data is missing');
+      throw new Error("Shop data is missing");
     }
 
     const shopId = shop.data.shop.id;
     console.log("Shop ID:", shopId);
-    console.log("Making POST request to the API with the shop_id as customer id...",shopId);
-    const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/genrequestlist/fetch', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    console.log(
+      "Making POST request to the API with the shop_id as customer id...",
+      shopId,
+    );
+    const requestResponse = await fetch(
+      "https://cartesian-api.plotch.io/catalog/genrequestlist/fetch",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer_id: shopId,
+        }),
       },
-      body: JSON.stringify({
-        customer_id: shopId,
-      }),
-    });
+    );
 
     console.log("Checking request response status...");
     if (!requestResponse.ok) {
       const errorText = await requestResponse.text();
-      console.log(`Request failed with status ${requestResponse.status}: ${errorText}`);
+      console.log(
+        `Request failed with status ${requestResponse.status}: ${errorText}`,
+      );
       throw new Error(`Request failed with status ${requestResponse.status}`);
     }
 
@@ -54,7 +70,7 @@ export const loader = async ({ request }) => {
     const requestData = await requestResponse.json();
     console.log("Request data received:", requestData);
 
-    if (requestData.api_action_status === 'success') {
+    if (requestData.api_action_status === "success") {
       console.log("Request data fetching succeeded.");
       return json({
         requestData: requestData.request_data || [],
@@ -62,17 +78,16 @@ export const loader = async ({ request }) => {
     }
 
     throw new Error("API action status is not 'success'");
-
   } catch (error) {
     console.error("Error fetching shop details or request data:", error);
     return json({
       requestData: [
         {
-          request_id: 'NA',
-          request_status: 'NA',
-          request_date: 'NA',
-          num_products: 'NA',
-          download_link: 'NA',
+          request_id: "NA",
+          request_status: "NA",
+          request_date: "NA",
+          num_products: "NA",
+          download_link: "NA",
         },
       ],
     });
@@ -94,7 +109,11 @@ export default function RequestTable() {
       // Dynamically update rows with fetched data
       const formattedRows = data.requestData.map((request) => [
         request.request_id,
-        <Badge status={request.request_status === 'COMPLETED' ? 'success' : 'attention'}>
+        <Badge
+          status={
+            request.request_status === "COMPLETED" ? "success" : "attention"
+          }
+        >
           {request.request_status}
         </Badge>,
         request.request_date,
@@ -103,9 +122,7 @@ export default function RequestTable() {
           Download
         </Button>,
         <Button plain>
-           <Link to={`/app/metaview/${request.request_id}`}>
-            View
-          </Link>
+          <Link to={`/app/metaview/${request.request_id}`}>View</Link>
         </Button>,
       ]);
 
@@ -129,10 +146,28 @@ export default function RequestTable() {
           <Layout.Section>
             <Card>
               <DataTable
-                columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text']}
-                headings={['Request Id', 'Request Status', 'Request Date', 'Num Products', 'Sheet', 'Review']}
+                columnContentTypes={[
+                  "text",
+                  "text",
+                  "text",
+                  "text",
+                  "text",
+                  "text",
+                ]}
+                headings={[
+                  "Request Id",
+                  "Request Status",
+                  "Request Date",
+                  "Num Products",
+                  "Sheet",
+                  "Review",
+                ]}
                 rows={rows}
                 loading={isLoading}
+                pagination={{
+                  hasNext: true,
+                  onNext: () => {},
+                }}
               />
             </Card>
           </Layout.Section>
