@@ -5,6 +5,7 @@ import { Page, Layout, Card, DataTable, Button, Badge, Frame } from '@shopify/po
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
+  console.log("Hello");
   const { admin } = await authenticate.admin(request);
 
   const shopQuery = `
