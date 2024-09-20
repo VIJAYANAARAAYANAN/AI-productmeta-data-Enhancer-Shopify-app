@@ -26,7 +26,7 @@ export const loader = async ({ params, request }) => {
     }
 
     const shopId = shop.data.shop.id;
-
+    console.log(shopId);
     const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/ai/metadata/fetch', {
       method: 'POST',
       headers: {
