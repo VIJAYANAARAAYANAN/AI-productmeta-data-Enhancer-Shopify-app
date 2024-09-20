@@ -127,7 +127,11 @@ export const action = async ({ request }) => {
                   key: "${metafield.key}",  
                   description: "${metafield.description || ''}",  
                   type: "${metafield.type || 'single_line_text_field'}",  
-                  ownerType: PRODUCT
+                  ownerType: PRODUCT,
+                  "access": {
+                    "admin": "MERCHANT_READ_WRITE",
+                    "storefront": "PUBLIC_READ"
+                  }
                 }
               ) {
                 createdDefinition {
