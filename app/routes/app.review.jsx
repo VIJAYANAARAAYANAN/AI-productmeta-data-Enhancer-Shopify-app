@@ -14,6 +14,7 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
+
 // Loader function with detailed logging
 export const loader = async ({ request }) => {
   console.log("Loader function started");
@@ -96,6 +97,10 @@ export const loader = async ({ request }) => {
   }
 };
 
+const handleViewClick = () => {
+  console.log("View button clicked");
+}
+
 // React component with dynamic data handling and logging
 export default function RequestTable() {
   const data = useLoaderData();
@@ -123,7 +128,7 @@ export default function RequestTable() {
         <Button plain onClick={() => handleDownload(request.download_link)}>
           Download
         </Button>,
-        <Button plain>
+        <Button onClick={handleViewClick} plain>
           <Link to={`/app/metaview/${request.request_id}`}>View</Link>
         </Button>,
       ]);
