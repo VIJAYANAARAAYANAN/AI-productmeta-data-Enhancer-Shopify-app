@@ -18,8 +18,7 @@ export const loader = async ({ params, request }) => {
   }`;
 
   try {
-    const response = await admin.graphql(shopQuery);
-    const shop = await response.json();
+    const shop = await admin.graphql(shopQuery);
 
     if (!shop.data || !shop.data.shop) {
       throw new Error('Shop data is missing');
@@ -47,6 +46,7 @@ export const loader = async ({ params, request }) => {
     if (requestData && requestData.product_metada_data) {
       return json({
         requestData: requestData.product_metada_data,
+        admin, // Pass admin to reuse it
       });
     }
 
@@ -62,7 +62,7 @@ export const loader = async ({ params, request }) => {
 
 export default function MetaView() {
   const { requestId } = useParams();
-  const { requestData, error } = useLoaderData();
+  const { requestData, error, admin } = useLoaderData();
   const [toastActive, setToastActive] = useState(false);
 
   const handleApply = async (product) => {
@@ -77,12 +77,21 @@ export default function MetaView() {
         type: 'single_line_text_field',
       }));
 
+    const metafieldsString = metafields.map(metafield => `
+      {
+        namespace: "${metafield.namespace}"
+        key: "${metafield.key}"
+        value: "${metafield.value}"
+        type: "${metafield.type}"
+      }
+    `).join(',');
+
     const mutation = `
       mutation {
         productUpdate(
           input: {
             id: "${productId}",
-            metafields: ${JSON.stringify(metafields)}
+            metafields: [${metafieldsString}]
           }
         ) {
           product {
@@ -97,21 +106,22 @@ export default function MetaView() {
     `;
 
     try {
-      const { admin } = await authenticate.admin();
       const result = await admin.graphql(mutation);
 
       if (result.errors) {
         console.error('Error creating metafields:', result.errors);
+        setToastActive('Failed to apply metafields!');
       } else {
-        setToastActive(true);
+        setToastActive('Applied!');
       }
     } catch (error) {
       console.error('Failed to apply metafields:', error);
+      setToastActive('Failed to apply metafields!');
     }
   };
 
   const toastMarkup = toastActive ? (
-    <Toast content="Applied!" onDismiss={() => setToastActive(false)} />
+    <Toast content={toastActive} onDismiss={() => setToastActive(false)} />
   ) : null;
 
   return (
@@ -175,7 +185,7 @@ const styles = {
     alignItems: 'center',
   },
   image: {
-    maxWidth: '30%',
+    width: '300px',
     height: 'auto',
     borderRadius: '8px',
   },
