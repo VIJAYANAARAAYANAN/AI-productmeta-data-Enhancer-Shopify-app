@@ -69,60 +69,60 @@ export default function MetaView() {
 
   const handleApply = async (product) => {
     console.log("Apply is clicked ")
-    const productId = product.image_link;
+    const productId = product.gen_product_id;
     console.log("Try");
     console.log(productId);
  
-  //   const metafields = Object.entries(product)
-  //     .filter(([key, value]) => value && value.trim() !== "" && !['customer_id', 'gen_product_id', 'request_id', 'scan_type'].includes(key))
-  //     .map(([key, value]) => ({
-  //       namespace: 'custom_data',
-  //       key,
-  //       value,
-  //       type: 'single_line_text_field',
-  //     }));
+    const metafields = Object.entries(product)
+      .filter(([key, value]) => value && value.trim() !== "" && !['customer_id', 'gen_product_id', 'request_id', 'scan_type'].includes(key))
+      .map(([key, value]) => ({
+        namespace: 'custom_data',
+        key,
+        value,
+        type: 'single_line_text_field',
+      }));
 
-  //   const metafieldsString = metafields.map(metafield => `
-  //     {
-  //       namespace: "${metafield.namespace}"
-  //       key: "${metafield.key}"
-  //       value: "${metafield.value}"
-  //       type: "${metafield.type}"
-  //     }
-  //   `).join(',');
+    const metafieldsString = metafields.map(metafield => `
+      {
+        namespace: "${metafield.namespace}"
+        key: "${metafield.key}"
+        value: "${metafield.value}"
+        type: "${metafield.type}"
+      }
+    `).join(',');
 
-  //   const mutation = `
-  //     mutation {
-  //       productUpdate(
-  //         input: {
-  //           id: "${productId}",
-  //           metafields: [${metafieldsString}]
-  //         }
-  //       ) {
-  //         product {
-  //           id
-  //         }
-  //         userErrors {
-  //           field
-  //           message
-  //         }
-  //       }
-  //     }
-  //   `;
+    const mutation = `
+      mutation {
+        productUpdate(
+          input: {
+            id: "${productId}",
+            metafields: [${metafieldsString}]
+          }
+        ) {
+          product {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
 
-  //   try {
-  //     const result = await admin.graphql(mutation);
+    try {
+      const result = await admin.graphql(mutation);
 
-  //     if (result.errors) {
-  //       console.error('Error creating metafields:', result.errors);
-  //       setToastActive('Failed to apply metafields!');
-  //     } else {
-  //       setToastActive('Applied!');
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to apply metafields:', error);
-  //     setToastActive('Failed to apply metafields!');
-  //   }
+      if (result.errors) {
+        console.error('Error creating metafields:', result.errors);
+        setToastActive('Failed to apply metafields!');
+      } else {
+        setToastActive('Applied!');
+      }
+    } catch (error) {
+      console.error('Failed to apply metafields:', error);
+      setToastActive('Failed to apply metafields!');
+    }
   };
 
   const toastMarkup = toastActive ? (
