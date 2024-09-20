@@ -123,7 +123,7 @@ export const action = async ({ request }) => {
               metafieldDefinitionCreate(
                 definition: {
                   name: "${metafield.key}",  
-                  namespace: "${metafield.namespace}",  
+                  namespace: "${metafield.namespace || 'custom_data'}",
                   key: "${metafield.key}",  
                   description: "${metafield.description || ''}",  
                   type: "${metafield.type || 'single_line_text_field'}",  
@@ -210,7 +210,7 @@ export const action = async ({ request }) => {
     }
 
     console.log("Metafields applied successfully");
-    return json({ success: true, message: 'Metafields applied successfully!', res:JSON.stringify(result)});
+    return json({ success: true, message: 'Metafields applied successfully!', res:JSON.stringify(result.data)});
   } catch (error) {
     console.error("Error during mutation:", error.message);
     return json({ success: false, message: 'Error during mutation: ' + error.message });
