@@ -162,14 +162,18 @@ export const action = async ({ request }) => {
   
   await defineMetafields();
 
-  const metafieldsString = metafields.map(({ namespace, key, value, type }) => `
-    {
-      namespace: "${namespace}",
-      key: "${key}",
-      value: "${value}",
-      type: "${type}"
-    }
-  `).join(', ');
+  const skipFields = ['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'];
+
+  const metafieldsString = metafields
+    .filter(({ key }) => !skipFields.includes(key))
+    .map(({ namespace, key, value, type }) => `
+      {
+        namespace: "${namespace}",
+        key: "${key}",
+        value: "${value}",
+        type: "${type}"
+      }
+    `).join(', ');
   
   console.log(metafieldsString);
   
