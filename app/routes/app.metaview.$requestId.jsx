@@ -18,7 +18,8 @@ export const loader = async ({ params, request }) => {
   }`;
 
   try {
-    const shop = await admin.graphql(shopQuery);
+    const response = await admin.graphql(shopQuery);
+    const shop = await response.json();
 
     if (!shop.data || !shop.data.shop) {
       throw new Error('Shop data is missing');
