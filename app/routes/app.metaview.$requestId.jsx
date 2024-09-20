@@ -4,7 +4,6 @@ import { Page, Layout, Card, Text, Button, Toast, Frame } from '@shopify/polaris
 import { useState, useEffect } from 'react';
 import { authenticate } from '../shopify.server';
 
-// Loader function to fetch shop details and product metadata
 export const loader = async ({ params, request }) => {
   console.log("Loader function triggered");
   const requestId = params.requestId;
