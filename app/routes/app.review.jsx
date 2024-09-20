@@ -2,6 +2,7 @@ import * as React from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
 import '@shopify/polaris/build/esm/styles.css';
+
 import {
   Page,
   Layout,

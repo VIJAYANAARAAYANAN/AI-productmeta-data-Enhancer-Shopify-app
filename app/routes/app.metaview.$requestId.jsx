@@ -135,8 +135,8 @@ const styles = {
     gap: '16px',
     alignItems: 'center',
     marginBottom: '20px',
-  
   },
+
   gridContainer: {
     display: 'grid',
     gridTemplateRows: 'auto auto',
@@ -145,16 +145,19 @@ const styles = {
     alignItems: 'center',
     marginBottom: '20px',
   },
+
   imageContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   image: {
     maxWidth: '30%',
     height: 'auto',
     borderRadius: '8px',
   },
+
   detailsContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)', 
@@ -164,7 +167,9 @@ const styles = {
     paddingBottom: '30px',
     marginBottom: '20px',
   },
+
   detailItem: {
     marginBottom: '8px',
   },
+  
 };
