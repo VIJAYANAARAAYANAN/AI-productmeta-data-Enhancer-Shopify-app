@@ -112,6 +112,7 @@ export default function Products() {
     return fileName;
   };
 
+
   const handleSubmit = async () => {
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node.id))
@@ -120,35 +121,38 @@ export default function Products() {
         title: product.node.title,
         imageUrl: product.node.images.edges[0]?.node.originalSrc || "",
       }));
-
+  
     const shopId = shopDetails.id;
-
+  
     const base64Images = await Promise.all(
       selectedProductDetails.map(async (product) => {
         const base64Image = await downloadImageAsBase64(product.imageUrl);
         return {
+          image_id: product.id,
           image_name: extractImageName(product.imageUrl),
           image_data: base64Image,
         };
       })
     );
-
+  
     const payload = {
       customer_id: shopId,
       images: base64Images,
     };
+  
     console.log(payload);
+  
     try {
-      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload', {
+      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload/shopify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
-
+  
       const result = await response.json();
-
+  
       if (response.ok) {
         console.log('API action success:', result);
       } else {
@@ -158,7 +162,7 @@ export default function Products() {
       console.error('Error during API request:', error);
     }
   };
-
+  
   const rows = products.map((product) => {
     const variant = product.node.variants.edges[0]?.node;
     const price = variant?.price ? `₹${variant.price}` : "";
