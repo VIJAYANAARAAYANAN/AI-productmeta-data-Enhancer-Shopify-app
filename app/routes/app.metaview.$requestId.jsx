@@ -162,7 +162,15 @@ export const action = async ({ request }) => {
   
   await defineMetafields();
 
-  const metafieldsString = JSON.stringify(metafields);
+  const metafieldsString = metafields.map(({ namespace, key, value, type }) => `
+    {
+      namespace: "${namespace}",
+      key: "${key}",
+      value: "${value}",
+      type: "${type}"
+    }
+  `).join(', ');
+  
   console.log(metafieldsString);
   
   const mutation = `
@@ -170,7 +178,7 @@ export const action = async ({ request }) => {
       productUpdate(
         input: {
           id: "${productId}",
-          metafields: ${metafieldsString}
+          metafields: [${metafieldsString}]
         }
       ) {
         product {
