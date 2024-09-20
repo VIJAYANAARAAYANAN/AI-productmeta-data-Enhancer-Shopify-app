@@ -5,8 +5,11 @@ import { useState, useEffect } from 'react';
 import { authenticate } from '../shopify.server';
 
 export const loader = async ({ params, request }) => {
+  console.log("Loader function triggered");
   const requestId = params.requestId;
+
   const { admin } = await authenticate.admin(request);
+  console.log("Authenticated admin object:", admin);
 
   const shopQuery = `{
     shop {
@@ -17,14 +20,18 @@ export const loader = async ({ params, request }) => {
   }`;
 
   try {
+    console.log("Fetching shop details using GraphQL query");
     const response = await admin.graphql(shopQuery);
     const shop = await response.json();
+
+    console.log("Shop data received:", shop);
 
     if (!shop.data || !shop.data.shop) {
       throw new Error('Shop data is missing');
     }
 
     const shopId = shop.data.shop.id;
+    console.log("Shop ID:", shopId);
 
     const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/ai/metadata/fetch', {
       method: 'POST',
@@ -37,12 +44,17 @@ export const loader = async ({ params, request }) => {
       }),
     });
 
+    console.log("Request to external API sent");
+
     if (!requestResponse.ok) {
       throw new Error(`Request failed with status ${requestResponse.status}`);
     }
 
     const requestData = await requestResponse.json();
+    console.log("External API response received:", requestData);
+
     if (requestData && requestData.product_metada_data) {
+      console.log("Product metadata found:", requestData.product_metada_data);
       return json({
         requestData: requestData.product_metada_data,
       });
@@ -51,6 +63,7 @@ export const loader = async ({ params, request }) => {
     throw new Error("Invalid response structure or missing product metadata data");
 
   } catch (error) {
+    console.error("Error in loader:", error.message);
     return json({
       requestData: null,
       error: error.message,
@@ -59,11 +72,17 @@ export const loader = async ({ params, request }) => {
 };
 
 export const action = async ({ request }) => {
+  console.log("Action function triggered");
   const formData = await request.formData();
   const productId = formData.get("productId");
   const productData = formData.get("productData");
 
+  console.log("Received productId:", productId);
+  console.log("Received productData:", productData);
+
   const parsedProductData = JSON.parse(productData);
+  console.log("Parsed product data:", parsedProductData);
+
   const metafields = Object.entries(parsedProductData)
     .filter(([key, value]) => value && value.trim() !== "" && !['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'].includes(key))
     .map(([key, value]) => ({
@@ -72,6 +91,8 @@ export const action = async ({ request }) => {
       value,
       type: 'single_line_text_field',
     }));
+
+  console.log("Prepared metafields for mutation:", metafields);
 
   const defineMetafields = async () => {
     try {
@@ -92,8 +113,11 @@ export const action = async ({ request }) => {
         `;
   
         const resultCheck = await admin.graphql(queryCheckDefinition);
+        console.log(`Metafield definition check for ${metafield.key}:`, resultCheck);
   
         if (resultCheck.data && resultCheck.data.metafieldDefinitions.edges.length === 0) {
+          console.log(`Creating metafield definition for ${metafield.key}`);
+  
           const mutationCreateDefinition = `
             mutation CreateMetafieldDefinition {
               metafieldDefinitionCreate(
@@ -120,11 +144,14 @@ export const action = async ({ request }) => {
           `;
   
           const resultCreate = await admin.graphql(mutationCreateDefinition);
+          console.log(`Metafield definition creation result for ${metafield.key}:`, resultCreate);
   
           if (resultCreate.data.metafieldDefinitionCreate.userErrors.length) {
             resultCreate.data.metafieldDefinitionCreate.userErrors.forEach((error) => {
               console.error(`Error creating definition for ${metafield.key}:`, error.message);
             });
+          } else {
+            console.log(`Definition created for ${metafield.key} with ID:`, resultCreate.data.metafieldDefinitionCreate.createdDefinition.id);
           }
         }
       }
@@ -132,57 +159,60 @@ export const action = async ({ request }) => {
       console.error("Error while defining metafields:", error.message);
     }
   };
-
+  
   await defineMetafields();
 
   const skipFields = ['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'];
 
-  const metafieldsToSet = metafields
+  const metafieldsString = metafields
     .filter(({ key }) => !skipFields.includes(key))
-    .map(({ namespace, key, value, type }) => ({
-      namespace,
-      key,
-      value,
-      type,
-      ownerId: `${productId}`,
-    }));
+    .map(({ namespace, key, value, type }) => `
+      {
+        namespace: "${namespace}",
+        key: "${key}",
+        value: "${value}",
+        type: "${type}"
+      }
+    `).join(', ');
+  
+  console.log(metafieldsString);
+  
+  const mutation = `
+    mutation UpdateProductMetafield{
+      productUpdate(
+        input: {
+          id: "${productId}",
+          metafields: [${metafieldsString}]
+        }
+      ) {
+        product {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
 
   try {
     const { admin } = await authenticate.admin(request);
-    const response = await admin.graphql(
-      `#graphql
-      mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
-        metafieldsSet(metafields: $metafields) {
-          metafields {
-            key
-            namespace
-            value
-            createdAt
-            updatedAt
-          }
-          userErrors {
-            field
-            message
-            code
-          }
-        }
-      }`,
-      {
-        variables: {
-          metafields: metafieldsToSet,
-        },
-      },
-    );
+    console.log("Admin authentication successful, sending mutation");
 
-    const data = await response.json();
+    const result = await admin.graphql(mutation);
 
-    if (data.errors) {
-      console.error("Mutation errors:", data.errors);
+    console.log("Mutation result:", result);
+
+    if (result.errors) {
+      console.error("Mutation errors:", result.errors);
       return json({ success: false, message: 'Failed to apply metafields' });
     }
 
-    return json({ success: true, message: 'Metafields applied successfully!', res: JSON.stringify(data.data) });
+    console.log("Metafields applied successfully");
+    return json({ success: true, message: 'Metafields applied successfully!', res:JSON.stringify(result.data)});
   } catch (error) {
+    console.error("Error during mutation:", error.message);
     return json({ success: false, message: 'Error during mutation: ' + error.message });
   }
 };
@@ -194,15 +224,20 @@ export default function MetaView() {
   const [toastActive, setToastActive] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
+  console.log("MetaView component loaded with requestId:", requestId);
+
   useEffect(() => {
     if (fetcher.data && fetcher.data.message) {
+      console.log("Fetcher response received:", fetcher.data);
       setToastMessage(fetcher.data.message);
       setToastActive(true);
     }
   }, [fetcher.data]);
 
   const handleApply = async (product) => {
+    console.log(product);
     const productId = product.gen_product_id;
+    console.log("Applying metafields for product:", productId);
 
     fetcher.submit(
       {
@@ -211,6 +246,8 @@ export default function MetaView() {
       },
       { method: 'post' }
     );
+
+    console.log("Submit request sent for product:", productId);
   };
 
   const toastMarkup = toastActive ? (
