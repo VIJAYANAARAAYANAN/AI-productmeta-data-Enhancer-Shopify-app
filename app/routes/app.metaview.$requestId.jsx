@@ -70,6 +70,7 @@ export default function MetaView() {
   const handleApply = async (product) => {
     console.log("Apply is clicked ")
     const productId = product.image_link;
+    console.log("Try");
     console.log(productId);
  
   //   const metafields = Object.entries(product)
