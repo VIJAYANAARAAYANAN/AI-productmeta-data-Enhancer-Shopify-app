@@ -1,6 +1,6 @@
 import { json } from '@remix-run/node';
 import { useLoaderData, useParams } from '@remix-run/react';
-import { Page, Layout, Card, Text, Button, Toast, Frame } from '@shopify/polaris';
+import { Page, Layout, Card, Text, Button, Toast } from '@shopify/polaris';
 import { useState } from 'react';
 import { authenticate } from "../shopify.server";
 
@@ -119,53 +119,51 @@ export default function MetaView() {
   ) : null;
 
   return (
-    <Frame>
-      <Page title={`Request ID: ${requestId}`}>
-        <Layout>
-          <Layout.Section>
-            <Card title="Request Details">
-              {error ? (
-                <Text size="small" color="critical">
-                  Error fetching request details: {error}
-                </Text>
-              ) : (
-                <div>
-                  <p>Details for Request ID: {requestId}</p>
-                  {requestData ? (
-                    requestData.map((product) => (
-                      <div key={product.gen_product_id} style={styles.flexContainer}>
-                        <div style={styles.applybutton}>
-                          <Button onClick={() => handleApply(product)}>Apply</Button>
-                        </div>
-                        <div style={styles.imageContainer}>
-                          <img src={product.image_link} alt={product.product_name} style={styles.image} />
-                        </div>
-                        <Text size="large" element="h2">{product.product_name}</Text>
-                        <div style={styles.detailsContainer}>
-                          {Object.entries(product).map(([key, value]) => {
-                            if (value && value.trim() !== "" && !['product_name', 'gen_product_id', 'image_link'].includes(key)) {
-                              return (
-                                <div key={key} style={styles.detailItem}>
-                                  <strong>{key.replace(/_/g, ' ')}:</strong> {value}
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
+    <Page title={`Request ID: ${requestId}`}>
+      <Layout>
+        <Layout.Section>
+          <Card title="Request Details">
+            {error ? (
+              <Text size="small" color="critical">
+                Error fetching request details: {error}
+              </Text>
+            ) : (
+              <div>
+                <p>Details for Request ID: {requestId}</p>
+                {requestData ? (
+                  requestData.map((product) => (
+                    <div key={product.gen_product_id} style={styles.flexContainer}>
+                      <div style={styles.applybutton}>
+                        <Button onClick={() => handleApply(product)}>Apply</Button>
                       </div>
-                    ))
-                  ) : (
-                    <Text size="small">No metadata found for this request.</Text>
-                  )}
-                </div>
-              )}
-            </Card>
-          </Layout.Section>
-        </Layout>
-        {toastMarkup}
-      </Page>
-    </Frame>
+                      <div style={styles.imageContainer}>
+                        <img src={product.image_link} alt={product.product_name} style={styles.image} />
+                      </div>
+                      <Text size="large" element="h2">{product.product_name}</Text>
+                      <div style={styles.detailsContainer}>
+                        {Object.entries(product).map(([key, value]) => {
+                          if (value && value.trim() !== "" && !['product_name', 'gen_product_id', 'image_link'].includes(key)) {
+                            return (
+                              <div key={key} style={styles.detailItem}>
+                                <strong>{key.replace(/_/g, ' ')}:</strong> {value}
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <Text size="small">No metadata found for this request.</Text>
+                )}
+              </div>
+            )}
+          </Card>
+        </Layout.Section>
+      </Layout>
+      {toastMarkup}
+    </Page>
   );
 }
 
