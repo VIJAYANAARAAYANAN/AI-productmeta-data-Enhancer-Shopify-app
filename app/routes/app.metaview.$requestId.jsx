@@ -1,14 +1,12 @@
-// app/routes/app.metaview.$requestId.jsx
-import { json } from '@remix-run/node'; // for server-side JSON responses
+import { json } from '@remix-run/node';
 import { useLoaderData, useParams } from '@remix-run/react';
-import { Page, Layout, Card,Text } from '@shopify/polaris';
+import { Page, Layout, Card, Text, Button, Toast } from '@shopify/polaris';
+import { useState } from 'react';
 import { authenticate } from "../shopify.server";
 
-// Loader function to handle data fetching
 export const loader = async ({ params, request }) => {
   const requestId = params.requestId;
 
-  // Step 1: Fetch shop and customer details (customer_id)
   const { admin } = await authenticate.admin(request);
 
   const shopQuery = `{
@@ -20,21 +18,15 @@ export const loader = async ({ params, request }) => {
   }`;
 
   try {
-    console.log("Fetching shop data...");
     const response = await admin.graphql(shopQuery);
     const shop = await response.json();
-    console.log("Shop data:", shop);
 
     if (!shop.data || !shop.data.shop) {
       throw new Error('Shop data is missing');
     }
 
-    const shopId = shop.data.shop.id; // Customer ID equivalent
+    const shopId = shop.data.shop.id;
 
-    // Step 2: Make POST request to external API
-    console.log("Making POST request to the API with the shop_id as customer id:", shopId);
-    console.log("Making POST request with request_id:", requestId);
-    
     const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/ai/metadata/fetch', {
       method: 'POST',
       headers: {
@@ -47,25 +39,20 @@ export const loader = async ({ params, request }) => {
     });
 
     if (!requestResponse.ok) {
-      const errorText = await requestResponse.text();
-      console.log(`Request failed with status ${requestResponse.status}: ${errorText}`);
       throw new Error(`Request failed with status ${requestResponse.status}`);
     }
 
-    console.log("Parsing request response...");
     const requestData = await requestResponse.json();
-    console.log("Request data received:", requestData);
 
     if (requestData && requestData.product_metada_data) {
       return json({
-        requestData: requestData.product_metada_data, // Returning the fetched metadata
+        requestData: requestData.product_metada_data,
       });
     }
 
     throw new Error("Invalid response structure or missing product metadata data");
 
   } catch (error) {
-    console.error("Error fetching shop details or request data:", error);
     return json({
       requestData: null,
       error: error.message,
@@ -74,13 +61,58 @@ export const loader = async ({ params, request }) => {
 };
 
 export default function MetaView() {
-  const { requestId } = useParams(); // Extract requestId from the URL
-  const { requestData, error } = useLoaderData(); // Load the fetched data
+  const { requestId } = useParams();
+  const { requestData, error } = useLoaderData();
+  const [toastActive, setToastActive] = useState(false);
 
-  // Helper function to filter out non-null values
-  const filterNonNullValues = (data) => {
-    return Object.entries(data).filter(([key, value]) => value && value.trim() !== "").map(([key, value]) => ({ key, value }));
+  const handleApply = async (product) => {
+    const productId = product.gen_product_id;
+
+    const metafields = Object.entries(product)
+      .filter(([key, value]) => value && value.trim() !== "" && !['customer_id', 'gen_product_id', 'request_id', 'scan_type'].includes(key))
+      .map(([key, value]) => ({
+        namespace: 'custom_data',
+        key,
+        value,
+        type: 'single_line_text_field',
+      }));
+
+    const mutation = `
+      mutation {
+        productUpdate(
+          input: {
+            id: "${productId}",
+            metafields: ${JSON.stringify(metafields)}
+          }
+        ) {
+          product {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    try {
+      const { admin } = await authenticate.admin();
+      const result = await admin.graphql(mutation);
+
+      if (result.errors) {
+        console.error('Error creating metafields:', result.errors);
+      } else {
+        setToastActive(true);
+      }
+    } catch (error) {
+      console.error('Failed to apply metafields:', error);
+    }
   };
+
+  const toastMarkup = toastActive ? (
+    <Toast content="Applied!" onDismiss={() => setToastActive(false)} />
+  ) : null;
 
   return (
     <Page title={`Request ID: ${requestId}`}>
@@ -102,18 +134,18 @@ export default function MetaView() {
                       </div>
                       <Text size="large" element="h2">{product.product_name}</Text>
                       <div style={styles.detailsContainer}>
-                   
-                          {Object.entries(product).map(([key, value]) => {
-                            if (value && value.trim() !== "" && key !== 'product_name' && key !== 'gen_product_id' && key !== 'image_link') {
-                              return (
-                                <div key={key} style={styles.detailItem}>
-                                  <strong>{key.replace(/_/g, ' ')}:</strong> {value}
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
+                        {Object.entries(product).map(([key, value]) => {
+                          if (value && value.trim() !== "" && !['product_name', 'gen_product_id', 'image_link'].includes(key)) {
+                            return (
+                              <div key={key} style={styles.detailItem}>
+                                <strong>{key.replace(/_/g, ' ')}:</strong> {value}
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                      <Button onClick={() => handleApply(product)}>Apply</Button>
                     </div>
                   ))
                 ) : (
@@ -124,52 +156,39 @@ export default function MetaView() {
           </Card>
         </Layout.Section>
       </Layout>
+      {toastMarkup}
     </Page>
   );
 }
 
 const styles = {
-  flexContainer:{
+  flexContainer: {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
     alignItems: 'center',
     marginBottom: '20px',
   },
-
-  gridContainer: {
-    display: 'grid',
-    gridTemplateRows: 'auto auto',
-    gridTemplateColumns: '1fr 2fr',
-    gap: '16px',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-
   imageContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   image: {
     maxWidth: '30%',
     height: 'auto',
     borderRadius: '8px',
   },
-
   detailsContainer: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)', 
-    gap: '16px', // Space between items
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
     marginTop: '20px',
-    borderBottom: '1px solid', // Correct property and value
+    borderBottom: '1px solid',
     paddingBottom: '30px',
     marginBottom: '20px',
   },
-
   detailItem: {
     marginBottom: '8px',
   },
-  
 };
