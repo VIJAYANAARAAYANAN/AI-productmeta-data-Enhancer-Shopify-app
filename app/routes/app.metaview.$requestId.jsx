@@ -33,7 +33,6 @@ export const loader = async ({ params, request }) => {
     const shopId = shop.data.shop.id;
     console.log("Shop ID:", shopId);
 
-    // Fetch metadata from the external API
     const requestResponse = await fetch('https://cartesian-api.plotch.io/catalog/ai/metadata/fetch', {
       method: 'POST',
       headers: {
@@ -72,7 +71,6 @@ export const loader = async ({ params, request }) => {
   }
 };
 
-// Action function for handling metafield mutation
 export const action = async ({ request }) => {
   console.log("Action function triggered");
   const formData = await request.formData();
@@ -85,9 +83,8 @@ export const action = async ({ request }) => {
   const parsedProductData = JSON.parse(productData);
   console.log("Parsed product data:", parsedProductData);
 
-  // Filter out unnecessary fields and prepare metafields for mutation
   const metafields = Object.entries(parsedProductData)
-    .filter(([key, value]) => value && value.trim() !== "" && !['customer_id', 'gen_product_id', 'request_id', 'scan_type'].includes(key))
+    .filter(([key, value]) => value && value.trim() !== "" && !['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'].includes(key))
     .map(([key, value]) => ({
       namespace: 'custom_data',
       key,
@@ -97,12 +94,10 @@ export const action = async ({ request }) => {
 
   console.log("Prepared metafields for mutation:", metafields);
 
-  // Step 1: Check and define metafields if they don't already exist
   const defineMetafields = async () => {
     try {
       const { admin } = await authenticate.admin(request);
   
-      // Loop through each metafield and create a definition if necessary
       for (const metafield of metafields) {
         const queryCheckDefinition = `
           {
@@ -120,7 +115,6 @@ export const action = async ({ request }) => {
         const resultCheck = await admin.graphql(queryCheckDefinition);
         console.log(`Metafield definition check for ${metafield.key}:`, resultCheck);
   
-        // Check if the response is structured correctly
         if (resultCheck.data && resultCheck.data.metafieldDefinitions.edges.length === 0) {
           console.log(`Creating metafield definition for ${metafield.key}`);
   
@@ -128,7 +122,7 @@ export const action = async ({ request }) => {
             mutation CreateMetafieldDefinition {
               metafieldDefinitionCreate(
                 definition: {
-                  name: "${metafield.name || metafield.key}",  
+                  name: "${metafield.key}",  
                   namespace: "${metafield.namespace}",  
                   key: "${metafield.key}",  
                   description: "${metafield.description || ''}",  
@@ -152,7 +146,6 @@ export const action = async ({ request }) => {
           const resultCreate = await admin.graphql(mutationCreateDefinition);
           console.log(`Metafield definition creation result for ${metafield.key}:`, resultCreate);
   
-          // Check for user errors
           if (resultCreate.data.metafieldDefinitionCreate.userErrors.length) {
             resultCreate.data.metafieldDefinitionCreate.userErrors.forEach((error) => {
               console.error(`Error creating definition for ${metafield.key}:`, error.message);
@@ -167,16 +160,17 @@ export const action = async ({ request }) => {
     }
   };
   
-  // Step 1: Define metafields if not already defined
   await defineMetafields();
 
-  // Step 2: Proceed with the productUpdate mutation
+  const metafieldsString = JSON.stringify(metafields);
+  console.log(metafieldsString);
+  
   const mutation = `
-    mutation {
+    mutation UpdateProductMetafield{
       productUpdate(
         input: {
           id: "${productId}",
-          metafields: ${JSON.stringify(metafields).replace(/"([^"]+)":/g, '$1:')}
+          metafields: ${metafieldsString}
         }
       ) {
         product {
@@ -211,7 +205,6 @@ export const action = async ({ request }) => {
   }
 };
 
-// MetaView component for displaying and applying metafields
 export default function MetaView() {
   const { requestId } = useParams();
   const { requestData, error } = useLoaderData();
@@ -230,6 +223,7 @@ export default function MetaView() {
   }, [fetcher.data]);
 
   const handleApply = async (product) => {
+    console.log(product);
     const productId = product.gen_product_id;
     console.log("Applying metafields for product:", productId);
 
