@@ -132,7 +132,7 @@ export default function Products() {
           image_name: extractImageName(product.imageUrl),
           image_data: base64Image,
           product_source: "shopify",
-          source_product_id: product.node.id
+          source_product_id: product.id
         };
       })
     );
