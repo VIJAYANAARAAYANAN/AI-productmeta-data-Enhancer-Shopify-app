@@ -131,6 +131,8 @@ export default function Products() {
           image_id: product.id,
           image_name: extractImageName(product.imageUrl),
           image_data: base64Image,
+          product_source: "shopify",
+          source_product_id: product.node.id
         };
       })
     );
@@ -143,7 +145,7 @@ export default function Products() {
     console.log(payload);
   
     try {
-      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload/shopify', {
+      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
