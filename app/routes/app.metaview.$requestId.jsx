@@ -78,11 +78,12 @@ export const action = async ({ request }) => {
   const productData = formData.get("productData");
 
   const getProductDetails = (pid) => `
-  query getProductById("${id}": ID!) {
+  query getProductById {
     product(id: "${pid}") {
       title
     }
-  }`;
+  }
+`;
 
   const productQuery = getProductDetails(productId);
   const productResponse = await admin.graphql(productQuery);
