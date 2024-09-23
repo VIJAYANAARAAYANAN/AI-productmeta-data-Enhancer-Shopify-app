@@ -77,7 +77,8 @@ export const action = async ({ request }) => {
   const productId = formData.get("productId");
   const productData = formData.get("productData");
 
-  const getProductDetails = (pid) => `{
+  const getProductDetails = (pid) => `
+  query getProductById("${id}": ID!) {
     product(id: "${pid}") {
       title
     }
