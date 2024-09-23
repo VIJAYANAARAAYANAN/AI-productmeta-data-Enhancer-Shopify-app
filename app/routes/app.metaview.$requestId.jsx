@@ -98,7 +98,7 @@ export const action = async ({ request }) => {
   const metafields = Object.entries(parsedProductData)
     .filter(([key, value]) => value && value.trim() !== "" && !skipFields.includes(key))
     .map(([key, value]) => ({
-      namespace: productDataResponse.data.title,
+      namespace: productDataResponse.data.product.title,
       key,
       value,
       type: 'single_line_text_field',
