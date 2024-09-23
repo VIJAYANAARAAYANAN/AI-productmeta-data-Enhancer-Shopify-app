@@ -1,6 +1,6 @@
 import { json } from '@remix-run/node';
 import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
-import { Page, Layout, Card, Text, Button, Toast, Frame } from '@shopify/polaris';
+import { Page, Layout, Card, Text, Button, Toast, Frame, Banner } from '@shopify/polaris';
 import { useState, useEffect } from 'react';
 import { authenticate } from '../shopify.server';
 
@@ -77,96 +77,22 @@ export const action = async ({ request }) => {
   const productId = formData.get("productId");
   const productData = formData.get("productData");
 
-  console.log("Received productId:", productId);
-  console.log("Received productData:", productData);
-
   const parsedProductData = JSON.parse(productData);
-  console.log("Parsed product data:", parsedProductData);
+  console.log("Parsed Product Data:", parsedProductData);
 
+  const skipFields = ['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'];
+
+  // Dynamically using product_name as namespace
   const metafields = Object.entries(parsedProductData)
-    .filter(([key, value]) => value && value.trim() !== "" && !['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'].includes(key))
+    .filter(([key, value]) => value && value.trim() !== "" && !skipFields.includes(key))
     .map(([key, value]) => ({
-      namespace: 'custom_data',
+      namespace: parsedProductData.product_name, // Using product name as namespace
       key,
       value,
       type: 'single_line_text_field',
     }));
 
   console.log("Prepared metafields for mutation:", metafields);
-
-  const defineMetafields = async () => {
-    try {
-      const { admin } = await authenticate.admin(request);
-  
-      for (const metafield of metafields) {
-        const queryCheckDefinition = `
-          {
-            metafieldDefinitions(first: 1, query: "${metafield.key}", ownerType: PRODUCT) {
-              edges {
-                node {
-                  id
-                  name
-                }
-              }
-            }
-          }
-        `;
-  
-        const resultCheck = await admin.graphql(queryCheckDefinition);
-        console.log(`Metafield definition check for ${metafield.key}:`, resultCheck);
-  
-        if (resultCheck.data && resultCheck.data.metafieldDefinitions.edges.length === 0) {
-          console.log(`Creating metafield definition for ${metafield.key}`);
-  
-          const mutationCreateDefinition = `
-            mutation CreateMetafieldDefinition {
-              metafieldDefinitionCreate(
-                definition: {
-                  name: "${metafield.key}",  
-                  namespace: "${metafield.namespace || 'custom_data'}",
-                  key: "${metafield.key}",  
-                  description: "${metafield.description || ''}",  
-                  type: "${metafield.type || 'single_line_text_field'}",  
-                  ownerType: PRODUCT,
-                  "access": {
-                    "admin": "MERCHANT_READ_WRITE",
-                    "storefront": "PUBLIC_READ"
-                  }
-                }
-              ) {
-                createdDefinition {
-                  id
-                  name
-                }
-                userErrors {
-                  field
-                  message
-                  code
-                }
-              }
-            }
-          `;
-  
-          const resultCreate = await admin.graphql(mutationCreateDefinition);
-          console.log(`Metafield definition creation result for ${metafield.key}:`, resultCreate);
-  
-          if (resultCreate.data.metafieldDefinitionCreate.userErrors.length) {
-            resultCreate.data.metafieldDefinitionCreate.userErrors.forEach((error) => {
-              console.error(`Error creating definition for ${metafield.key}:`, error.message);
-            });
-          } else {
-            console.log(`Definition created for ${metafield.key} with ID:`, resultCreate.data.metafieldDefinitionCreate.createdDefinition.id);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error while defining metafields:", error.message);
-    }
-  };
-  
-  await defineMetafields();
-
-  const skipFields = ['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'];
 
   const metafieldsString = metafields
     .filter(({ key }) => !skipFields.includes(key))
@@ -178,11 +104,9 @@ export const action = async ({ request }) => {
         type: "${type}"
       }
     `).join(', ');
-  
-  console.log(metafieldsString);
-  
+
   const mutation = `
-    mutation UpdateProductMetafield{
+    mutation UpdateProductMetafield {
       productUpdate(
         input: {
           id: "${productId}",
@@ -202,19 +126,15 @@ export const action = async ({ request }) => {
 
   try {
     const { admin } = await authenticate.admin(request);
-    console.log("Admin authentication successful, sending mutation");
-
     const result = await admin.graphql(mutation);
-
-    console.log("Mutation result:", result);
 
     if (result.errors) {
       console.error("Mutation errors:", result.errors);
       return json({ success: false, message: 'Failed to apply metafields' });
     }
 
-    console.log("Metafields applied successfully");
-    return json({ success: true, message: 'Metafields applied successfully!', res:JSON.stringify(result)});
+    console.log("Metafields applied successfully:", result);
+    return json({ success: true, message: 'Metafields applied successfully!', res: JSON.stringify(result) });
   } catch (error) {
     console.error("Error during mutation:", error.message);
     return json({ success: false, message: 'Error during mutation: ' + error.message });
@@ -227,22 +147,21 @@ export default function MetaView() {
   const fetcher = useFetcher();
   const [toastActive, setToastActive] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-
-  console.log("MetaView component loaded with requestId:", requestId);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (fetcher.data && fetcher.data.message) {
-      console.log("Fetcher response received:", fetcher.data);
       setToastMessage(fetcher.data.message);
       setToastActive(true);
+      if (!fetcher.data.success) {
+        setErrorMessage(fetcher.data.message);
+      }
     }
   }, [fetcher.data]);
 
   const handleApply = async (product) => {
-    console.log(product);
     const productId = product.gen_product_id;
-    console.log("Applying metafields for product:", productId);
-
+    console.log("Applying metafields for product ID:", productId);
     fetcher.submit(
       {
         productId,
@@ -250,12 +169,14 @@ export default function MetaView() {
       },
       { method: 'post' }
     );
-
-    console.log("Submit request sent for product:", productId);
   };
 
   const toastMarkup = toastActive ? (
     <Toast content={toastMessage} onDismiss={() => setToastActive(false)} />
+  ) : null;
+
+  const errorBanner = errorMessage ? (
+    <Banner status="critical">{errorMessage}</Banner>
   ) : null;
 
   return (
@@ -270,6 +191,7 @@ export default function MetaView() {
                 </Text>
               ) : (
                 <div>
+                  {errorBanner}
                   <p>Details for Request ID: {requestId}</p>
                   {requestData ? (
                     requestData.map((product) => (
@@ -314,27 +236,36 @@ export default function MetaView() {
 const styles = {
   flexContainer: {
     display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
     alignItems: 'center',
-    marginBottom: '1rem',
-  },
-  applyButton: {
-    marginRight: '1rem',
+    marginBottom: '20px',
   },
   imageContainer: {
-    width: '120px',
-    height: '120px',
-    overflow: 'hidden',
-    marginRight: '1rem',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  applyButton: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    width: '93%',
   },
   image: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
+    width: '300px',
+    height: 'auto',
+    borderRadius: '8px',
   },
   detailsContainer: {
-    flexGrow: 1,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
+    marginTop: '20px',
+    borderBottom: '1px solid',
+    paddingBottom: '30px',
+    marginBottom: '20px',
   },
   detailItem: {
-    marginBottom: '0.5rem',
+    marginBottom: '8px',
   },
 };
