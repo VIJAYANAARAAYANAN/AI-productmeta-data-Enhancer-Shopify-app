@@ -178,7 +178,7 @@ export default function MetaView() {
 
   const handleApply = async (product) => {
     console.log(product);
-    const productId = `gid://shopify/Product/${product.gen_product_id}`;
+    const productId = `${product.source_product_id}`;
   console.log("Applying metafields for product ID:", productId);
     fetcher.submit(
       {
