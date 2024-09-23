@@ -72,6 +72,9 @@ export const loader = async ({ params, request }) => {
 };
 
 export const action = async ({ request }) => {
+  
+  const { admin } = await authenticate.admin(request);
+  
   console.log("Action function triggered");
   const formData = await request.formData();
   const productId = formData.get("productId");
@@ -86,13 +89,14 @@ export const action = async ({ request }) => {
 `;
 
   const productQuery = getProductDetails(productId);
+
   const productResponse = await admin.graphql(productQuery);
   const productDataResponse = await productResponse.json();
 
-  console.log("Product data received:", productDataResponse);
+  // console.log("Product data received:", productDataResponse);
 
   const parsedProductData = JSON.parse(productData);
-  console.log("Parsed Product Data:", parsedProductData);
+  // console.log("Parsed Product Data:", parsedProductData);
 
   const skipFields = ['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'];
 
@@ -105,7 +109,7 @@ export const action = async ({ request }) => {
       type: 'single_line_text_field',
     }));
 
-  console.log("Prepared metafields for mutation:", metafields);
+  // console.log("Prepared metafields for mutation:", metafields);
 
   const metafieldsString = metafields
     .filter(({ key }) => !skipFields.includes(key))
@@ -173,8 +177,9 @@ export default function MetaView() {
   }, [fetcher.data]);
 
   const handleApply = async (product) => {
-    const productId = product.gen_product_id;
-    console.log("Applying metafields for product ID:", productId);
+    console.log(product);
+    const productId = `gid://shopify/Product/${product.gen_product_id}`;
+  console.log("Applying metafields for product ID:", productId);
     fetcher.submit(
       {
         productId,
