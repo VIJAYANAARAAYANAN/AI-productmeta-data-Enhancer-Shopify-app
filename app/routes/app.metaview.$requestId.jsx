@@ -18,7 +18,7 @@ export const loader = async ({ params, request }) => {
       email
     }
   }`;
-
+  
   try {
     console.log("Fetching shop details using GraphQL query");
     const response = await admin.graphql(shopQuery);
@@ -77,16 +77,27 @@ export const action = async ({ request }) => {
   const productId = formData.get("productId");
   const productData = formData.get("productData");
 
+  const getProductDetails = (pid) => `{
+    product(id: "${pid}") {
+      title
+    }
+  }`;
+
+  const productQuery = getProductDetails(productId);
+  const productResponse = await admin.graphql(productQuery);
+  const productDataResponse = await productResponse.json();
+
+  console.log("Product data received:", productDataResponse);
+
   const parsedProductData = JSON.parse(productData);
   console.log("Parsed Product Data:", parsedProductData);
 
   const skipFields = ['request_id', 'customer_id', 'image_name', 'image_link', 'ondc_domain', 'product_id', 'ondc_item_id', 'seller_id', 'product_name', 'product_source', 'gen_product_id', 'scan_type'];
 
-  // Dynamically using product_name as namespace
   const metafields = Object.entries(parsedProductData)
     .filter(([key, value]) => value && value.trim() !== "" && !skipFields.includes(key))
     .map(([key, value]) => ({
-      namespace: parsedProductData.product_name, // Using product name as namespace
+      namespace: productDataResponse.data.title,
       key,
       value,
       type: 'single_line_text_field',
