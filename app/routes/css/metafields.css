@@ -1,57 +1,75 @@
-/* app.metafields.css */
-
-.metafields-container {
-    padding: 20px;
+.product-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #e4d6d6;
+  border-bottom: 1px solid #ede2e2;
+  cursor: pointer;
+}
+.product-thumbnail {
+  width: 50px;
+  height: 50px;
+}
+.product-details {
+  gap: 10px;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+.statusmeta {
+  display: flex;
+  gap: 30px;
+}
+.product-headstatus{
+  padding-right: 5px;
+}
+.product-head {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  padding: 4px;
+}
+.product-head-details {
+  padding: 10px 30px 10px 60px;
+  margin-right: auto;
+}
+.product-headtitle {
+  margin-right: auto;
+}
+.product-headmeta {
+  padding-left: 17px;
+}
+.shead-tatusmeta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 17px;
+  padding-right: 30px;
+}
+.product-top h3 {
+  font-size: 16px;
+  font-family: 700;
+}
+.product-title{
+  font-size: 13px;
+  font-weight: bold;
+}
+.product-status {
+  font-size: 12px;
+}
+.product-metafields {
+  margin-right: 20px;
+  color: #003a5a;
+  background-color: #d5ebff;
+  padding: 0px 5px 0px 5px;
+  border-radius: 10px;
+}
+@media screen and (max-width: 580px) {
+  .product-status{
+    display: none !important;
   }
-  
-  .filter-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+  .product-headmeta{
+    display: none !important;
   }
-  
-  .filter-tabs button {
-    padding: 10px 20px;
-    background-color: #f4f6f8;
-    border: 1px solid #ccc;
-    cursor: pointer;
-  }
-  
-  .filter-tabs button:hover {
-    background-color: #dfe3e8;
-  }
-  
-  .products-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .products-table th,
-  .products-table td {
-    padding: 15px;
-    border: 1px solid #ccc;
-    text-align: left;
-  }
-  
-  .product-cell {
-    display: flex;
-    align-items: center;
-  }
-  
-  .product-image {
-    width: 50px;
-    height: 50px;
-    margin-right: 15px;
-    object-fit: cover;
-    border-radius: 5px;
-  }
-  
-  .products-table th {
-    background-color: #f9fafb;
-    font-weight: bold;
-  }
-  
-  .products-table tbody tr:hover {
-    background-color: #f4f6f8;
-  }
-  
+}

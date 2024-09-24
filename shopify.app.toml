@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://worcester-titles-morocco-handmade.trycloudflare.com"
+application_url = "https://dumb-lopez-icq-tabs.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://worcester-titles-morocco-handmade.trycloudflare.com/auth/callback",
-  "https://worcester-titles-morocco-handmade.trycloudflare.com/auth/shopify/callback",
-  "https://worcester-titles-morocco-handmade.trycloudflare.com/api/auth/callback"
+  "https://dumb-lopez-icq-tabs.trycloudflare.com/auth/callback",
+  "https://dumb-lopez-icq-tabs.trycloudflare.com/auth/shopify/callback",
+  "https://dumb-lopez-icq-tabs.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

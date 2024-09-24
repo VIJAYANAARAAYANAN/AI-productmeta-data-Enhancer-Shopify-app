@@ -25,7 +25,7 @@ export default function App() {
         </Link>
         <Link to="/app/productdetails">Products</Link>
         <Link to="/app/review">Review</Link>
-        {/* <Link to="/app/metafields">Metaproducts</Link> */}
+        <Link to="/app/metafields">Metaproducts</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
