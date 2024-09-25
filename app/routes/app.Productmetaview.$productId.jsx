@@ -6,10 +6,10 @@ import {
   Layout,
   Card,
   Text,
+  Stack,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
-// Loader to fetch product metafields using product ID
 export const loader = async ({ params, request }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
@@ -51,18 +51,46 @@ export const loader = async ({ params, request }) => {
 
 export default function Productmetaview() {
   const data = useLoaderData();
-  const { product, metafields} = data;
-  console.log(product);
-  console.log(metafields);
+  const { product, metafields } = data;
+
   return (
     <Page>
       <Layout>
         <Layout.Section>
           <Card sectioned>
             <h1>
-              <Text>Product Metafields</Text>
+              <Text variant="headingLg">Product Metafields</Text>
             </h1>
 
+            {product && (
+              <Text variant="headingMd" as="h2">
+                {product.title}
+              </Text>
+            )}
+
+            {metafields && metafields.length > 0 ? (
+              metafields.map((field, index) => {
+                const { key, value } = field.node; 
+                return (
+                  <Card.Section key={index}>
+                    <Stack vertical spacing="tight">
+                      <Stack.Item>
+                        <Text variant="headingSm" as="h3">
+                          Key: <strong>{key}</strong>
+                        </Text>
+                      </Stack.Item>
+                      <Stack.Item>
+                        <Text>
+                          Value: <strong>{value}</strong>
+                        </Text>
+                      </Stack.Item>
+                    </Stack>
+                  </Card.Section>
+                );
+              })
+            ) : (
+              <Text>No metafields available.</Text>
+            )}
           </Card>
         </Layout.Section>
       </Layout>
