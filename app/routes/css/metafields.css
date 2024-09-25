@@ -4,6 +4,8 @@
   align-items: center;
   border-top: 1px solid #e4d6d6;
   border-bottom: 1px solid #ede2e2;
+  text-decoration: none;
+  color: black;
   cursor: pointer;
 }
 .product-thumbnail {

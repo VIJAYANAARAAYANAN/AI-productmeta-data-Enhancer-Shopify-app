@@ -1,5 +1,7 @@
+//app.metafields.jsx
+
 import * as React from "react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData , Link} from "@remix-run/react";
 import { json } from "@remix-run/node";
 import "./css/metafields.css"; // Updated styles will go here
 import {
@@ -105,12 +107,14 @@ export default function Products() {
                     const altText =
                       product.node.images.edges[0]?.node.altText ||
                       "Product Image";
-                    const status = product.node.status;
-                    const metafieldsCount =
-                      product.node.metafields.edges.length;
-
+                     const status = product.node.status;
+                     const metafieldsCount = product.node.metafields.edges.length;
+                    
                     return (
                       <div key={index} className="product-row" onClick={() => handleProductClick(product.node.id)}> 
+                      <Link to={`/app/Productmetaview/${product.node.id}`} className="product-row">
+
+                      
                         {/* Thumbnail and Product Title */}
                         <div className="product-details">
                           <Thumbnail
@@ -132,7 +136,9 @@ export default function Products() {
                             {metafieldsCount} metafields
                           </div>
                         </div>
+                        </Link>
                       </div>
+                   
                     );
                   })}
                 </div>
