@@ -6,7 +6,6 @@ import {
   Layout,
   Card,
   Text,
-  Stack,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -57,38 +56,35 @@ export default function Productmetaview() {
     <Page>
       <Layout>
         <Layout.Section>
-          <Card sectioned>
-            <h1>
-              <Text variant="headingLg">Product Metafields</Text>
-            </h1>
+          <h1>
+            <Text variant="headingLg">Product Metafields</Text>
+          </h1>
 
-            {metafields && metafields.length > 0 ? (
-              metafields.map((field, index) => {
-                if (!field.node) {
-                  return null;
-                }
-                const { key, value } = field.node; 
-                return (
-                  <Card.Section key={index}>
-                    <Stack vertical spacing="tight">
-                      <Stack.Item>
-                        <Text variant="headingSm" as="h3">
-                          Key: <strong>{key}</strong>
-                        </Text>
-                      </Stack.Item>
-                      <Stack.Item>
-                        <Text>
-                          Value: <strong>{value}</strong>
-                        </Text>
-                      </Stack.Item>
-                    </Stack>
-                  </Card.Section>
-                );
-              })
-            ) : (
-              <Text>No metafields available.</Text>
-            )}
-          </Card>
+          {/* Display product title if available */}
+          {product ? (
+            <Text variant="headingMd" as="h2">
+              {product.title}
+            </Text>
+          ) : (
+            <Text>No product data available.</Text>
+          )}
+
+          {/* Check if metafields exist and display them in a simple format */}
+          {metafields && metafields.length > 0 ? (
+            metafields.map((field, index) => {
+              if (!field.node) {
+                return null; // Skip if node is invalid
+              }
+              const { key, value } = field.node; 
+              return (
+                <Text key={index}>
+                  <strong>{key}</strong>: {value}
+                </Text>
+              );
+            })
+          ) : (
+            <Text>No metafields available.</Text>
+          )}
         </Layout.Section>
       </Layout>
     </Page>
