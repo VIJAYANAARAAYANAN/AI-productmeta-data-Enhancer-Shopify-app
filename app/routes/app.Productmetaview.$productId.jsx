@@ -33,6 +33,7 @@ export const loader = async ({ params, request }) => {
 
   try {
     const productResponse = await admin.graphql(metafieldsQuery);
+    console.log(productResponse);
     const productData = await productResponse.json();
 
     return json({
@@ -40,7 +41,6 @@ export const loader = async ({ params, request }) => {
       metafields: productData,
       query: metafieldsQuery,
       res: productResponse,
-      adm: admin
     });
   } catch (error) {
     console.error("Error fetching metafields:", error);
