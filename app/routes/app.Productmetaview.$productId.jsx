@@ -62,14 +62,11 @@ export default function Productmetaview() {
               <Text variant="headingLg">Product Metafields</Text>
             </h1>
 
-            {product && (
-              <Text variant="headingMd" as="h2">
-                {product.title}
-              </Text>
-            )}
-
             {metafields && metafields.length > 0 ? (
               metafields.map((field, index) => {
+                if (!field.node) {
+                  return null;
+                }
                 const { key, value } = field.node; 
                 return (
                   <Card.Section key={index}>
