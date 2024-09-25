@@ -44,7 +44,12 @@ export const loader = async ({ params, request }) => {
     });
   } catch (error) {
     console.error("Error fetching metafields:", error);
-    return new Response("Error fetching data", { status: 500 });
+    return json({
+      product: null,
+      metafields: [],
+      query: metafieldsQuery,
+      res: { errors: [error.message] },
+    });
   }
 };
 
