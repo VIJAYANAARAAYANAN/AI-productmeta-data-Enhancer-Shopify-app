@@ -6,7 +6,6 @@ import {
   Layout,
   Card,
   Text,
-  TextStyle,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -46,47 +45,29 @@ export const loader = async ({ params, request }) => {
   }
 };
 
-export default function ProductMetaview() {
+import { Page, Layout, Card, Text } from "@shopify/polaris";
+import { useLoaderData } from "react-router-dom";
+
+export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
-
+  console.log(metafields);
   return (
-    <Page title={`Metafields for ${product.handle}`}>
+    <Page>
       <Layout>
         <Layout.Section>
           <Card sectioned>
             <h1>
               <Text>Product Metafields</Text>
             </h1>
-
-            {metafields.length > 0 ? (
-              <div>
-                <table border="1" cellPadding="10" cellSpacing="0" width="100%">
-                  <thead>
-                    <tr>
-                      <th>Namespace</th>
-                      <th>Key</th>
-                      <th>Value</th>
-                      <th>Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {metafields.map(({ node }) => {
-                      const { namespace, key, value, type } = node;
-                      return (
-                        <tr key={key}>
-                          <td>{namespace}</td>
-                          <td>{key}</td>
-                          <td>{value}</td>
-                          <td>{type}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+            {metafields && metafields.length > 0 ? (
+              metafields.map((metafield, index) => (
+                <div key={index}>
+                  <Text>{metafield.key}: {metafield.value}</Text>
+                </div>
+              ))
             ) : (
-              <TextStyle variation="subdued">No metafields found for this product.</TextStyle>
+              <Text>No metafields available</Text>
             )}
           </Card>
         </Layout.Section>
