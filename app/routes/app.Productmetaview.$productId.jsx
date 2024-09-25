@@ -6,6 +6,7 @@ import {
   Layout,
   Card,
   Text,
+  TextStyle,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -45,12 +46,12 @@ export const loader = async ({ params, request }) => {
   }
 };
 
-export default function Productmetaview() {
+export default function ProductMetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
 
   return (
-    <Page>
+    <Page title={`Metafields for ${product.handle}`}>
       <Layout>
         <Layout.Section>
           <Card sectioned>
@@ -58,6 +59,35 @@ export default function Productmetaview() {
               <Text>Product Metafields</Text>
             </h1>
 
+            {metafields.length > 0 ? (
+              <div>
+                <table border="1" cellPadding="10" cellSpacing="0" width="100%">
+                  <thead>
+                    <tr>
+                      <th>Namespace</th>
+                      <th>Key</th>
+                      <th>Value</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {metafields.map(({ node }) => {
+                      const { namespace, key, value, type } = node;
+                      return (
+                        <tr key={key}>
+                          <td>{namespace}</td>
+                          <td>{key}</td>
+                          <td>{value}</td>
+                          <td>{type}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <TextStyle variation="subdued">No metafields found for this product.</TextStyle>
+            )}
           </Card>
         </Layout.Section>
       </Layout>
