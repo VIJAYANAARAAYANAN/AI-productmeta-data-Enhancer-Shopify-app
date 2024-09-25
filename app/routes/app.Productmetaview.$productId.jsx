@@ -37,30 +37,23 @@ export const loader = async ({ params, request }) => {
     const productData = await productResponse.json();
 
     return json({
-      product: productData,
-      metafields: productData,
-      query: metafieldsQuery,
-      res: productResponse,
+      product: productData.data.product,
+      metafields: productData.data.product.metafields.edges,
     });
   } catch (error) {
     console.error("Error fetching metafields:", error);
     return json({
       product: null,
       metafields: [],
-      query: metafieldsQuery,
-      res: { errors: [error.message] },
     });
   }
 };
 
 export default function Productmetaview() {
   const data = useLoaderData();
-  const { product, metafields, query, res, adm } = data;
+  const { product, metafields} = data;
   console.log(product);
   console.log(metafields);
-  console.log(query);
-  console.log(res);
-  console.log(adm);
   return (
     <Page>
       <Layout>
