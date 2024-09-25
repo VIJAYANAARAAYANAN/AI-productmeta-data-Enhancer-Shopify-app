@@ -15,21 +15,22 @@ export const loader = async ({ params, request }) => {
   const productId = `gid://shopify/Product/${params.productId}`;
 
   // Query to fetch all metafields for the specific product
-  const metafieldsQuery = `{
+  const metafieldsQuery = `
+  query getProductById {
     product(id: "${productId}") {
-      metafields(first: 250) {
-        edges {
-          node {
-            namespace
-            key
-            value
-            type
-          }
+    id
+  		metafields(first: 250) { 
+      edges {
+        node {
+          namespace
+          key
+          value
+          type
         }
       }
-      handle
-    }
-  }`;
+  	}
+  }
+}`;
 
   try {
     const productResponse = await admin.graphql(metafieldsQuery);
