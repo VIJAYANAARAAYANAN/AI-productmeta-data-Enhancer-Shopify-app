@@ -14,7 +14,6 @@ export const loader = async ({ params, request }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
 
-  // Query to fetch all metafields for the specific product
   const metafieldsQuery = `
     query getProductById {
       product(id: "${productId}") {
