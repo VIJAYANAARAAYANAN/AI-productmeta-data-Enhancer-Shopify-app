@@ -109,10 +109,11 @@ export default function Products() {
                       "Product Image";
                      const status = product.node.status;
                      const metafieldsCount = product.node.metafields.edges.length;
+                     const navid = product.node.id.split('/').pop();
                     
                     return (
                       <div key={index} className="product-row" onClick={() => handleProductClick(product.node.id)}> 
-                      <Link to={`/app/Productmetaview/${product.node.id}`} className="product-row">
+                      <Link to={`/app/Productmetaview/${navid}`} className="product-row">
 
                       
                         {/* Thumbnail and Product Title */}
