@@ -33,13 +33,14 @@ export const loader = async ({ params, request }) => {
 
   try {
     const productResponse = await admin.graphql(metafieldsQuery);
-    const productData = productResponse;
+    const productData = await productResponse.json();
 
     return json({
       product: productData,
       metafields: productData,
       query: metafieldsQuery,
-      res: productResponse
+      res: productResponse,
+      adm: admin
     });
   } catch (error) {
     console.error("Error fetching metafields:", error);
@@ -54,11 +55,12 @@ export const loader = async ({ params, request }) => {
 
 export default function Productmetaview() {
   const data = useLoaderData();
-  const { product, metafields, query, res } = data;
+  const { product, metafields, query, res, adm } = data;
   console.log(product);
   console.log(metafields);
   console.log(query);
   console.log(res);
+  console.log(adm);
   return (
     <Page>
       <Layout>
