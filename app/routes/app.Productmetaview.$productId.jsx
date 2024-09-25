@@ -16,21 +16,21 @@ export const loader = async ({ params, request }) => {
 
   // Query to fetch all metafields for the specific product
   const metafieldsQuery = `
-  query getProductById {
-    product(id: "${productId}") {
-    id
-  		metafields(first: 250) { 
-      edges {
-        node {
-          namespace
-          key
-          value
-          type
+    query getProductById {
+      product(id: "${productId}") {
+        title
+        metafields(first: 250) { 
+          edges {
+            node {
+              namespace
+              key
+              value
+              type
+            }
+          }
         }
       }
-  	}
-  }
-}`;
+    }`;
 
   try {
     const productResponse = await admin.graphql(metafieldsQuery);
