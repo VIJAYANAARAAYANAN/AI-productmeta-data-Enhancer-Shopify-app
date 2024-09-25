@@ -34,11 +34,11 @@ export const loader = async ({ params, request }) => {
 
   try {
     const productResponse = await admin.graphql(metafieldsQuery);
-    const productData = productResponse.data.product;
+    const productData = productResponse;
 
     return json({
       product: productData,
-      metafields: productData.metafields.edges,
+      metafields: productData,
       query: metafieldsQuery,
       res: productResponse
     });
