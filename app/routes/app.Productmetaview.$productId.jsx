@@ -45,9 +45,6 @@ export const loader = async ({ params, request }) => {
   }
 };
 
-import { Page, Layout, Card, Text } from "@shopify/polaris";
-import { useLoaderData } from "react-router-dom";
-
 export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
@@ -60,15 +57,7 @@ export default function Productmetaview() {
             <h1>
               <Text>Product Metafields</Text>
             </h1>
-            {metafields && metafields.length > 0 ? (
-              metafields.map((metafield, index) => (
-                <div key={index}>
-                  <Text>{metafield.key}: {metafield.value}</Text>
-                </div>
-              ))
-            ) : (
-              <Text>No metafields available</Text>
-            )}
+
           </Card>
         </Layout.Section>
       </Layout>
