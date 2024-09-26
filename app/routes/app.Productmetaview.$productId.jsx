@@ -47,6 +47,7 @@ export const loader = async ({ params, request }) => {
     return json({
       product: null,
       metafields: [],
+      error: error,
       admin: null, // Handle case when admin is null
     });
   }
@@ -54,9 +55,12 @@ export const loader = async ({ params, request }) => {
 
 export default function Productmetaview() {
   const data = useLoaderData();
-  const { product, metafields, admin } = data;
+  const { product, metafields, admin, error} = data;
 
-  // Local state to track editable data
+  console.log(product);
+  console.log(metafields);
+  console.log(error);
+  
   const [editedFields, setEditedFields] = useState(
     metafields.map((field) => ({
       ...field.node,
