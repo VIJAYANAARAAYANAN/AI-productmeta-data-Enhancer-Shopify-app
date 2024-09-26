@@ -18,21 +18,37 @@ export default function ProductMetafieldAdd() {
   const { productId } = data;
   console.log(productId);
 
-  const [metafields, setMetafields] = useState([{ type: "", namespace: "", key: "", value: "" }]);
+  // State for storing metafields array
+  const [metafields, setMetafields] = useState([
+    { type: "", namespace: "", key: "", value: "" }
+  ]);
+
+  // State for success modal visibility
   const [successModalActive, setSuccessModalActive] = useState(false);
   const navigate = useNavigate();
 
+  // Handle input change in the fields
   const handleInputChange = (index, key, value) => {
     const newMetafields = [...metafields];
     newMetafields[index][key] = value;
     setMetafields(newMetafields);
   };
 
+  // Add a new metafield row
   const handleAddField = () => {
-    setMetafields([...metafields, { type: "", namespace: "", key: "", value: "" }]);
+    setMetafields([
+      ...metafields,
+      { type: "", namespace: "", key: "", value: "" }
+    ]);
   };
 
+  // Handle save button click
   const handleSave = async () => {
+    // Dummy console log instead of the update logic
+    console.log("Metafields to be saved:", metafields);
+
+    // Uncomment and replace this with the actual mutation code later
+    /*
     const mutation = `
       mutation {
         productUpdate(
@@ -71,6 +87,7 @@ export default function ProductMetafieldAdd() {
     } catch (error) {
       console.error("Failed to save metafields:", error.message);
     }
+    */
   };
 
   // Options for the select dropdown
@@ -86,7 +103,7 @@ export default function ProductMetafieldAdd() {
     { label: "Link", value: "link" },
     { label: "JSON", value: "json" },
     { label: "Dimension", value: "dimension" },
-    { label: "URL", value: "url" },
+    { label: "URL", value: "url" }
   ];
 
   return (
@@ -135,8 +152,10 @@ export default function ProductMetafieldAdd() {
           </div>
         ))}
       </div>
-      <Button onClick={handleAddField}>Add New Metafield</Button>
-      <Button onClick={handleSave}>Save Changes</Button>
+      <div className="button-container">
+        <Button onClick={handleAddField}>Add New Metafield</Button>
+        <Button onClick={handleSave}>Save Changes</Button>
+      </div>
 
       {/* Success Modal */}
       <Modal
@@ -145,7 +164,7 @@ export default function ProductMetafieldAdd() {
         title="Success"
         primaryAction={{
           content: "Close",
-          onAction: () => setSuccessModalActive(false),
+          onAction: () => setSuccessModalActive(false)
         }}
       >
         <Modal.Section>
