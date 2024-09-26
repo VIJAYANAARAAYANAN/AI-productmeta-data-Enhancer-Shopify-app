@@ -10,6 +10,7 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
+// Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
@@ -49,10 +50,52 @@ export const loader = async ({ params, request }) => {
   }
 };
 
+// New function to update metafields
+async function updateMetafields(admin, productId, editedFields) {
+  const updatedMetafields = editedFields.map(field => ({
+    id: field.id,
+    value: field.value
+  }));
+
+  const updateQuery = `
+    mutation {
+      productUpdate(
+        input: {
+          id: "${productId}",
+          metafields: ${JSON.stringify(updatedMetafields)}
+        }
+      ) {
+        product {
+          metafields(first: 10) {
+            edges {
+              node {
+                namespace
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await admin.graphql(updateQuery);
+    const result = await response.json();
+    console.log("Metafields updated:", result);
+    return result;
+  } catch (error) {
+    console.error("Error updating metafields:", error);
+    throw error;
+  }
+}
+
 export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
   console.log(metafields);
+  
   // Local state to track editable data
   const [editedFields, setEditedFields] = useState(metafields.map(field => ({
     ...field.node
@@ -64,9 +107,22 @@ export default function Productmetaview() {
     setEditedFields(newFields);
   };
 
-  const handleSave = () => {
-    // Perform save logic (mutation or API call to update metafields)
-    console.log("Saving edited metafields:", editedFields);
+  const handleSave = async () => {
+    if (!product || !product.id) {
+      console.error("Product ID is missing.");
+      return;
+    }
+
+    const productId = product.id;
+    
+    try {
+      // Use the admin object from loader data context to update metafields
+      const admin = await authenticate.admin(); // Get the admin object here, if needed.
+      await updateMetafields(admin, productId, editedFields);
+      console.log("Changes saved successfully!");
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
   };
 
   // Options for the select dropdown
