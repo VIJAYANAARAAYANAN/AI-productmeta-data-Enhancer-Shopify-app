@@ -16,6 +16,7 @@ export const loader = async ({ params, request }) => {
 export default function ProductMetafieldAdd() {
   const data = useLoaderData();
   const { productId } = data;
+  console.log(productId);
 
   const [metafields, setMetafields] = useState([{ type: "", namespace: "", key: "", value: "" }]);
   const [successModalActive, setSuccessModalActive] = useState(false);
