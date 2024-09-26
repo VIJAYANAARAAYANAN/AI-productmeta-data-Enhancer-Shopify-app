@@ -8,8 +8,9 @@ import { authenticate } from "../shopify.server";
 
 export const loader = async ({ params, request }) => {
   const { admin } = await authenticate.admin(request);
-  const productId = gid://shopify/Product/${params.productId};
+  const productId = `gid://shopify/Product/${params.productId}`;
   console.log("Product ID in loader function", productId);
+  
   const metafieldsQuery = `
     query getProductById {
       product(id: "${productId}") {
@@ -33,6 +34,7 @@ export const loader = async ({ params, request }) => {
     const productResponse = await admin.graphql(metafieldsQuery);
     const productData = await productResponse.json();
     console.log("ProductID IN LOADER", productData);
+    
     return json({
       product: productData.data.product,
       metafields: productData.data.product.metafields.edges,
@@ -56,16 +58,14 @@ export const action = async ({ request, params }) => {
   const updatedMetafields = JSON.parse(updatedMetafieldsString);
 
   console.log(updatedMetafields);
+  
   // Access productId from formData if you want to use it here
   const productId = formData.get("productId");
   console.log("This is the product Id in the action", productId);
 
   // Prepare the metafield objects for the mutation
   const metafieldInput = updatedMetafields.map((field) => ({
-    // ownerId: productId, // Use the ownerId of the product
     id: field.id,
-    // namespace: field.namespace,
-    // key: field.key,
     value: field.value,
     type: field.type,
   }));
@@ -101,17 +101,12 @@ export const action = async ({ request, params }) => {
 `;
 
   try {
-    const response = await admin.graphql({
-      query: mutation,
-      variables: {
-        metafields: metafieldInput,
-      },
-    });
+    const response = await admin.graphql({ query: mutation });
 
     const responseData = await response.json();
 
-    if (responseData.data.metafieldsSet.userErrors.length > 0) {
-      const errors = responseData.data.metafieldsSet.userErrors;
+    if (responseData.data.productUpdate.userErrors.length > 0) {
+      const errors = responseData.data.productUpdate.userErrors;
       console.error("User errors:", errors);
       return json(
         { error: "Error saving metafields", details: errors },
@@ -130,6 +125,7 @@ export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
   console.log("Product id from Loader in MAIN", product.id);
+  
   const [editedFields, setEditedFields] = useState(
     metafields.map((field) => ({
       ...field.node,
@@ -138,7 +134,6 @@ export default function Productmetaview() {
 
   // State to store productId
   const [productId, setProductId] = useState(product.id);
-
   const [showModal, setShowModal] = useState(false);
   const [isModified, setIsModified] = useState(false);
 
@@ -163,7 +158,7 @@ export default function Productmetaview() {
   const confirmSave = async () => {
     console.log("Entering the confirms save function with ", productId);
     const response = await fetch(
-      /app/Productmetaview/${productId.split("/")[4]},
+      `/app/Productmetaview/${productId.split("/")[4]}`,
       {
         method: "POST",
         body: new URLSearchParams({
@@ -173,6 +168,7 @@ export default function Productmetaview() {
       },
     );
     console.log("From ConfirmSave function", response);
+    
     if (response.ok) {
       window.location.reload(); // Reload to reflect changes
     } else {
@@ -208,19 +204,13 @@ export default function Productmetaview() {
               <div className="meta-cell">
                 <Select
                   options={[
-                    {
-                      label: "Single Line Text",
-                      value: "single_line_text_field",
-                    },
+                    { label: "Single Line Text", value: "single_line_text_field" },
                     { label: "Color", value: "color" },
                     { label: "Date", value: "date" },
                     { label: "Boolean", value: "boolean" },
                     { label: "Integer", value: "number_integer" },
                     { label: "Decimal", value: "number_decimal" },
-                    {
-                      label: "Multi Line Text",
-                      value: "multi_line_text_field",
-                    },
+                    { label: "Multi Line Text", value: "multi_line_text_field" },
                     { label: "Money", value: "money" },
                     { label: "Link", value: "link" },
                     { label: "JSON", value: "json" },
@@ -266,10 +256,7 @@ export default function Productmetaview() {
       </div>
       <Button
         className="submitbutton"
-        onClick={() => {
-          console.log("Button clicked");
-          handleSave();
-        }}
+        onClick={handleSave}
       >
         Save Changes
       </Button>
