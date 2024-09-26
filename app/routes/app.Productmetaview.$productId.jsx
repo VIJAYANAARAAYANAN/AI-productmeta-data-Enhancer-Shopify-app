@@ -14,6 +14,7 @@ export const loader = async ({ params, request }) => {
   const metafieldsQuery = `
     query getProductById {
       product(id: "${productId}") {
+        id
         title
         metafields(first: 250) { 
           edges {
@@ -100,7 +101,7 @@ export default function Productmetaview() {
     newFields[index][key] = value;
     setEditedFields(newFields);
   };
-
+  console.log(product.id);
   const handleSave = async () => {
     try {
       const response = await fetch(`/app/Productmetaview/${product.id.split("/")[4]}`, {
