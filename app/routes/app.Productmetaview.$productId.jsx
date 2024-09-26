@@ -199,9 +199,15 @@ export default function Productmetaview() {
           <div>No metafields available.</div>
         )}
       </div>
-      <Button className="submitbutton" onClick={handleSave}>
-        Save Changes
-      </Button>
+      <div className="button-container">
+        <Button className="submitbutton" onClick={handleSave}>
+          Save Changes
+        </Button>
+        <Button as={Link} to={`/app/ProductMetafieldAdd/${product.id.split("/").pop()}`}>
+          Add New Metafields
+        </Button>
+      </div>
+
 
       {/* Success Modal */}
       <Modal
