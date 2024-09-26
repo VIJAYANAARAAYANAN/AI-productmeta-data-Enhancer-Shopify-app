@@ -115,10 +115,7 @@ export default function Productmetaview() {
       });
 
       if (response.ok) {
-        // Show the success modal
         setSuccessModalActive(true);
-        
-        // Hide the modal after 3 seconds
         setTimeout(() => {
           setSuccessModalActive(false);
         }, 3000);
@@ -177,14 +174,16 @@ export default function Productmetaview() {
                 <input
                   type="text"
                   value={field.namespace}
-                  onChange={(e) => handleInputChange(index, "namespace", e.target.value)}
+                  readOnly
+                  style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
                 />
               </div>
               <div className="meta-cell">
                 <input
                   type="text"
                   value={field.key}
-                  onChange={(e) => handleInputChange(index, "key", e.target.value)}
+                  readOnly
+                  style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
                 />
               </div>
               <div className="meta-cell">
