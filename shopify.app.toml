@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://teams-capture-dozen-charlie.trycloudflare.com"
+application_url = "https://anymore-noon-close-pieces.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://teams-capture-dozen-charlie.trycloudflare.com/auth/callback",
-  "https://teams-capture-dozen-charlie.trycloudflare.com/auth/shopify/callback",
-  "https://teams-capture-dozen-charlie.trycloudflare.com/api/auth/callback"
+  "https://anymore-noon-close-pieces.trycloudflare.com/auth/callback",
+  "https://anymore-noon-close-pieces.trycloudflare.com/auth/shopify/callback",
+  "https://anymore-noon-close-pieces.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

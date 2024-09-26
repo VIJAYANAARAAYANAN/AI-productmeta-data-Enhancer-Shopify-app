@@ -1,0 +1,60 @@
+.meta-count {
+  background-color: rgb(226, 226, 226);
+  color: black;
+  width: fit-content;
+  padding: 3px 6px 3px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.meta-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.product-title {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.meta-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 2fr;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+
+.meta-cell-title {
+  padding: 15px 10px 0px 10px;
+  background-color: #fff;
+  text-align: left;
+  font-weight: 500;
+}
+.meta-cell input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.meta-header {
+  display: contents;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.meta-row {
+  display: contents;
+}
+
+.meta-cell {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  text-align: center;
+}
+.submitbutton{
+    padding: 20px;
+}
