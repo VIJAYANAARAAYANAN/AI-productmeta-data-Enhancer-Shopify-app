@@ -1,13 +1,14 @@
 import * as React from "react";
 import { useState } from "react";
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, Link , useNavigate } from "@remix-run/react";
 import "./css/metaview.css";
 import { json } from "@remix-run/node";
 import { Card, Select, Button, Modal } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-
+import backarrow from './assets/backarrowshop.png'
 // Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
+  console.log("params received in MetaView loader",params);
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
 
@@ -90,6 +91,12 @@ export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
 
+  const productId = product.id.split("/")[4];
+  console.log("Product ID from the productmetaview",productId);
+
+  const [showModal, setShowModal] = useState(false);
+  const [confirmationModalActive, setConfirmationModalActive] = useState(false); // State for the confirmation modal
+
   const [editedFields, setEditedFields] = useState(
     metafields.map((field) => ({
       ...field.node,
@@ -104,7 +111,14 @@ export default function Productmetaview() {
     setEditedFields(newFields);
   };
 
-  const handleSave = async () => {
+  // Function to open the confirmation modal
+  const openConfirmationModal = () => {
+    setConfirmationModalActive(true);
+  };
+
+  // Function to handle confirmation of save action
+  const handleConfirmSave = async () => {
+    setConfirmationModalActive(false);
     try {
       const response = await fetch(`/app/Productmetaview/${product.id.split("/")[4]}`, {
         method: "POST",
@@ -128,6 +142,11 @@ export default function Productmetaview() {
     }
   };
 
+  // Function to discard the changes
+  const handleDiscard = () => {
+    setConfirmationModalActive(false);
+  };
+
   // Options for the select dropdown
   const typeOptions = [
     { label: "Single Line Text", value: "single_line_text_field" },
@@ -144,12 +163,25 @@ export default function Productmetaview() {
     { label: "URL", value: "url" },
   ];
 
+  const navigate = useNavigate();
+
+  const handleCreatemeta = () => {
+    console.log("Create MetaField is clicked",productId);
+    navigate(`/app/ProductMetafieldAdd/${productId}`);
+
+  }
+
   return (
     <div className="meta-container">
       <Card padding="300">
+        {/* <div className="headviewtitle">
+          <img src={backarrow} alt="backarrow"/>
+          <h3 className="product-title">Update Metafields</h3>
+        </div> */}
         <h4 className="product-title">{product ? product.title : "No product data available."}</h4>
-        <div className="meta-count">
-          <p>Metafields: {metafields.length}</p>
+        <div className="metaaddition">
+          <p className="meta-count">Metafields: {metafields.length}</p>
+          <Button variant="primary" onClick={handleCreatemeta}>Create Metafield</Button>
         </div>
       </Card>
       <div className="meta-table">
@@ -199,15 +231,32 @@ export default function Productmetaview() {
           <div>No metafields available.</div>
         )}
       </div>
-      <div className="button-container">
-        <Button className="submitbutton" onClick={handleSave}>
+      <div className="button-container" >
+        <Button className="submitbutton" onClick={openConfirmationModal} variant="primary">
           Save Changes
-        </Button>
-        <Button>
-          <Link to={`/app/ProductMetafieldAdd/${product.id.split("/").pop()}`}>Add New Metafields</Link>
         </Button>
       </div>
 
+      {/* Confirmation Modal */}
+      <Modal
+        open={confirmationModalActive}
+        onClose={() => setConfirmationModalActive(false)}
+        title="Confirm Changes"
+        primaryAction={{
+          content: "Save",
+          onAction: handleConfirmSave,
+        }}
+        secondaryActions={[
+          {
+            content: "Discard",
+            onAction: handleDiscard,
+          },
+        ]}
+      >
+        <Modal.Section>
+          <p>Do you want to save the changes you made to the metafields?</p>
+        </Modal.Section>
+      </Modal>
 
       {/* Success Modal */}
       <Modal
