@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { Card, Button, Select, Modal } from "@shopify/polaris";
 import { json } from "@remix-run/node";
-import { authenticate } from "../../shopify.server"; // Adjust the import path as necessary
+import { authenticate } from "../../shopify.server";
 
 // Loader function to get the product id
 export const loader = async ({ params, request }) => {
@@ -47,7 +47,7 @@ export default function ProductMetafieldAdd() {
           }
         }
       }`;
-
+    console.log(metafields);
     try {
       const response = await fetch(`/app/ProductMetafieldAdd/${productId}`, {
         method: "POST",
