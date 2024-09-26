@@ -14,7 +14,6 @@ export const loader = async ({ params, request }) => {
   const metafieldsQuery = `
     query getProductById {
       product(id: "${productId}") {
-        id
         title
         metafields(first: 250) { 
           edges {
@@ -96,12 +95,14 @@ export default function Productmetaview() {
     }))
   );
 
+  const [successModalActive, setSuccessModalActive] = useState(false);
+
   const handleInputChange = (index, key, value) => {
     const newFields = [...editedFields];
     newFields[index][key] = value;
     setEditedFields(newFields);
   };
-  console.log(product.id);
+
   const handleSave = async () => {
     try {
       const response = await fetch(`/app/Productmetaview/${product.id.split("/")[4]}`, {
@@ -113,8 +114,13 @@ export default function Productmetaview() {
       });
 
       if (response.ok) {
-        console.log("Metafields updated successfully");
-        window.location.reload();
+        // Show the success modal
+        setSuccessModalActive(true);
+        
+        // Hide the modal after 3 seconds
+        setTimeout(() => {
+          setSuccessModalActive(false);
+        }, 3000);
       } else {
         const errorData = await response.json();
         console.error("Error saving metafields:", errorData.error);
@@ -196,6 +202,21 @@ export default function Productmetaview() {
       <Button className="submitbutton" onClick={handleSave}>
         Save Changes
       </Button>
+
+      {/* Success Modal */}
+      <Modal
+        open={successModalActive}
+        onClose={() => setSuccessModalActive(false)}
+        title="Success"
+        primaryAction={{
+          content: "Close",
+          onAction: () => setSuccessModalActive(false),
+        }}
+      >
+        <Modal.Section>
+          <p>Metafields updated successfully!</p>
+        </Modal.Section>
+      </Modal>
     </div>
   );
 }
