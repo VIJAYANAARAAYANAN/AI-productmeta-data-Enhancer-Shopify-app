@@ -12,28 +12,28 @@ import { authenticate } from "../shopify.server";
 
 // Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
-  const { admin } = await authenticate.admin(request);
-  const productId = `gid://shopify/Product/${params.productId}`;
+  try {
+    const { admin } = await authenticate.admin(request);
+    const productId = `gid://shopify/Product/${params.productId}`;
 
-  const metafieldsQuery = `
-    query getProductById {
-      product(id: "${productId}") {
-        title
-        metafields(first: 250) { 
-          edges {
-            node {
-              id
-              namespace
-              key
-              value
-              type
+    const metafieldsQuery = `
+      query getProductById {
+        product(id: "${productId}") {
+          title
+          metafields(first: 250) { 
+            edges {
+              node {
+                id
+                namespace
+                key
+                value
+                type
+              }
             }
           }
         }
-      }
-    }`;
+      }`;
 
-  try {
     const productResponse = await admin.graphql(metafieldsQuery);
     const productData = await productResponse.json();
 
@@ -50,78 +50,93 @@ export const loader = async ({ params, request }) => {
   }
 };
 
-// New function to update metafields
+// Function to update metafields
 async function updateMetafields(admin, productId, editedFields) {
-  const updatedMetafields = editedFields.map(field => ({
-    id: field.id,
-    value: field.value
-  }));
+  try {
+    // Construct the metafields array for the mutation input
+    const updatedMetafields = editedFields.map((field) => ({
+      id: field.id,
+      value: field.value,
+    }));
 
-  const updateQuery = `
-    mutation {
-      productUpdate(
-        input: {
-          id: "${productId}",
-          metafields: ${JSON.stringify(updatedMetafields)}
-        }
-      ) {
-        product {
-          metafields(first: 10) {
-            edges {
-              node {
-                namespace
-                key
-                value
+    // Create the mutation query string
+    const updateQuery = `
+      mutation {
+        productUpdate(
+          input: {
+            id: "${productId}",
+            metafields: ${JSON.stringify(updatedMetafields).replace(/"([^"]+)":/g, '$1:')}
+          }
+        ) {
+          product {
+            id
+            metafields(first: 10) {
+              edges {
+                node {
+                  namespace
+                  key
+                  value
+                }
               }
             }
           }
+          userErrors {
+            field
+            message
+          }
         }
       }
-    }
-  `;
+    `;
 
-  try {
+    // Execute the mutation using the admin graphql API
     const response = await admin.graphql(updateQuery);
     const result = await response.json();
-    console.log("Metafields updated:", result);
+
+    // Check for user errors in the response
+    if (result.errors || (result.data.productUpdate && result.data.productUpdate.userErrors.length > 0)) {
+      throw new Error(result.errors || result.data.productUpdate.userErrors.map(err => err.message).join(", "));
+    }
+
+    console.log("Metafields updated successfully:", result);
     return result;
   } catch (error) {
-    console.error("Error updating metafields:", error);
-    throw error;
+    console.error("Error updating metafields:", error.message || error);
+    throw new Error("Failed to update metafields. " + (error.message || error));
   }
 }
 
 export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
-  console.log(metafields);
-  
-  // Local state to track editable data
-  const [editedFields, setEditedFields] = useState(metafields.map(field => ({
-    ...field.node
-  })));
 
+  // Local state to track editable data
+  const [editedFields, setEditedFields] = useState(
+    metafields.map((field) => ({
+      ...field.node,
+    }))
+  );
+
+  // Handle input changes for editable metafields
   const handleInputChange = (index, key, value) => {
     const newFields = [...editedFields];
     newFields[index][key] = value;
     setEditedFields(newFields);
   };
 
+  // Handle saving of edited metafields
   const handleSave = async () => {
     if (!product || !product.id) {
       console.error("Product ID is missing.");
       return;
     }
 
-    const productId = product.id;
-    
     try {
-      // Use the admin object from loader data context to update metafields
-      const admin = await authenticate.admin(); // Get the admin object here, if needed.
-      await updateMetafields(admin, productId, editedFields);
+      // Get the admin object using authenticate.admin(request)
+      const { admin } = await authenticate.admin();
+      await updateMetafields(admin, product.id, editedFields);
       console.log("Changes saved successfully!");
     } catch (error) {
-      console.error("Error saving changes:", error);
+      console.error("Error saving changes:", error.message || error);
     }
   };
 
@@ -200,7 +215,9 @@ export default function Productmetaview() {
           <div>No metafields available.</div>
         )}
       </div>
-      <Button className="submitbutton" onClick={handleSave}>Save Changes</Button>
+      <Button className="submitbutton" onClick={handleSave}>
+        Save Changes
+      </Button>
     </div>
   );
 }
