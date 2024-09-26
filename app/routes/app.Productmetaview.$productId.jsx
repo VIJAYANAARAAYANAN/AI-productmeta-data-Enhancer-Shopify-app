@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import "./css/metaview.css";
 import { json } from "@remix-run/node";
 import { Card, Select, Button, Modal } from "@shopify/polaris";
@@ -203,8 +203,8 @@ export default function Productmetaview() {
         <Button className="submitbutton" onClick={handleSave}>
           Save Changes
         </Button>
-        <Button as={Link} to={`/app/ProductMetafieldAdd/${product.id.split("/").pop()}`}>
-          Add New Metafields
+        <Button>
+          <Link to={`/app/ProductMetafieldAdd/${product.id.split("/").pop()}`}>Add New Metafields</Link>
         </Button>
       </div>
 
