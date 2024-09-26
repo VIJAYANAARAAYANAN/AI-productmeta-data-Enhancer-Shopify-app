@@ -21,6 +21,7 @@ export const loader = async ({ params, request }) => {
         metafields(first: 250) { 
           edges {
             node {
+              id
               namespace
               key
               value
@@ -51,7 +52,7 @@ export const loader = async ({ params, request }) => {
 export default function Productmetaview() {
   const data = useLoaderData();
   const { product, metafields } = data;
-  
+  console.log(metafields);
   // Local state to track editable data
   const [editedFields, setEditedFields] = useState(metafields.map(field => ({
     ...field.node
@@ -66,7 +67,6 @@ export default function Productmetaview() {
   const handleSave = () => {
     // Perform save logic (mutation or API call to update metafields)
     console.log("Saving edited metafields:", editedFields);
-    console.log(metafields);
   };
 
   // Options for the select dropdown
