@@ -14,6 +14,7 @@ export const loader = async ({ params, request }) => {
   const metafieldsQuery = `
     query getProductById {
       product(id: "${productId}") {
+        id
         title
         metafields(first: 250) { 
           edges {
