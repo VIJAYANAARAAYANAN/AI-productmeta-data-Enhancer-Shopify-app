@@ -53,37 +53,38 @@ export const action = async ({ request, params }) => {
   const productId = formData.get("productId");
   let updatedMetafields = JSON.parse(formData.get("metafields"));
 
-  if (actionType === "delete") {
-    const deletionMutation = `
-      mutation metafieldDelete($input: MetafieldDeleteInput!) {
-        metafieldDelete(input: $input) {
-          deletedId
-          userErrors {
-            field
-            message
-          }
+if (actionType === "delete") {
+  const deletionMutation = `
+    mutation metafieldDelete($input: MetafieldDeleteInput!) {
+      metafieldDelete(input: "${updatedMetafields.id}")
+      {
+        deletedId
+        userErrors {
+          field
+          message
         }
-      }`;
-
-    const deletionInput = {
-      id: updatedMetafields.id,
-    };
-
-    try {
-      const response = await admin.graphql(deletionMutation, { input: deletionInput });
-      const responseData = await response.json();
-
-      if (responseData.errors || (responseData.data.metafieldDelete && responseData.data.metafieldDelete.userErrors.length > 0)) {
-        const errors = responseData.data.metafieldDelete.userErrors;
-        return json({ error: errors.map(err => err.message).join(", ") }, { status: 500 });
       }
-
-      return json({ success: true });
-    } catch (error) {
-      console.error("Error deleting metafield:", error);
-      return json({ error: "Error deleting metafield" }, { status: 500 });
     }
+  `;
+
+  try {
+    const response = await admin.graphql(deletionMutation);
+    const responseData = await response.json();
+
+    console.log("Deletion response data:", responseData);
+
+    if (responseData.errors || (responseData.data.metafieldDelete && responseData.data.metafieldDelete.userErrors.length > 0)) {
+      const errors = responseData.data.metafieldDelete.userErrors;
+      return json({ error: errors.map(err => err.message).join(", ") }, { status: 500 });
+    }
+
+    return json({ success: true });
+  } catch (error) {
+    console.error("Error deleting metafield:", error);
+    return json({ error: "Error deleting metafield" }, { status: 500 });
   }
+}
+
 
   const mutation = `
   mutation {
