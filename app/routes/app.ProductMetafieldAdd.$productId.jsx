@@ -207,47 +207,74 @@ export default function DynamicRowsWithProductId() {
         </div>
       </Card>
 
-      <div className="meta-table">
-        <div className="meta-header">
-          <div className="meta-cell-title">Type</div>
-          <div className="meta-cell-title">Namespace</div>
-          <div className="meta-cell-title">Key</div>
-          <div className="meta-cell-title">Value</div>
+      <div
+        style={{
+          marginTop: '20px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            backgroundColor: '#f9f9f9',
+            padding: '10px',
+            borderBottom: '1px solid #ddd',
+            fontWeight: 'bold',
+          }}
+        >
+          <div style={{ flex: 1, textAlign: 'center' }}>Type</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>Namespace</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>Key</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>Value</div>
         </div>
 
         {rows.map((row, index) => (
-          <div className="meta-row" key={index}>
-            <div className="meta-cell">
+          <div
+            key={index}
+            style={{
+              display: 'flex',
+              borderBottom: '1px solid #ddd',
+              padding: '10px 0',
+            }}
+          >
+            <div style={{ flex: 1, padding: '0 10px' }}>
               <Select
                 options={typeOptions}
-                onChange={(value) => handleInputChange(index, "type", value)}
+                onChange={(value) => handleInputChange(index, 'type', value)}
                 value={row.type}
+                style={{ width: '100%' }}
               />
             </div>
-            <div className="meta-cell">
+            <div style={{ flex: 1, padding: '0 10px' }}>
               <input
                 type="text"
                 value="Cartesian"
                 readOnly
-                style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#f0f0f0',
+                  border: '1px solid #ccc',
+                }}
               />
             </div>
-            <div className="meta-cell">
+            <div style={{ flex: 1, padding: '0 10px' }}>
               <input
                 type="text"
                 value={row.key}
-                onChange={(e) =>
-                  handleInputChange(index, "key", e.target.value)
-                }
+                onChange={(e) => handleInputChange(index, 'key', e.target.value)}
+                style={{ width: '100%' }}
               />
             </div>
-            <div className="meta-cell">
+            <div style={{ flex: 1, padding: '0 10px' }}>
               <input
                 type="text"
                 value={row.value}
                 onChange={(e) =>
-                  handleInputChange(index, "value", e.target.value)
+                  handleInputChange(index, 'value', e.target.value)
                 }
+                style={{ width: '100%' }}
               />
             </div>
           </div>
