@@ -136,7 +136,7 @@ export default function DynamicRowsWithProductId() {
 
   // Handle adding a new row
   const handleAddRow = () => {
-    setRows([...rows, { type: "", namespace: "Cartesian", key: "", value: "" }]);
+    setRows([...rows, { type: "single_line_text_field", namespace: "Cartesian", key: "", value: "" }]);
   };
 
   // Handle save button click
