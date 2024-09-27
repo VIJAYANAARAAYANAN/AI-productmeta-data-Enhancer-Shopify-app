@@ -5,7 +5,6 @@ import "./css/metaview.css";
 import { json } from "@remix-run/node";
 import { Card, Select, Button, Modal } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import backarrow from './assets/backarrowshop.png';
 
 export const loader = async ({ params, request }) => {
   const { admin } = await authenticate.admin(request);
@@ -50,8 +49,41 @@ export const action = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
   const formData = await request.formData();
 
-  const updatedMetafields = JSON.parse(formData.get("metafields"));
+  const actionType = formData.get("actionType");
   const productId = formData.get("productId");
+  let updatedMetafields = JSON.parse(formData.get("metafields"));
+
+  if (actionType === "delete") {
+    const deletionMutation = `
+      mutation metafieldDelete($input: MetafieldDeleteInput!) {
+        metafieldDelete(input: $input) {
+          deletedId
+          userErrors {
+            field
+            message
+          }
+        }
+      }`;
+
+    const deletionInput = {
+      id: updatedMetafields.id,
+    };
+
+    try {
+      const response = await admin.graphql(deletionMutation, { input: deletionInput });
+      const responseData = await response.json();
+
+      if (responseData.errors || (responseData.data.metafieldDelete && responseData.data.metafieldDelete.userErrors.length > 0)) {
+        const errors = responseData.data.metafieldDelete.userErrors;
+        return json({ error: errors.map(err => err.message).join(", ") }, { status: 500 });
+      }
+
+      return json({ success: true });
+    } catch (error) {
+      console.error("Error deleting metafield:", error);
+      return json({ error: "Error deleting metafield" }, { status: 500 });
+    }
+  }
 
   const mutation = `
   mutation {
@@ -117,6 +149,7 @@ export default function Productmetaview() {
         body: new URLSearchParams({
           metafields: JSON.stringify(editedFields),
           productId: product.id,
+          actionType: "update",
         }),
       });
 
@@ -131,9 +164,22 @@ export default function Productmetaview() {
     }
   };
 
-  const handleDeleteMetafield = (id) => {
-    const newFields = editedFields.filter(field => field.id !== id);
-    setEditedFields(newFields);
+  const handleDeleteMetafield = async (id) => {
+    const response = await fetch(`/app/Productmetaview/${product.id.split("/")[4]}`, {
+      method: "POST",
+      body: new URLSearchParams({
+        metafields: JSON.stringify({ id }),
+        productId: product.id,
+        actionType: "delete",
+      }),
+    });
+
+    if (response.ok) {
+      setEditedFields(editedFields.filter(field => field.id !== id));
+    } else {
+      const errorData = await response.json();
+      console.error("Error deleting metafield:", errorData.error);
+    }
   };
 
   const typeOptions = [
@@ -198,7 +244,13 @@ export default function Productmetaview() {
                 />
               </div>
               <div className="meta-cell">
-                <Button size="slim" onClick={() => handleDeleteMetafield(field.id)}>Delete</Button>
+                <Button 
+                  size="slim" 
+                  onClick={() => handleDeleteMetafield(field.id)} 
+                  style={{ backgroundColor: 'red', color: 'white', padding: '2px 5px' }}
+                >
+                  Delete
+                </Button>
               </div>
             </div>
           ))
