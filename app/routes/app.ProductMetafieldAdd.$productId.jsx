@@ -100,8 +100,8 @@ export const action = async ({ request, params }) => {
 
     return json({
       success: true,
+      result: resultData,
       message: "Metafields applied successfully!",
-      result: resultData
     });
   } catch (error) {
     console.error("Error during mutation:", error.message);
