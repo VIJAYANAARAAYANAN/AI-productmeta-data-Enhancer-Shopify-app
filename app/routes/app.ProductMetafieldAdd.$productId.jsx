@@ -113,12 +113,14 @@ export const action = async ({ request, params }) => {
       console.error("Mutation errors:", resultData.errors);
       return json({ success: false, message: "Failed to apply metafields" });
     }
-
+    
+    console.log("This is the result data",resultData.data.productUpdate.product);
     return json({
       success: true,
       message: "Metafields applied successfully!",
       result: resultData
     });
+
   } catch (error) {
     console.error("Error during mutation:", error.message);
     return json({
