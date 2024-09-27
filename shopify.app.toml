@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://were-repair-sony-spectacular.trycloudflare.com"
+application_url = "https://rescue-expertise-strategic-expensive.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://were-repair-sony-spectacular.trycloudflare.com/auth/callback",
-  "https://were-repair-sony-spectacular.trycloudflare.com/auth/shopify/callback",
-  "https://were-repair-sony-spectacular.trycloudflare.com/api/auth/callback"
+  "https://rescue-expertise-strategic-expensive.trycloudflare.com/auth/callback",
+  "https://rescue-expertise-strategic-expensive.trycloudflare.com/auth/shopify/callback",
+  "https://rescue-expertise-strategic-expensive.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
