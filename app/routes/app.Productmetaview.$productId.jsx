@@ -5,8 +5,7 @@ import "./css/metaview.css";
 import { json } from "@remix-run/node";
 import { Card, Select, Button, Modal } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import backarrow from './assets/backarrowshop.png';
-import { TrashMajor } from '@shopify/polaris'; // Import the Trash icon
+import backarrow from './assets/backarrowshop.png'; // This import is kept based on your earlier code.
 
 // Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
@@ -256,15 +255,14 @@ export default function Productmetaview() {
                   type="text"
                   value={field.namespace}
                   readOnly
-                  style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+                  style={{ backgroundColor: '#f0f0f0', border: 'none' }}
                 />
               </div>
               <div className="meta-cell">
                 <input
                   type="text"
                   value={field.key}
-                  readOnly
-                  style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+                  onChange={(e) => handleInputChange(index, "key", e.target.value)}
                 />
               </div>
               <div className="meta-cell">
@@ -275,63 +273,58 @@ export default function Productmetaview() {
                 />
               </div>
               <div className="meta-cell">
-                <Button
-                  icon={<TrashMajor />}
-                  onClick={() => handleDeleteMetafield(field.id)}
-                  plain
-                />
+                <Button variant="danger" onClick={() => handleDeleteMetafield(field.id)}>Delete</Button>
               </div>
             </div>
           ))
         ) : (
-          <div>No metafields available.</div>
+          <p>No metafields available</p>
         )}
       </div>
-      <div className="button-container">
-        <Button className="submitbutton" onClick={openConfirmationModal} variant="primary">
-          Save Changes
-        </Button>
+      <div className="buttons">
+        <Button primary onClick={openConfirmationModal}>Save</Button>
+        <Link to="/app/Producttable" className="back-button">
+          <Button plain>
+            <img src={backarrow} alt="Back" />
+            Back
+          </Button>
+        </Link>
       </div>
 
-      {/* Confirmation Modal */}
-      <Modal
-        open={confirmationModalActive}
-        onClose={() => setConfirmationModalActive(false)}
-        title="Confirm Changes"
-        primaryAction={{
-          content: "Save",
-          onAction: handleConfirmSave,
-        }}
-        secondaryActions={[
-          {
-            content: "Discard",
+      {confirmationModalActive && (
+        <Modal
+          open={confirmationModalActive}
+          onClose={() => setConfirmationModalActive(false)}
+          title="Confirm Save"
+          primaryAction={{
+            content: "Confirm",
+            onAction: handleConfirmSave,
+          }}
+          secondaryAction={{
+            content: "Cancel",
             onAction: () => setConfirmationModalActive(false),
-          },
-        ]}
-      >
-        <Modal.Section>
-          <p>Do you want to save the changes you made to the metafields?</p>
-        </Modal.Section>
-      </Modal>
+          }}
+        >
+          <Modal.Section>
+            <p>Are you sure you want to save the changes to these metafields?</p>
+          </Modal.Section>
+        </Modal>
+      )}
 
-      {/* Success Modal */}
-      <Modal
-        open={successModalActive}
-        onClose={() => setSuccessModalActive(false)}
-        title="Success"
-        primaryAction={{
-          content: "Close",
-          onAction: () => setSuccessModalActive(false),
-        }}
-      >
-        <Modal.Section>
-          <p>Metafields updated successfully!</p>
-        </Modal.Section>
-      </Modal>
+      {successModalActive && (
+        <Modal
+          open={successModalActive}
+          onClose={() => setSuccessModalActive(false)}
+          title="Success"
+        >
+          <Modal.Section>
+            <p>Metafields updated successfully!</p>
+          </Modal.Section>
+        </Modal>
+      )}
     </div>
   );
 }
-
 // import * as React from "react";
 // import { useState } from "react";
 // import { useLoaderData, Link , useNavigate } from "@remix-run/react";
