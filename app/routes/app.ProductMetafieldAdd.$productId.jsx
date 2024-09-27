@@ -66,27 +66,20 @@ export const loader = async ({ request, params }) => {
   }
 };
 
-// Action function to handle metafield creation
 export const action = async ({ request, params }) => {
-  const formData = new URLSearchParams(await request.text());
+  const { admin } = await authenticate.admin(request);
+  const formData = await request.formData();
   const productId = `gid://shopify/Product/${params.productId}`;
-  
-  // Extract metafields data from form data
   const metafields = JSON.parse(formData.get("metafields"));
 
-  console.log("Product ID in action:", productId); // Log the product ID
-  console.log("Metafields data received:", metafields); // Log the metafields data
-
-  const skipFields = []; // Define any keys to skip here
-
+  // Prepare the mutation string without skipping any fields
   const metafieldsString = metafields
-    .filter(({ key }) => !skipFields.includes(key))
     .map(
       ({ namespace, key, value, type }) => `
       {
         namespace: "${namespace}",
         key: "${key}",
-        value: "${String(value).replace(/"/g, '\\"')}", // Escape double quotes in value
+        value: "${value}",
         type: "${type}"
       }
     `
@@ -112,24 +105,29 @@ export const action = async ({ request, params }) => {
     }
   `;
 
-  const { admin } = await authenticate.admin(request);
-
   try {
-    const response = await admin.graphql(mutation);
-    const responseData = await response.json();
-    console.log("Response from Shopify after metafield creation:", responseData); // Log the response from Shopify
+    const result = await admin.graphql(mutation);
+    const resultData = await result.json();
 
-    if (response.ok && responseData.data.productUpdate.product) {
-      // Redirect or return success message
-      return redirect(`/path-to-redirect-after-success`); // Change this to your desired redirect path
-    } else {
-      throw new Error("Failed to update product metafields");
+    if (resultData.errors) {
+      console.error("Mutation errors:", resultData.errors);
+      return json({ success: false, message: "Failed to apply metafields" });
     }
+
+    return json({
+      success: true,
+      message: "Metafields applied successfully!",
+      result: resultData
+    });
   } catch (error) {
-    console.error("Error updating product metafields:", error); // Log the error
-    return json({ error: "Failed to update metafields" }, { status: 500 });
+    console.error("Error during mutation:", error.message);
+    return json({
+      success: false,
+      message: "Error during mutation: " + error.message,
+    });
   }
 };
+
 
 export default function DynamicRowsWithProductId() {
   const { productId } = useParams();
