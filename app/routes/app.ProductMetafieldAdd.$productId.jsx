@@ -71,7 +71,7 @@ export default function DynamicRowsWithProductId() {
   const { product } = useLoaderData(); // Get product data from loader
 
   const [rows, setRows] = useState([
-    { type: "", namespace: "Cartesian", key: "", value: "" },
+    { type: "single_line_text_field", namespace: "Cartesian", key: "", value: "" },
   ]);
 
   // Handle input change for each row
@@ -94,6 +94,7 @@ export default function DynamicRowsWithProductId() {
   };
 
   // Options for the type dropdown
+
   const typeOptions = [
     { label: "Single Line Text", value: "single_line_text_field" },
     { label: "Color", value: "color" },
