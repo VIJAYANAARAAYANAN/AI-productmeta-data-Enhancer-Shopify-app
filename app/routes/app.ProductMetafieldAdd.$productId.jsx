@@ -77,24 +77,36 @@ export const action = async ({ request, params }) => {
   console.log("Product ID in action:", productId); // Log the product ID
   console.log("Metafields data received:", metafields); // Log the metafields data
 
+  const skipFields = []; // Define any keys to skip here
+
+  const metafieldsString = metafields
+    .filter(({ key }) => !skipFields.includes(key))
+    .map(
+      ({ namespace, key, value, type }) => `
+      {
+        namespace: "${namespace}",
+        key: "${key}",
+        value: "${String(value).replace(/"/g, '\\"')}", // Escape double quotes in value
+        type: "${type}"
+      }
+    `
+    )
+    .join(", ");
+
   const mutation = `
-    mutation {
-      productUpdate(input: {
-        id: "${productId}",
-        metafields: ${JSON.stringify(metafields)}
-      }) {
+    mutation UpdateProductMetafield {
+      productUpdate(
+        input: {
+          id: "${productId}",
+          metafields: [${metafieldsString}]
+        }
+      ) {
         product {
           id
-          title
-          metafields(first: 10) {
-            edges {
-              node {
-                namespace
-                key
-                value
-              }
-            }
-          }
+        }
+        userErrors {
+          field
+          message
         }
       }
     }
@@ -109,7 +121,7 @@ export const action = async ({ request, params }) => {
 
     if (response.ok && responseData.data.productUpdate.product) {
       // Redirect or return success message
-      // return redirect(`/path-to-redirect-after-success`); // Change this to your desired redirect path
+      return redirect(`/path-to-redirect-after-success`); // Change this to your desired redirect path
     } else {
       throw new Error("Failed to update product metafields");
     }
@@ -124,7 +136,7 @@ export default function DynamicRowsWithProductId() {
   const { product } = useLoaderData(); // Get product data from loader
 
   const [rows, setRows] = useState([
-    { type: "single_line_text_field", namespace: "Cartesian", key: "", value: "" },
+    { type: "single_line_text_field", namespace: "cartesian", key: "", value: "" },
   ]);
 
   // Handle input change for each row
@@ -136,7 +148,7 @@ export default function DynamicRowsWithProductId() {
 
   // Handle adding a new row
   const handleAddRow = () => {
-    setRows([...rows, { type: "single_line_text_field", namespace: "Cartesian", key: "", value: "" }]);
+    setRows([...rows, { type: "single_line_text_field", namespace: "cartesian", key: "", value: "" }]);
   };
 
   // Handle save button click
@@ -244,7 +256,7 @@ export default function DynamicRowsWithProductId() {
                 options={typeOptions}
                 onChange={(value) => handleInputChange(index, 'type', value)}
                 value={row.type}
-                style={{ width: '100%' }}
+                style={{ width: '100%', borderRadius: '4px', padding: '8px' }}
               />
             </div>
             <div style={{ flex: 1, padding: '0 10px' }}>
@@ -256,6 +268,8 @@ export default function DynamicRowsWithProductId() {
                   width: '100%',
                   backgroundColor: '#f0f0f0',
                   border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  padding: '8px',
                 }}
               />
             </div>
@@ -264,24 +278,39 @@ export default function DynamicRowsWithProductId() {
                 type="text"
                 value={row.key}
                 onChange={(e) => handleInputChange(index, 'key', e.target.value)}
-                style={{ width: '100%' }}
+                placeholder="Key"
+                style={{
+                  width: '100%',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  padding: '8px',
+                }}
               />
             </div>
             <div style={{ flex: 1, padding: '0 10px' }}>
               <input
                 type="text"
                 value={row.value}
-                onChange={(e) =>
-                  handleInputChange(index, 'value', e.target.value)
-                }
-                style={{ width: '100%' }}
+                onChange={(e) => handleInputChange(index, 'value', e.target.value)}
+                placeholder="Value"
+                style={{
+                  width: '100%',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  padding: '8px',
+                }}
               />
             </div>
           </div>
         ))}
       </div>
-      <Button onClick={handleAddRow}>Add New Metafield</Button>
-      <Button onClick={handleSave}>Save Changes</Button>
+
+      <div style={{ marginTop: '10px' }}>
+        <Button onClick={handleAddRow}>Add Row</Button>
+        <Button primary onClick={handleSave} style={{ marginLeft: '10px' }}>
+          Save Metafields
+        </Button>
+      </div>
     </div>
   );
 }
