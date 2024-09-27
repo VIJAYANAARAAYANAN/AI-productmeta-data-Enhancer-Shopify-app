@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"; // Import useParams to get product
 import { Button, Card, Select } from "@shopify/polaris";
 import "../routes/css/metafieldadd.css";
 import { authenticate } from "../shopify.server";
-import { useLoaderData, Link, useNavigate } from "@remix-run/react";
+import { useLoaderData, redirect } from "@remix-run/react";
 import { json } from "@remix-run/node"; // Import useLoaderData
 
 export const loader = async ({ request, params }) => {
@@ -66,6 +66,59 @@ export const loader = async ({ request, params }) => {
   }
 };
 
+// Action function to handle metafield creation
+export const action = async ({ request, params }) => {
+  const formData = new URLSearchParams(await request.text());
+  const productId = `gid://shopify/Product/${params.productId}`;
+  
+  // Extract metafields data from form data
+  const metafields = JSON.parse(formData.get("metafields"));
+
+  console.log("Product ID in action:", productId); // Log the product ID
+  console.log("Metafields data received:", metafields); // Log the metafields data
+
+  const mutation = `
+    mutation {
+      productUpdate(input: {
+        id: "${productId}",
+        metafields: ${JSON.stringify(metafields)}
+      }) {
+        product {
+          id
+          title
+          metafields(first: 10) {
+            edges {
+              node {
+                namespace
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const { admin } = await authenticate.admin(request);
+
+  try {
+    const response = await admin.graphql(mutation);
+    const responseData = await response.json();
+    console.log("Response from Shopify after metafield creation:", responseData); // Log the response from Shopify
+
+    if (response.ok && responseData.data.productUpdate.product) {
+      // Redirect or return success message
+      // return redirect(`/path-to-redirect-after-success`); // Change this to your desired redirect path
+    } else {
+      throw new Error("Failed to update product metafields");
+    }
+  } catch (error) {
+    console.error("Error updating product metafields:", error); // Log the error
+    return json({ error: "Failed to update metafields" }, { status: 500 });
+  }
+};
+
 export default function DynamicRowsWithProductId() {
   const { productId } = useParams();
   const { product } = useLoaderData(); // Get product data from loader
@@ -88,12 +141,30 @@ export default function DynamicRowsWithProductId() {
 
   // Handle save button click
   const handleSave = () => {
-    console.log("Product ID:", productId);
-    console.log("Current rows data:", rows);
-    // Add your saving logic here (e.g., API call to save metafields)
-  };
+    const metafields = rows.map(row => ({
+      namespace: row.namespace,
+      key: row.key,
+      value: row.value,
+      type: row.type,
+    }));
 
-  // Options for the type dropdown
+    console.log("Metafields to be sent:", metafields); // Log metafields to be sent
+    // Send metafields to the action function (using form submission)
+    const formData = new FormData();
+    formData.append("metafields", JSON.stringify(metafields));
+    
+    // Create a POST request to trigger the action function
+    fetch(`/app/ProductMetafieldAdd/${productId}`, {
+      method: "POST",
+      body: formData,
+    }).then(response => {
+      if (response.ok) {
+        console.log("Metafields successfully updated!"); // Log success message
+      } else {
+        console.error("Error updating metafields"); // Log error message
+      }
+    });
+  };
 
   const typeOptions = [
     { label: "Single Line Text", value: "single_line_text_field" },
@@ -124,10 +195,10 @@ export default function DynamicRowsWithProductId() {
                 />
               )}
               <div className="subadddata">
-              <h4>{product.title}</h4>
-              <h4 className="addproduct-title">
-                Add New Metafields for Product ID: {productId}
-              </h4>
+                <h4>{product.title}</h4>
+                <h4 className="addproduct-title">
+                  Add New Metafields for Product ID: {productId}
+                </h4>
               </div>
             </>
           ) : (
@@ -154,13 +225,13 @@ export default function DynamicRowsWithProductId() {
               />
             </div>
             <div className="meta-cell">
-                <input
-                  type="text"
-                  value="Cartesian"
-                  readOnly
-                  style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
-                />
-              </div>
+              <input
+                type="text"
+                value="Cartesian"
+                readOnly
+                style={{ backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+              />
+            </div>
             <div className="meta-cell">
               <input
                 type="text"
