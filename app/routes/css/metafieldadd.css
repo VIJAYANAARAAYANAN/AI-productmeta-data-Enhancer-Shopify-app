@@ -66,8 +66,9 @@
 .meta-cell-grid input {
   width: 100%;
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #898989;
   border-radius: 5px;
+
 }
 
 .readonly-input {
@@ -96,4 +97,15 @@
   width: 20px;
   height: 20px;
   cursor: pointer; /* Add a pointer cursor to indicate it is clickable */
+}
+.loaderpart{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+}
+.loadergif{
+  width: 30px;
+  height: 30px;
+  text-align: center;
 }

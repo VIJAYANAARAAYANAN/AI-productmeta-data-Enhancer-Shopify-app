@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom"; // Import useParams to get productId
-import { Button, Card, Select } from "@shopify/polaris";
+import { Button, Card, Select, Modal } from "@shopify/polaris";
 import "../routes/css/metafieldadd.css";
 import { authenticate } from "../shopify.server";
 import { useLoaderData, redirect } from "@remix-run/react";
 import { json } from "@remix-run/node"; // Import useLoaderData
 import deleteicon from "./assets/delete.svg";
-
+import loadergif from "./assets/loader.gif";
 export const loader = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
@@ -119,6 +119,7 @@ export const action = async ({ request, params }) => {
       "This is the result data",
       resultData.data.productUpdate.product,
     );
+   
     return json({
       success: true,
       message: "Metafields applied successfully!",
@@ -136,6 +137,10 @@ export const action = async ({ request, params }) => {
 export default function DynamicRowsWithProductId() {
   const { productId } = useParams();
   const { product } = useLoaderData(); // Get product data from loader
+
+  const [confirmationModalActive, setConfirmationModalActive] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [loaderview, setloaderview] = useState(false);
 
   const [rows, setRows] = useState([
     {
@@ -174,8 +179,13 @@ export default function DynamicRowsWithProductId() {
     }
   };
 
+  const openConfirmationModal = () => {
+    setConfirmationModalActive(true);
+  };
+
   // Handle save button click
-  const handleSave = () => {
+  const handleConfirmSave = () => {
+    setloaderview(true);
     const metafields = rows.map((row) => ({
       namespace: row.namespace,
       key: row.key,
@@ -187,18 +197,27 @@ export default function DynamicRowsWithProductId() {
     // Send metafields to the action function (using form submission)
     const formData = new FormData();
     formData.append("metafields", JSON.stringify(metafields));
-
+   
     // Create a POST request to trigger the action function
     fetch(`/app/ProductMetafieldAdd/${productId}`, {
       method: "POST",
       body: formData,
     }).then((response) => {
+    
       if (response.ok) {
         console.log("Metafields successfully updated!"); // Log success message
+        setConfirmationModalActive(false);
+       
+        setIsPopupVisible(true);
+        // window.location.reload();
       } else {
         console.error("Error updating metafields"); // Log error message
       }
     });
+  };
+
+  const handleDiscard = () => {
+    setConfirmationModalActive(false);
   };
 
   const typeOptions = [
@@ -248,7 +267,7 @@ export default function DynamicRowsWithProductId() {
         </Button>
         <Button
           primary
-          onClick={handleSave}
+          onClick={openConfirmationModal}
           style={{ marginLeft: "10px" }}
           variant="primary"
         >
@@ -257,16 +276,16 @@ export default function DynamicRowsWithProductId() {
       </div>
 
       <div className="meta-header">
-          <div className="meta-cell-title">Type</div>
-          <div className="meta-cell-title">Namespace</div>
-          <div className="meta-cell-title">Key</div>
-          <div className="meta-cell-title">Value</div>
+        <div className="meta-cell-title">Type</div>
+        <div className="meta-cell-title">Namespace</div>
+        <div className="meta-cell-title">Key</div>
+        <div className="meta-cell-title">Value</div>
       </div>
 
       {/* Meta Table as Grid */}
       <div className="meta-table-grid">
         {/* Meta Header */}
-       
+
         {/* Meta Rows */}
         {rows.map((row, index) => (
           <div className="meta-row-grid" key={index}>
@@ -314,21 +333,61 @@ export default function DynamicRowsWithProductId() {
             </div>
             <div className="meta-cell-grid delete-cell">
               {index !== 0 && (
-              
                 <img
                   src={deleteicon}
                   className="delete-icon"
                   alt="Delete Row"
                   onClick={() => handleDeleteRow(index)}
                 />
-
               )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Button Container for Add Row and Save */}
+      {/* Confirmation Modal for saving meatfields*/}
+
+      <Modal
+        open={confirmationModalActive}
+        onClose={() => setConfirmationModalActive(false)}
+        title="Confirm Changes"
+        primaryAction={{
+          content: "Save",
+          onAction: handleConfirmSave,
+        }}
+        secondaryActions={[
+          {
+            content: "Discard",
+            onAction: handleDiscard,
+          },
+        ]}
+      >
+        <Modal.Section>
+          <p>Do you want to save the changes you made to the metafields?</p>
+          <div className="loaderpart">
+          {loaderview && (
+            <img className="loadergif" src={loadergif} alt="Creating Metafields"/>
+          )}
+          </div>
+        </Modal.Section>
+      </Modal>
+
+      {/* Popup modal after successful metafield created*/}
+      {isPopupVisible && (
+        <Modal
+          open={isPopupVisible}
+          onClose={() => setIsPopupVisible(false)}
+          title="Success"
+          primaryAction={{
+            content: "Close",
+            onAction: () => setIsPopupVisible(false),
+          }}
+        >
+          <Modal.Section>
+            <p>Metafields have been successfully updated!</p>
+          </Modal.Section>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { json } from "@remix-run/node";
 import { Card, Select, Button, Modal } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import deleteicon from "./assets/delete.svg";
+import loadergif from './assets/loader.gif';
 
 // Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
@@ -152,6 +153,7 @@ export default function Productmetaview() {
 
   const [showModal, setShowModal] = useState(false);
   const [confirmationModalActive, setConfirmationModalActive] = useState(false); // State for the confirmation modal
+  const [loaderview, setloaderview] = useState(false);
 
   const [deleteModalActive, setDeleteModalActive] = useState(false);
   const [metafieldToDelete, setMetafieldToDelete] = useState(null); // Store the metafield to delete
@@ -179,8 +181,9 @@ export default function Productmetaview() {
 
   // Function to handle confirmation of save action
   const handleConfirmSave = async () => {
-    setConfirmationModalActive(false);
+    setloaderview(true);
     try {
+ 
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
         {
@@ -195,6 +198,7 @@ export default function Productmetaview() {
 
       if (response.ok) {
         console.log("Response from the POST on Confirm change", response);
+        setConfirmationModalActive(false);
         setSuccessModalActive(true);
         setTimeout(() => {
           setSuccessModalActive(false);
@@ -215,6 +219,7 @@ export default function Productmetaview() {
 
   const handleConfirmDelete = async () => {
     setDeleteModalActive(false);
+    setloaderview(true);
     try {
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
@@ -377,6 +382,11 @@ export default function Productmetaview() {
       >
         <Modal.Section>
           <p>Do you want to save the changes you made to the metafields?</p>
+          <div className="loaderpart">
+          {loaderview && (
+            <img className="loadergif" src={loadergif} alt="Creating Metafields"/>
+          )}
+          </div>
         </Modal.Section>
       </Modal>
 
