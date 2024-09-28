@@ -79,7 +79,7 @@ export default function Products() {
   console.log("Products", products);
   return (
     <Frame>
-      <Page fullWidth>
+      <Page >
         <Layout>
           <Layout.Section>
             <div className="product-list-container">
