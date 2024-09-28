@@ -5,7 +5,7 @@ import "../routes/css/metafieldadd.css";
 import { authenticate } from "../shopify.server";
 import { useLoaderData, redirect } from "@remix-run/react";
 import { json } from "@remix-run/node"; // Import useLoaderData
-
+import deleteicon from "./assets/delete.svg";
 export const loader = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
@@ -82,7 +82,7 @@ export const action = async ({ request, params }) => {
         value: "${value}",
         type: "${type}"
       }
-    `
+    `,
     )
     .join(", ");
 
@@ -113,14 +113,16 @@ export const action = async ({ request, params }) => {
       console.error("Mutation errors:", resultData.errors);
       return json({ success: false, message: "Failed to apply metafields" });
     }
-    
-    console.log("This is the result data",resultData.data.productUpdate.product);
+
+    console.log(
+      "This is the result data",
+      resultData.data.productUpdate.product,
+    );
     return json({
       success: true,
       message: "Metafields applied successfully!",
-      result: resultData
+      result: resultData,
     });
-
   } catch (error) {
     console.error("Error during mutation:", error.message);
     return json({
@@ -130,13 +132,17 @@ export const action = async ({ request, params }) => {
   }
 };
 
-
 export default function DynamicRowsWithProductId() {
   const { productId } = useParams();
   const { product } = useLoaderData(); // Get product data from loader
 
   const [rows, setRows] = useState([
-    { type: "single_line_text_field", namespace: "cartesian", key: "", value: "" },
+    {
+      type: "single_line_text_field",
+      namespace: "cartesian",
+      key: "",
+      value: "",
+    },
   ]);
 
   // Handle input change for each row
@@ -148,12 +154,28 @@ export default function DynamicRowsWithProductId() {
 
   // Handle adding a new row
   const handleAddRow = () => {
-    setRows([...rows, { type: "single_line_text_field", namespace: "cartesian", key: "", value: "" }]);
+    setRows([
+      ...rows,
+      {
+        type: "single_line_text_field",
+        namespace: "cartesian",
+        key: "",
+        value: "",
+      },
+    ]);
+  };
+
+  //Handle Deleting Rows
+  const handleDeleteRow = (index) => {
+    if (index !== 0) {
+      const newRows = rows.filter((_, rowIndex) => rowIndex !== index);
+      setRows(newRows);
+    }
   };
 
   // Handle save button click
   const handleSave = () => {
-    const metafields = rows.map(row => ({
+    const metafields = rows.map((row) => ({
       namespace: row.namespace,
       key: row.key,
       value: row.value,
@@ -164,12 +186,12 @@ export default function DynamicRowsWithProductId() {
     // Send metafields to the action function (using form submission)
     const formData = new FormData();
     formData.append("metafields", JSON.stringify(metafields));
-    
+
     // Create a POST request to trigger the action function
     fetch(`/app/ProductMetafieldAdd/${productId}`, {
       method: "POST",
       body: formData,
-    }).then(response => {
+    }).then((response) => {
       if (response.ok) {
         console.log("Metafields successfully updated!"); // Log success message
       } else {
@@ -219,98 +241,93 @@ export default function DynamicRowsWithProductId() {
         </div>
       </Card>
 
-      <div
-        style={{
-          marginTop: '20px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            backgroundColor: '#f9f9f9',
-            padding: '10px',
-            borderBottom: '1px solid #ddd',
-            fontWeight: 'bold',
-          }}
+      <div className="button-container">
+        <Button onClick={handleAddRow} variant="primary">
+          Add Row
+        </Button>
+        <Button
+          primary
+          onClick={handleSave}
+          style={{ marginLeft: "10px" }}
+          variant="primary"
         >
-          <div style={{ flex: 1, textAlign: 'center' }}>Type</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>Namespace</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>Key</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>Value</div>
-        </div>
+          Save Metafields
+        </Button>
+      </div>
 
+      <div className="meta-header">
+          <div className="meta-cell-title">Type</div>
+          <div className="meta-cell-title">Namespace</div>
+          <div className="meta-cell-title">Key</div>
+          <div className="meta-cell-title">Value</div>
+      </div>
+
+      {/* Meta Table as Grid */}
+      <div className="meta-table-grid">
+        {/* Meta Header */}
+       
+        {/* Meta Rows */}
         {rows.map((row, index) => (
-          <div
-            key={index}
-            style={{
-              display: 'flex',
-              borderBottom: '1px solid #ddd',
-              padding: '10px 0',
-            }}
-          >
-            <div style={{ flex: 1, padding: '0 10px' }}>
+          <div className="meta-row-grid" key={index}>
+            {/* Type Selector */}
+            <div className="meta-cell-grid">
               <Select
                 options={typeOptions}
-                onChange={(value) => handleInputChange(index, 'type', value)}
+                onChange={(value) => handleInputChange(index, "type", value)}
                 value={row.type}
-                style={{ width: '100%', borderRadius: '4px', padding: '8px' }}
               />
             </div>
-            <div style={{ flex: 1, padding: '0 10px' }}>
+
+            {/* Namespace Field (Read-only) */}
+            <div className="meta-cell-grid">
               <input
                 type="text"
                 value="Cartesian"
                 readOnly
-                style={{
-                  width: '100%',
-                  backgroundColor: '#f0f0f0',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '8px',
-                }}
+                className="readonly-input"
               />
             </div>
-            <div style={{ flex: 1, padding: '0 10px' }}>
+
+            {/* Key Field */}
+            <div className="meta-cell-grid">
               <input
                 type="text"
                 value={row.key}
-                onChange={(e) => handleInputChange(index, 'key', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange(index, "key", e.target.value)
+                }
                 placeholder="Key"
-                style={{
-                  width: '100%',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '8px',
-                }}
               />
             </div>
-            <div style={{ flex: 1, padding: '0 10px' }}>
+
+            {/* Value Field */}
+            <div className="meta-cell-grid">
               <input
                 type="text"
                 value={row.value}
-                onChange={(e) => handleInputChange(index, 'value', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange(index, "value", e.target.value)
+                }
                 placeholder="Value"
-                style={{
-                  width: '100%',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  padding: '8px',
-                }}
               />
+            </div>
+            <div className="meta-cell-grid delete-cell">
+              {index !== 0 && (
+              
+                <img
+                  src={deleteicon}
+                  className="delete-icon"
+                  alt="Delete Row"
+                  onClick={() => handleDeleteRow(index)}
+                />
+
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ marginTop: '10px' }}>
-        <Button onClick={handleAddRow}>Add Row</Button>
-        <Button primary onClick={handleSave} style={{ marginLeft: '10px' }}>
-          Save Metafields
-        </Button>
-      </div>
+      {/* Button Container for Add Row and Save */}
     </div>
   );
 }
