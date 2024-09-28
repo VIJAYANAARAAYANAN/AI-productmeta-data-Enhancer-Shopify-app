@@ -6,6 +6,7 @@ import { authenticate } from "../shopify.server";
 import { useLoaderData, redirect } from "@remix-run/react";
 import { json } from "@remix-run/node"; // Import useLoaderData
 import deleteicon from "./assets/delete.svg";
+
 export const loader = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
