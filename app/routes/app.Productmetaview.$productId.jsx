@@ -54,40 +54,77 @@ export const loader = async ({ params, request }) => {
 export const action = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
   const formData = await request.formData();
+  const actionType = formData.get("actionType");
 
-  const updatedMetafields = JSON.parse(formData.get("metafields"));
-  const productId = formData.get("productId");
+  if (actionType === "update") {
+    const updatedMetafields = JSON.parse(formData.get("metafields"));
+    const productId = formData.get("productId");
 
-  const mutation = `
-  mutation {
-    productUpdate(
-      input: {
-        id: "${productId}",
-        metafields: ${JSON.stringify(updatedMetafields).replace(/"([^"]+)":/g, '$1:')}
+    const mutation = `
+      mutation {
+        productUpdate(
+          input: {
+            id: "${productId}",
+            metafields: ${JSON.stringify(updatedMetafields).replace(/"([^"]+)":/g, '$1:')}
+          }
+        ) {
+          userErrors {
+            field
+            message
+          }
+        }
+      }`;
+
+    try {
+      const response = await admin.graphql(mutation);
+      const responseData = await response.json();
+
+      if (responseData.errors || (responseData.data.productUpdate && responseData.data.productUpdate.userErrors.length > 0)) {
+        const errors = responseData.data.productUpdate.userErrors;
+        return json({ error: errors.map((err) => err.message).join(", ") }, { status: 500 });
       }
-    ) {
-      userErrors {
-        field
-        message
+
+      return json({ success: true });
+    } catch (error) {
+      console.error("Error saving metafields:", error);
+      return json({ error: "Error saving metafields" }, { status: 500 });
+    }
+  } else if (actionType === "delete") {
+    console.log("Deleting action has been initiated")
+    const metafieldId = formData.get("metafieldId");
+    console.log("Metafield to be deleted is",metafieldId)
+    const deleteMutation = `
+      mutation {
+        metafieldDelete(input: {
+          id: "${metafieldId}"
+        }) {
+          deletedId
+          userErrors {
+            field
+            message
+          }
+        }
+      }`;
+
+    try {
+      const response = await admin.graphql(deleteMutation);
+      const responseData = await response.json();
+
+      if (responseData.errors || (responseData.data.metafieldDelete && responseData.data.metafieldDelete.userErrors.length > 0)) {
+        const errors = responseData.data.metafieldDelete.userErrors;
+        return json({ error: errors.map((err) => err.message).join(", ") }, { status: 500 });
       }
+
+      return json({ success: true });
+    } catch (error) {
+      console.error("Error deleting metafield:", error);
+      return json({ error: "Error deleting metafield" }, { status: 500 });
     }
-  }`;
-
-  try {
-    const response = await admin.graphql(mutation);
-    const responseData = await response.json();
-
-    if (responseData.errors || (responseData.data.productUpdate && responseData.data.productUpdate.userErrors.length > 0)) {
-      const errors = responseData.data.productUpdate.userErrors;
-      return json({ error: errors.map(err => err.message).join(", ") }, { status: 500 });
-    }
-
-    return json({ success: true });
-  } catch (error) {
-    console.error("Error saving metafields:", error);
-    return json({ error: "Error saving metafields" }, { status: 500 });
   }
+
+  return json({ error: "Invalid action type" }, { status: 400 });
 };
+
 
 export default function Productmetaview() {
   const data = useLoaderData();
@@ -128,12 +165,14 @@ export default function Productmetaview() {
       const response = await fetch(`/app/Productmetaview/${product.id.split("/")[4]}`, {
         method: "POST",
         body: new URLSearchParams({
+          actionType: "update",
           metafields: JSON.stringify(editedFields),
           productId: product.id,
         }),
       });
 
       if (response.ok) {
+        console.log("Response from the POST on Confirm change",response)
         setSuccessModalActive(true);
         setTimeout(() => {
           setSuccessModalActive(false);
@@ -175,9 +214,28 @@ export default function Productmetaview() {
     navigate(`/app/ProductMetafieldAdd/${productId}`);
 
   }
-  const handleDeleteClick =(metafieldId) =>{
-      console.log("Id of the metafield is",metafieldId);
-  }
+  const handleDeleteClick = async (metafieldId) => {
+    console.log("Id of the metafield is", metafieldId);
+    try {
+      const response = await fetch(`/app/Productmetaview/${product.id.split("/")[4]}`, {
+        method: "POST",
+        body: new URLSearchParams({
+          actionType: "delete",
+          metafieldId: metafieldId,
+        }),
+      });
+  
+      if (response.ok) {
+        console.log("Metafield deleted successfully!",response);
+        // Update state or refresh the page to reflect the changes
+      } else {
+        const errorData = await response.json();
+        console.error("Error deleting metafield:", errorData.error);
+      }
+    } catch (error) {
+      console.error("Failed to delete metafield:", error.message);
+    }
+  };
 
   return (
     <div className="meta-container">

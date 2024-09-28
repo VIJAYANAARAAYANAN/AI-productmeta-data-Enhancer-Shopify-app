@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://browsing-improved-announce-damages.trycloudflare.com"
+application_url = "https://moments-solid-forces-sticks.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://browsing-improved-announce-damages.trycloudflare.com/auth/callback",
-  "https://browsing-improved-announce-damages.trycloudflare.com/auth/shopify/callback",
-  "https://browsing-improved-announce-damages.trycloudflare.com/api/auth/callback"
+  "https://moments-solid-forces-sticks.trycloudflare.com/auth/callback",
+  "https://moments-solid-forces-sticks.trycloudflare.com/auth/shopify/callback",
+  "https://moments-solid-forces-sticks.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
