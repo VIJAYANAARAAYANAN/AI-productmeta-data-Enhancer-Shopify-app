@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://dale-flickr-booty-purchases.trycloudflare.com"
+application_url = "https://associated-limitation-blond-clicks.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://dale-flickr-booty-purchases.trycloudflare.com/auth/callback",
-  "https://dale-flickr-booty-purchases.trycloudflare.com/auth/shopify/callback",
-  "https://dale-flickr-booty-purchases.trycloudflare.com/api/auth/callback"
+  "https://associated-limitation-blond-clicks.trycloudflare.com/auth/callback",
+  "https://associated-limitation-blond-clicks.trycloudflare.com/auth/shopify/callback",
+  "https://associated-limitation-blond-clicks.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

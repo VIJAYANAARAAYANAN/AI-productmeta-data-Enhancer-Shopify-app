@@ -6,8 +6,9 @@ import { json } from "@remix-run/node";
 import { Card, Select, Button, Modal } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import deleteicon from "./assets/delete.svg";
-import loadergif from './assets/loader.gif';
-
+import loadergif from "./assets/loader.gif";
+import copyicon from "./assets/copy.svg";
+import lineicon from "./assets/line.svg";
 // Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
   console.log("params received in MetaView loader", params);
@@ -154,7 +155,7 @@ export default function Productmetaview() {
   const [showModal, setShowModal] = useState(false);
   const [confirmationModalActive, setConfirmationModalActive] = useState(false); // State for the confirmation modal
   const [loaderview, setloaderview] = useState(false);
-
+  const [tooltipMessage, setTooltipMessage] = useState("Copy Crystal code");
   const [deleteModalActive, setDeleteModalActive] = useState(false);
   const [metafieldToDelete, setMetafieldToDelete] = useState(null); // Store the metafield to delete
 
@@ -183,7 +184,6 @@ export default function Productmetaview() {
   const handleConfirmSave = async () => {
     setloaderview(true);
     try {
- 
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
         {
@@ -273,6 +273,29 @@ export default function Productmetaview() {
     setDeleteModalActive(true);
   };
 
+  //HANDLE CLIPBOARD COPYING FUNCTION::
+
+  const handleCopyClick = (namespace, key) => {
+    // Generate the Liquid code to be copied
+    const liquidCode = `{{ product.metafields["${namespace}"]["${key}"].value }}`;
+
+    // Create a temporary textarea element to copy the text
+    const tempInput = document.createElement("textarea");
+    tempInput.value = liquidCode;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+
+    // Update the tooltip message to "Copied!"
+    setTooltipMessage("Copied!");
+
+    // Revert back to the original message after a delay
+    setTimeout(() => {
+      setTooltipMessage("Copy Crystal code");
+    }, 2000);
+  };
+
   return (
     <div className="meta-container">
       <Card padding="300">
@@ -340,13 +363,31 @@ export default function Productmetaview() {
                   }
                 />
               </div>
+             
               <div className="delete-cell">
-                <img
-                  src={deleteicon}
-                  className="delete-icon"
-                  alt="Delete Row"
-                  onClick={() => handleDeleteClick(field.id)}
-                />
+                <div className="icon-container">
+                  <img
+                    src={deleteicon}
+                    className="delete-icon"
+                    alt="Delete Row"
+                    onClick={() => handleDeleteClick(field.id)}
+                  />
+                  {/* <span className="tooltip-message">Delete</span> */}
+                </div>
+                <div className="lineicon">
+              <img src={lineicon} alt="lineicon"/>
+              </div>
+
+                {/* Copy Icon with Tooltip */}
+                <div className="icon-container">
+                  <img
+                    src={copyicon}
+                    className="copy-icon"
+                    alt="Copy"
+                    onClick={() => handleCopyClick(field.namespace, field.key)}
+                  />
+                  <span className="tooltip-message">{tooltipMessage}</span>
+                </div>
               </div>
             </div>
           ))
@@ -383,9 +424,13 @@ export default function Productmetaview() {
         <Modal.Section>
           <p>Do you want to save the changes you made to the metafields?</p>
           <div className="loaderpart">
-          {loaderview && (
-            <img className="loadergif" src={loadergif} alt="Creating Metafields"/>
-          )}
+            {loaderview && (
+              <img
+                className="loadergif"
+                src={loadergif}
+                alt="Creating Metafields"
+              />
+            )}
           </div>
         </Modal.Section>
       </Modal>

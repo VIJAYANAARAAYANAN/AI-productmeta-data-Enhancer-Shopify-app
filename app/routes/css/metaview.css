@@ -16,11 +16,12 @@
 .product-title {
   font-size: 15px;
   margin-bottom: 10px;
+  font-weight: 600;
 }
 
 .meta-table {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr 0.2fr;
+  grid-template-columns: 1fr 1fr 1fr 1.7fr 0.3fr;
   gap: 10px;
   padding-bottom: 16px;
 }
@@ -40,7 +41,7 @@
 
 .viewmeta-header {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr 0.2fr;
+  grid-template-columns: 1fr 1fr 1fr 2fr 0.3fr;
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -88,12 +89,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
+  gap:10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  
 }
+
+.icon-container {
+  position: relative;
+  align-items: center;
+  display: flex;
+}
+
+.tooltip-message {
+  visibility: hidden;
+  width: max-content;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  position: absolute;
+  bottom: -30px; /* Adjust to position the tooltip below the icon */
+  left:-20px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.icon-container:hover .tooltip-message {
+  visibility: visible;
+  opacity: 1;
+}
+
+
 .delete-icon {
-  width: 20px;
-  height: 20px;
-  cursor: pointer; /* Add a pointer cursor to indicate it is clickable */
+  width: 25px;
+  height: 25px;
+  cursor: pointer; 
+  padding-left: 6px;
+}
+.lineicon img{
+  width: 10px;
+  height: 22px;
+  margin-top: 5px;
+}
+.copy-icon{
+  padding-right: 6px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
 }
 .loaderpart{
   display: flex;

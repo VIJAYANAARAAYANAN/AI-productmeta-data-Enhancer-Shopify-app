@@ -1,17 +1,15 @@
 import * as React from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
+import './css/productdetails.css';
 import {
   Page,
   Layout,
-  Text,
-  Card,
-  Button,
-  BlockStack,
-  DataTable,
   Frame,
-  Thumbnail,
-  Checkbox,
+  Button,
+  Card,
+  TextField,
+  Modal,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -81,6 +79,22 @@ export default function Products() {
   const products = data.products?.products.edges || [];
   const shopDetails = data.shop;
   const [selectedProducts, setSelectedProducts] = React.useState([]);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [filteredProducts, setFilteredProducts] = React.useState(products);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [modalMessage, setModalMessage] = React.useState("");
+
+  React.useEffect(() => {
+    if (searchQuery === "") {
+      setFilteredProducts(products);
+    } else {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      const filtered = products.filter((product) =>
+        product.node.title.toLowerCase().includes(lowerCaseQuery)
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [searchQuery, products]);
 
   const handleCheckboxChange = (productId) => {
     setSelectedProducts((prevSelected) =>
@@ -112,8 +126,10 @@ export default function Products() {
     return fileName;
   };
 
-
   const handleSubmit = async () => {
+    setIsModalOpen(true);
+    setModalMessage("Your images are being uploaded...");
+
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node.id))
       .map((product) => ({
@@ -121,9 +137,9 @@ export default function Products() {
         title: product.node.title,
         imageUrl: product.node.images.edges[0]?.node.originalSrc || "",
       }));
-  
+
     const shopId = shopDetails.id;
-  
+
     const base64Images = await Promise.all(
       selectedProductDetails.map(async (product) => {
         const base64Image = await downloadImageAsBase64(product.imageUrl);
@@ -132,93 +148,117 @@ export default function Products() {
           image_name: extractImageName(product.imageUrl),
           image_data: base64Image,
           product_source: "shopify",
-          source_product_id: product.id
+          source_product_id: product.id,
         };
       })
     );
-  
+
     const payload = {
       customer_id: shopId,
       images: base64Images,
     };
-  
+
     console.log(payload);
-  
+
     try {
-      const response = await fetch('https://cartesian-api.plotch.io/catalog/genmetadata/image/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-  
+      const response = await fetch(
+        'https://cartesian-api.plotch.io/catalog/genmetadata/image/upload',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
       const result = await response.json();
-  
+
       if (response.ok) {
         console.log('API action success:', result);
+        setModalMessage("Upload successful!. Check Review");
+        setSelectedProducts([]);
       } else {
         console.error('Error from API:', result);
+        setModalMessage("Error occurred during upload. Please try again.");
       }
     } catch (error) {
       console.error('Error during API request:', error);
+      setModalMessage("Error occurred during upload. Please try again.");
     }
   };
-  
-  const rows = products.map((product) => {
-    const variant = product.node.variants.edges[0]?.node;
-    const price = variant?.price ? `₹${variant.price}` : "";
-    const compareAtPrice = variant?.compareAtPrice
-      ? `₹${variant.compareAtPrice}`
-      : "";
-
-    return [
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <Checkbox
-          label=""
-          checked={selectedProducts.includes(product.node.id)}
-          onChange={() => handleCheckboxChange(product.node.id)}
-        />
-        <Thumbnail
-          source={product.node.images.edges[0]?.node.originalSrc || ""}
-          alt={product.node.images.edges[0]?.node.altText || "Product Image"}
-          style={{ marginLeft: "8px" }}
-        />
-      </div>,
-      product.node.title,
-      product.node.status,
-      `${price} ${compareAtPrice ? `(Compare at ${compareAtPrice})` : ""}`,
-    ];
-  });
 
   return (
     <Frame>
       <Page fullWidth>
         <Layout>
           <Layout.Section>
-            <BlockStack gap="400">
-              <Card padding="800">
-                <Text as="h2" alignment="left" variant="headingLg">
-                  Products List
-                </Text>
-              </Card>
-              <Card style={{ height: "500px", overflowY: "scroll" }}>
-                <DataTable
-                  columnContentTypes={["text", "text", "text", "text"]}
-                  headings={["Image", "Title", "Status", "Price"]}
-                  rows={rows}
-                />
-              </Card>
-              <BlockStack gap="400">
-                <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <div className="products-container">
+              <Card padding="300">
+                <h2 className="products-title">Products List</h2>
+                <div className="action-button-container">
+                  <p>Select your products for Majik🪄</p>
                   <Button onClick={handleSubmit} variant="primary">
                     Majik🪄
                   </Button>
                 </div>
-              </BlockStack>
-            </BlockStack>
+              </Card>
+              <div className="search-bar">
+                <TextField
+                  value={searchQuery}
+                  onChange={(value) => setSearchQuery(value)}
+                  placeholder="Search by product name"
+                />
+              </div>
+              <div className="products-list">
+                {filteredProducts.map((product) => {
+                  const variant = product.node.variants.edges[0]?.node;
+                  const price = variant?.price ? `₹${variant.price}` : "";
+                  const compareAtPrice = variant?.compareAtPrice
+                    ? `₹${variant.compareAtPrice}`
+                    : "";
+
+                  return (
+                    <div key={product.node.id} className="product-row">
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(product.node.id)}
+                        onChange={() => handleCheckboxChange(product.node.id)}
+                        className="product-checkbox"
+                      />
+                      <div className="product-image">
+                        <img
+                          src={product.node.images.edges[0]?.node.originalSrc || ""}
+                          alt={product.node.images.edges[0]?.node.altText || "Product Image"}
+                        />
+                      </div>
+                      <div className="product-details">
+                        <h3 className="product-title">{product.node.title}</h3>
+                        <div className="pricedetail">
+                          <p className="product-status">{product.node.status}</p>
+                          <p className="product-price">{price}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </Layout.Section>
         </Layout>
+        <Modal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Upload Status"
+          primaryAction={{
+            content: 'Close',
+            onAction: () => setIsModalOpen(false),
+          }}
+        >
+          <Modal.Section>
+            <p>{modalMessage}</p>
+          </Modal.Section>
+        </Modal>
       </Page>
     </Frame>
   );

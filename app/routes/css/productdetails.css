@@ -1,0 +1,124 @@
+.products-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.products-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  /* gap: 10px; */
+  margin-top: 10px;
+  background: white;
+  border-radius: 20px;
+}
+
+
+.product-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px;
+  border-bottom: 1px solid #dfe3e8;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+.search-bar{
+  margin-top: 10px;
+}
+.product-checkbox {
+  appearance: none;
+  margin-right: 13px;
+  margin-left: 10px;
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  border:1px solid black;
+  border-radius: 4px;
+}
+.product-checkbox:checked {
+  background-color: #000; /* Black color when checked */
+}
+.product-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  top: 1.5px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+
+}
+
+.product-image img {
+  width: 50px;
+  height: 50px;
+  margin-right: 6px;
+  border-radius: 4px;
+}
+
+.product-details {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex-grow: 1;
+  gap: 16px;
+  padding-right: 10px;
+}
+.pricedetail{
+  display: flex;
+  gap: 5px;
+  align-content:  center;
+}
+
+.product-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-right: 16px;
+}
+
+.product-status {
+  font-size: 12px;
+  color: #262729;
+  margin-right: 16px;
+  background-color: lightcyan;
+  padding: 0px 7px 0px 7px;
+  border-radius: 12px;
+}
+
+.product-price {
+  font-size: 13px;
+  color: #212b36;
+}
+
+.action-button-container {
+  display: flex;
+  justify-content: space-between;
+}
+.action-button-container p{
+  font-size: 15px;
+  font-weight: 500;
+}
+.action-button {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}

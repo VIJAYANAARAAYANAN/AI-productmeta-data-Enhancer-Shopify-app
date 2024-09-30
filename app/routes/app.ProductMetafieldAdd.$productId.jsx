@@ -173,7 +173,7 @@ export default function DynamicRowsWithProductId() {
 
   //Handle Deleting Rows
   const handleDeleteRow = (index) => {
-    if (index !== 0) {
+    if (index >= 0) {
       const newRows = rows.filter((_, rowIndex) => rowIndex !== index);
       setRows(newRows);
     }
@@ -332,10 +332,10 @@ export default function DynamicRowsWithProductId() {
               />
             </div>
             <div className="meta-cell-grid delete-cell">
-              {index !== 0 && (
+              {index >= 0 && (
                 <img
                   src={deleteicon}
-                  className="delete-icon"
+                  className="adddelete-icon"
                   alt="Delete Row"
                   onClick={() => handleDeleteRow(index)}
                 />

@@ -85,18 +85,19 @@
   gap: 10px;
 }
 
-.delete-cell {
+.adddelete-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 
-.delete-icon {
+.adddelete-icon {
   width: 20px;
   height: 20px;
   cursor: pointer; /* Add a pointer cursor to indicate it is clickable */
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .loaderpart{
   display: flex;

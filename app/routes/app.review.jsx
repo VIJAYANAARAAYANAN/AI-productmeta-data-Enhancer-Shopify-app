@@ -106,13 +106,12 @@ export default function RequestTable() {
   const data = useLoaderData();
   const [isLoading, setIsLoading] = React.useState(true);
   const [rows, setRows] = React.useState([]);
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const rowsPerPage = 20;
 
   // Fetch requestData dynamically
   React.useEffect(() => {
-    console.log("useEffect triggered");
     if (data && data.requestData) {
-      console.log("Setting table rows with fetched data:", data.requestData);
-
       // Dynamically update rows with fetched data
       const formattedRows = data.requestData.map((request) => [
         request.request_id,
@@ -134,17 +133,27 @@ export default function RequestTable() {
       ]);
 
       setRows(formattedRows);
-      setIsLoading(false); // Set loading to false once data is set
-    } else {
-      console.log("No requestData available, keeping loading state active.");
+      setIsLoading(false);
     }
   }, [data]);
 
   // Download handler
   const handleDownload = (url) => {
-    console.log("Download initiated for URL:", url);
     window.location.href = url;
   };
+
+  const handleViewClick = () => {
+    console.log("View button clicked");
+  };
+
+  // Pagination handlers
+  const paginatedRows = rows.slice(
+    currentPage * rowsPerPage,
+    (currentPage + 1) * rowsPerPage
+  );
+
+  const hasNext = (currentPage + 1) * rowsPerPage < rows.length;
+  const hasPrevious = currentPage > 0;
 
   return (
     <Frame>
@@ -169,12 +178,14 @@ export default function RequestTable() {
                   "Sheet",
                   "Review",
                 ]}
-                rows={rows}
+                rows={paginatedRows}
                 loading={isLoading}
-                pagination={{
-                  hasNext: true,
-                  onNext: () => {},
-                }}
+                footerContent={
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Button disabled={!hasPrevious} onClick={() => setCurrentPage(currentPage - 1)}>⏮️ Previous</Button>
+                    <Button disabled={!hasNext} onClick={() => setCurrentPage(currentPage + 1)}>Next ⏭️ </Button>
+                  </div>
+                }
               />
             </Card>
           </Layout.Section>

@@ -15,6 +15,7 @@ import {
   Link,
   InlineStack,
 } from "@shopify/polaris";
+
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
@@ -99,7 +100,6 @@ export default function Index() {
     "gid://shopify/Product/",
     "",
   );
-
   useEffect(() => {
     if (productId) {
       shopify.toast.show("Product created");
