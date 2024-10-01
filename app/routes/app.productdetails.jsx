@@ -250,10 +250,10 @@ export default function Products() {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           title="Upload Status"
-{/*           primaryAction={{
+          primaryAction={{
             content: 'Close',
             onAction: () => setIsModalOpen(false),
-          }} */}
+          }}
         >
           <Modal.Section>
             <p>{modalMessage}</p>
