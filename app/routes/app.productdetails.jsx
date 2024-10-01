@@ -128,7 +128,7 @@ export default function Products() {
 
   const handleSubmit = async () => {
     setIsModalOpen(true);
-    setModalMessage("Your images are being uploaded...");
+    setModalMessage("Your products are being uploaded...");
 
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node.id))
@@ -250,10 +250,10 @@ export default function Products() {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           title="Upload Status"
-          primaryAction={{
+{/*           primaryAction={{
             content: 'Close',
             onAction: () => setIsModalOpen(false),
-          }}
+          }} */}
         >
           <Modal.Section>
             <p>{modalMessage}</p>
