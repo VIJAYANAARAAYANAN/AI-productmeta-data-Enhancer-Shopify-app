@@ -17,16 +17,22 @@ export default function Index() {
           <p><strong>{{ metafield[0] | replace: '_', ' ' | capitalize }}:</strong> {{ metafield[1].value }}</p>
         {% endif %}
       {% endfor %}
-    </div>
-
-    <script>
-      console.log({{ product| json}});
-    </script>` : `
-    <!-- Global namespace metafields example -->
+    </div>` : `
     <div class="metafields-container">
-      <!-- Add global namespace metafields here -->
-      <p>Example Global Namespace Metafields Display</p>
-    </div>`;
+    {% assign possible_namespaces = "Your namespaces separated by ', ' " | split: ", " %}
+    {% for namespace in possible_namespaces %}
+      {% assign metafields = product.metafields[namespace] %}
+      {% if metafields %}
+        {% for metafield in metafields %}
+          {% if metafield[1].value != blank %}
+            <p>
+              <strong>{{ metafield[0] | replace: '_', ' ' | capitalize }}:</strong> {{ metafield[1].value }}
+            </p>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </div>`;
 
   return (
     <Page>
@@ -94,28 +100,26 @@ export default function Index() {
           
           <Layout.Section secondary>
             <Card title="Why Choose Majik?" sectioned>
-              <InlineStack gap="300" align="center">
-                <Box>
-                  <Text variant="headingMd">AI-Powered Accuracy</Text>
-                  <Text variant="bodyMd">
-                    Majik, powered by Plotch.ai, ensures the highest-quality metadata using cutting-edge AI technology. Your store deserves nothing less.
-                  </Text>
-                </Box>
-                <Box>
-                  <Text variant="headingMd">Real-Time Updates</Text>
-                  <Text variant="bodyMd">
-                    Every change you make to your metadata is reflected in real-time, giving you full control over your Shopify store.
-                  </Text>
-                </Box>
-                <Box>
-                  <Text variant="headingMd">Affordable</Text>
-                  <Text variant="bodyMd">
-                    Generate accurate product metadata for just ₹10 per product, saving you both time and money.
-                  </Text>
-                </Box>
-              </InlineStack>
-            </Card>
-            <br></br>
+            <Box>
+              <Text variant="headingMd">AI-Powered Accuracy</Text>
+              <Text variant="bodyMd">
+                Majik, powered by Plotch.ai, ensures the highest-quality metadata using cutting-edge AI technology. Your store deserves nothing less.
+              </Text>
+            </Box>
+            <Box>
+              <Text variant="headingMd">Real-Time Updates</Text>
+              <Text variant="bodyMd">
+                Every change you make to your metadata is reflected in real-time, giving you full control over your Shopify store.
+              </Text>
+            </Box>
+            <Box>
+              <Text variant="headingMd">Affordable</Text>
+              <Text variant="bodyMd">
+                Generate accurate product metadata for just ₹10 per product, saving you both time and money.
+              </Text>
+            </Box>
+          </Card>
+          <br></br>
             
             <Card title="Next Steps" sectioned>
               <List type="bullet">
