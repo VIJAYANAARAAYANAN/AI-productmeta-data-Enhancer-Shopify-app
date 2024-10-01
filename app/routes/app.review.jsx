@@ -2,7 +2,7 @@ import * as React from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
 import '@shopify/polaris/build/esm/styles.css';
-
+import './css/requesttable.css';
 import {
   Page,
   Layout,
@@ -13,7 +13,6 @@ import {
   Frame,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-
 
 // Loader function with detailed logging
 export const loader = async ({ request }) => {
@@ -113,25 +112,13 @@ export default function RequestTable() {
   React.useEffect(() => {
     if (data && data.requestData) {
       // Dynamically update rows with fetched data
-      const formattedRows = data.requestData.map((request) => [
-        request.request_id,
-        <Badge
-          status={
-            request.request_status === "COMPLETED" ? "success" : "attention"
-          }
-        >
-          {request.request_status}
-        </Badge>,
-        request.request_date,
-        request.num_products,
-        <Button plain onClick={() => handleDownload(request.download_link)}>
-          Download
-        </Button>,
-        <Button onClick={handleViewClick} plain>
-          <Link to={`/app/metaview/${request.request_id}`}>View</Link>
-        </Button>,
-      ]);
-
+      const formattedRows = data.requestData.map((request) => ({
+        requestId: request.request_id,
+        requestStatus: request.request_status,
+        requestDate: request.request_date,
+        numProducts: request.num_products,
+        downloadLink: request.download_link,
+      }));
       setRows(formattedRows);
       setIsLoading(false);
     }
@@ -142,15 +129,16 @@ export default function RequestTable() {
     window.location.href = url;
   };
 
-  const handleViewClick = () => {
-    console.log("View button clicked");
-  };
-
   // Pagination handlers
   const paginatedRows = rows.slice(
     currentPage * rowsPerPage,
     (currentPage + 1) * rowsPerPage
   );
+
+  const handleDateformat = (reqDate) => {
+    console.log("Customized date format");
+    return reqDate.split(" ")[0];
+  };
 
   const hasNext = (currentPage + 1) * rowsPerPage < rows.length;
   const hasPrevious = currentPage > 0;
@@ -160,34 +148,78 @@ export default function RequestTable() {
       <Page fullWidth>
         <Layout>
           <Layout.Section>
-            <Card>
-              <DataTable
-                columnContentTypes={[
-                  "text",
-                  "text",
-                  "text",
-                  "text",
-                  "text",
-                  "text",
-                ]}
-                headings={[
-                  "Request Id",
-                  "Request Status",
-                  "Request Date",
-                  "Num Products",
-                  "Sheet",
-                  "Review",
-                ]}
-                rows={paginatedRows}
-                loading={isLoading}
-                footerContent={
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Button disabled={!hasPrevious} onClick={() => setCurrentPage(currentPage - 1)}>⏮️ Previous</Button>
-                    <Button disabled={!hasNext} onClick={() => setCurrentPage(currentPage + 1)}>Next ⏭️ </Button>
-                  </div>
-                }
-              />
-            </Card>
+       
+              <div className="wholearea">
+              <div className="grid-container">
+                <div className="grid-header">
+           
+                  <div>Request Id</div>
+                  <div>Request Status</div>
+                  <div>Request Date</div>
+                  <div>Num Products</div>
+                  <div>Sheet</div>
+                  <div>Review</div>
+              
+                </div>
+                </div>
+                <div className="allrows">
+                {isLoading ? (
+                  <div>Loading...</div>
+                ) : (
+                  paginatedRows.map((request, index) => (
+               
+                    <div className="grid-row" key={index}>
+                      <div>{request.requestId}</div>
+                      <div>
+                        <Badge
+                          status={
+                            request.requestStatus === "COMPLETED"
+                              ? "success"
+                              : "attention"
+                          }
+                        >
+                          {request.requestStatus}
+                        </Badge>
+                      </div>
+                      <div>{handleDateformat(request.requestDate)}</div>
+                      <div>{request.numProducts}</div>
+                      <div>
+                        <Button
+                          plain
+                          onClick={() => handleDownload(request.downloadLink)}
+                        >
+                          Download
+                        </Button>
+                      </div>
+                      <div className="viewbutton">
+                        <Button onClick={handleViewClick} plain>
+                          <Link to={`/app/metaview/${request.requestId}`}>
+                            View
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+
+                  ))
+                )}
+              </div>
+              </div>
+              <div className="pagination-buttons">
+                <Button
+                  disabled={!hasPrevious}
+                  variant="primary"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  ⏮️ Previous
+                </Button>
+                <Button
+                  disabled={!hasNext}
+                      variant="primary"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  Next ⏭️
+                </Button>
+              </div>
           </Layout.Section>
         </Layout>
       </Page>

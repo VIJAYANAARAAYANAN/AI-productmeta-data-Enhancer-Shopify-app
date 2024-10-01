@@ -1,0 +1,25 @@
+.topDivison h1 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 7px;
+  text-align: justify;
+}
+.topDivison p {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.SecondDiv h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.SecondDiv p {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.ThirdDivision h3 {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}

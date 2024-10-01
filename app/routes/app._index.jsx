@@ -1,15 +1,32 @@
 import { useState } from "react";
-import { Page, Layout, Card, Button, Text, BlockStack, Box, Link, InlineStack, List} from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
+import {
+  Page,
+  Layout,
+  Card,
+  Button,
+  BlockStack,
+  Box,
+  InlineStack,
+  List,
+} from "@shopify/polaris";
+import { Link } from "@remix-run/react";
+import { useNavigate } from "react-router-dom";
 
+
+import { TitleBar } from "@shopify/app-bridge-react";
+import './css/index.css';
 export default function Index() {
+
+  const navigate = useNavigate();
   const [namespace, setNamespace] = useState("cartesian");
 
   const toggleNamespace = () => {
     setNamespace(namespace === "cartesian" ? "global" : "cartesian");
   };
 
-  const metafieldCode = namespace === "cartesian" ? `
+  const metafieldCode =
+    namespace === "cartesian"
+      ? `
     <div class="metafields-container">  
       {% assign product_namespace = "cartesian" %}
       {% for metafield in product.metafields[product_namespace] %}
@@ -17,7 +34,8 @@ export default function Index() {
           <p><strong>{{ metafield[0] | replace: '_', ' ' | capitalize }}:</strong> {{ metafield[1].value }}</p>
         {% endif %}
       {% endfor %}
-    </div>` : `
+    </div>`
+      : `
     <div class="metafields-container">
     {% assign possible_namespaces = "Your namespaces separated by ', ' " | split: ", " %}
     {% for namespace in possible_namespaces %}
@@ -36,91 +54,139 @@ export default function Index() {
 
   return (
     <Page>
-      <TitleBar title="Majik - Enhance Metadata with AI and Plotch.ai" />
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
-            <Card title="Enhance Your Metadata with Majik" sectioned>
-              <Text as="h1" variant="headingLg">
-                Revolutionize Your Shopify Metadata Management
-              </Text>
-              <Text as="p" variant="bodyMd">
-                Majik uses AI-powered metadata generation from Plotch.ai to provide you with the best, most accurate product metadata in the market. Improve product visibility and organization in your Shopify store with high-quality metadata generation.
-              </Text>
-            <Link to="/app/productdetails" style={{ textDecoration: 'none' }}>
-              <Button primary style={{ backgroundColor: 'white', color: 'black', borderColor: 'black' }}>
-                Get Started
-              </Button>
-            </Link>
+            <Card sectioned>
+              <div className="topDivison">
+              <h1>Revolutionize Your Shopify Metadata Management</h1>
+              <p>
+                Majik is an AI-powered eCommerce metadata enhancement tool
+                designed to optimize product listings by generating detailed,
+                high-quality metadata solely from product images. Leveraging
+                advanced computer vision and natural language processing
+                technologies, Majik analyzes product images to automatically
+                create comprehensive descriptions, attributes, and
+                specifications, making it easier for businesses to enrich their
+                product data effortlessly. In addition to generating precise
+                metadata, Majik also provides unique, SEO-friendly product names
+                that are designed to improve search engine visibility and drive
+                traffic. This tool helps businesses enhance product discovery,
+                improve customer engagement, and streamline the listing process,
+                ensuring that product pages are both informative and optimized
+                for online searches without the need for manual input.
+              </p>
+              </div>
+              <Link to="/app/productdetails" style={{ textDecoration: "none" }}>
+                <Button
+                  variant="primary"
+                  style={{
+                    backgroundColor: "white",
+                    color: "black",
+                    borderColor: "black",
+                  }}
+                >
+                  Get Started
+                </Button>
+              </Link>
             </Card>
-            <br></br>
-            
+            <br />
+
             <Card title="Features" sectioned>
               <BlockStack gap="300">
-                <Text variant="headingMd">Generate Metadata</Text>
-                <Text as="p" variant="bodyMd">
-                  Select products from your store, and Majik will generate metadata for you at just ₹1 per product. Our AI ensures the most accurate and relevant metadata. Once you place the order, the request is processed immediately.
-                </Text>
+                <div className="SecondDiv">
+                <h2>Generate Metadata</h2>
+                <p>
+                  Select products from your store, and Majik will generate
+                  metadata for you at just ₹1 per product. Our AI ensures the
+                  most accurate and relevant metadata. Once you place the order,
+                  the request is processed immediately.
+                </p>
 
-                <Text variant="headingMd">Review Metadata</Text>
-                <Text as="p" variant="bodyMd">
-                  View and manage your metadata generation requests in real-time. Apply the metadata to your products at any time from the Review page. Process, review, and apply effortlessly.
-                </Text>
+                <h2>Review Metadata</h2>
+                <p>
+                  View and manage your metadata generation requests in real-time.
+                  Apply the metadata to your products at any time from the Review
+                  page. Process, review, and apply effortlessly.
+                </p>
 
-                <Text variant="headingMd">Manage Product Metadata</Text>
-                <Text as="p" variant="bodyMd">
-                  Get an overview of all your product metadata. Use the MetaProducts page to create new metafields, update existing ones, or delete unwanted ones. The 'cartesian' namespace ensures that metadata created here is consistent and easy to manage.
-                </Text>
+                <h2>Manage Product Metadata</h2>
+                <p>
+                  Get an overview of all your product metadata. Use the
+                  MetaProducts page to create new metafields, update existing
+                  ones, or delete unwanted ones. The 'cartesian' namespace
+                  ensures that metadata created here is consistent and easy to
+                  manage.
+                </p>
+                </div>
               </BlockStack>
             </Card>
-            <br></br>
-            
-            <Card title="Display Metadata in Your Storefront" sectioned>
-              <Text as="p" variant="bodyMd">
-                Use the following code to display the metafields generated by Majik on your storefront:
-              </Text>
+            <br />
 
-              <Button onClick={toggleNamespace}>
+            <Card title="Display Metadata in Your Storefront" sectioned>
+              <div className="ThirdDivision">
+              <h3>
+                Use the following code to display the metafields generated by
+                Majik on your storefront:
+              </h3>
+
+              <Button onClick={toggleNamespace} variant="primary">
                 Show {namespace === "cartesian" ? "Global" : "Cartesian"} Namespace
               </Button>
-              <div style={{ marginBottom: '16px' }} />
-              
-              <Box padding="400" background="bg-surface-active" borderWidth="025" borderRadius="200" borderColor="border" overflowX="scroll">
+              <div style={{ marginBottom: "16px" }} />
+
+              <Box
+                padding="400"
+                background="bg-surface-active"
+                borderWidth="025"
+                borderRadius="200"
+                borderColor="border"
+                overflowX="scroll"
+                marginBottom="10px"
+              >
                 <pre style={{ margin: 0 }}>
                   <code>{metafieldCode}</code>
                 </pre>
               </Box>
 
-              <Text as="p" variant="bodyMd">
-                Simply paste this code into your Shopify theme to display product metafields generated using Majik.
-              </Text>
+              <p>
+                Simply paste this code into your Shopify theme to display product
+                metafields generated using Majik.
+              </p>
+              </div>
             </Card>
           </Layout.Section>
-          <br></br>
-          
+          <br />
+
           <Layout.Section secondary>
             <Card title="Why Choose Majik?" sectioned>
-            <Box>
-              <Text variant="headingMd">AI-Powered Accuracy</Text>
-              <Text variant="bodyMd">
-                Majik, powered by Plotch.ai, ensures the highest-quality metadata using cutting-edge AI technology. Your store deserves nothing less.
-              </Text>
-            </Box>
-            <Box>
-              <Text variant="headingMd">Real-Time Updates</Text>
-              <Text variant="bodyMd">
-                Every change you make to your metadata is reflected in real-time, giving you full control over your Shopify store.
-              </Text>
-            </Box>
-            <Box>
-              <Text variant="headingMd">Affordable</Text>
-              <Text variant="bodyMd">
-                Generate accurate product metadata for just ₹10 per product, saving you both time and money.
-              </Text>
-            </Box>
-          </Card>
-          <br></br>
-            
+              <Box>
+                <div>
+                <h2>AI-Powered Accuracy</h2>
+                <p>
+                  Majik, powered by Plotch.ai, ensures the highest-quality
+                  metadata using cutting-edge AI technology. Your store deserves
+                  nothing less.
+                </p>
+                </div>
+              </Box>
+              <Box>
+                <h2>Real-Time Updates</h2>
+                <p>
+                  Every change you make to your metadata is reflected in real-time,
+                  giving you full control over your Shopify store.
+                </p>
+              </Box>
+              <Box>
+                <h2>Affordable</h2>
+                <p>
+                  Generate accurate product metadata for just ₹10 per product,
+                  saving you both time and money.
+                </p>
+              </Box>
+            </Card>
+            <br />
+
             <Card title="Next Steps" sectioned>
               <List type="bullet">
                 <List.Item>
@@ -132,8 +198,12 @@ export default function Index() {
                       textDecoration: "none",
                       borderBottom: "1px solid black",
                     }}
-                    onMouseEnter={(e) => (e.target.style.borderBottom = "2px solid black")}
-                    onMouseLeave={(e) => (e.target.style.borderBottom = "1px solid black")}
+                    onMouseEnter={(e) =>
+                      (e.target.style.borderBottom = "2px solid black")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.borderBottom = "1px solid black")
+                    }
                   >
                     View
                   </Link>{" "}
@@ -148,8 +218,12 @@ export default function Index() {
                       textDecoration: "none",
                       borderBottom: "1px solid black",
                     }}
-                    onMouseEnter={(e) => (e.target.style.borderBottom = "2px solid black")}
-                    onMouseLeave={(e) => (e.target.style.borderBottom = "1px solid black")}
+                    onMouseEnter={(e) =>
+                      (e.target.style.borderBottom = "2px solid black")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.borderBottom = "1px solid black")
+                    }
                   >
                     View
                   </Link>
@@ -164,8 +238,12 @@ export default function Index() {
                       textDecoration: "none",
                       borderBottom: "1px solid black",
                     }}
-                    onMouseEnter={(e) => (e.target.style.borderBottom = "2px solid black")}
-                    onMouseLeave={(e) => (e.target.style.borderBottom = "1px solid black")}
+                    onMouseEnter={(e) =>
+                      (e.target.style.borderBottom = "2px solid black")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.borderBottom = "1px solid black")
+                    }
                   >
                     View
                   </Link>

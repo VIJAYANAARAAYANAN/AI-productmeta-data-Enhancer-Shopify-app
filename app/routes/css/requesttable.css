@@ -1,0 +1,64 @@
+.wholearea{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 5px 10px 5px 10px;
+    border: 1px solid darkgrey;
+    width: 90%;
+    border-radius: 20px;
+    background-color: white;
+  }
+
+  
+  .grid-header {
+    display: contents;
+    font-weight: 600;
+    background-color: #f4f6f8;
+    padding: 10px;
+    border-bottom: 1px solid #dfe3e8;
+    text-align: center;
+    padding-bottom: 20px;
+  }
+  .grid-header div{
+    padding: 12px 0 12px 0;
+  }
+  .grid-row {
+    display: contents;
+    padding: 10px;
+    border-bottom: 1px solid #898a8c;
+    text-align: center;
+  }
+  
+  .grid-row > div {
+    padding: 10px 0;
+}
+.grid-row div{
+    border-bottom: 1px solid lightgray;
+}  
+  .pagination-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+  }
+  .allrows{
+    display: grid;
+    width: 90%;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 10px 20px 20px 20px;
+    background-color: white;
+    border-radius: 20px;
+    margin-top: 5px;
+    border: 1px solid darkgrey;
+  }
+  .viewbutton{
+    text-decoration: none;
+    color: #000;
+  }
+  
