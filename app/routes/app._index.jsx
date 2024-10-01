@@ -1,328 +1,128 @@
-/* app._index.jsx */
-
-import { useEffect } from "react";
-import { json } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
-import {
-  Page,
-  Layout,
-  Text,
-  Card,
-  Button,
-  BlockStack,
-  Box,
-  List,
-  Link,
-  InlineStack,
-} from "@shopify/polaris";
-
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
-
-export const loader = async ({ request }) => {
-  await authenticate.admin(request);
-
-  return null;
-};
-
-export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($input: ProductInput!) {
-        productCreate(input: $input) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        input: {
-          title: `${color} Snowboard`,
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
-  const product = responseJson.data.productCreate.product;
-  const variantId = product.variants.edges[0].node.id;
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
-  );
-  const variantResponseJson = await variantResponse.json();
-
-  return json({
-    product: responseJson.data.productCreate.product,
-    variant: variantResponseJson.data.productVariantsBulkUpdate.productVariants,
-  });
-};
+import { useState } from "react";
+import { Page, Layout, Card, Button, Text, BlockStack, Box, Link, InlineStack } from "@shopify/polaris";
+import { TitleBar } from "@shopify/app-bridge-react";
 
 export default function Index() {
-  const fetcher = useFetcher();
-  const shopify = useAppBridge();
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
-  useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
-    }
-  }, [productId, shopify]);
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  const [namespace, setNamespace] = useState("cartesian");
+
+  const toggleNamespace = () => {
+    setNamespace(namespace === "cartesian" ? "global" : "cartesian");
+  };
+
+  const metafieldCode = namespace === "cartesian" ? `
+    <div class="metafields-container">  
+      {% assign product_namespace = "cartesian" %}
+      {% for metafield in product.metafields[product_namespace] %}
+        {% if metafield[1].value != blank %}
+          <p><strong>{{ metafield[0] | replace: '_', ' ' | capitalize }}:</strong> {{ metafield[1].value }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <script>
+      console.log({{ product| json}});
+    </script>` : `
+    <!-- Global namespace metafields example -->
+    <div class="metafields-container">
+      <!-- Add global namespace metafields here -->
+      <p>Example Global Namespace Metafields Display</p>
+    </div>`;
 
   return (
-    <Page>
-      <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
-        </button>
-      </TitleBar>
+    <Page title="Welcome to Majik by Plotch.ai">
+      <TitleBar title="Majik - Enhance Metadata with AI" />
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Congrats on creating a new Shopify app 🎉
-                  </Text>
-                  <Text variant="bodyMd" as="p">
-                    This embedded app template uses{" "}
-                    <Link
-                      url="https://shopify.dev/docs/apps/tools/app-bridge"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      App Bridge
-                    </Link>{" "}
-                    interface examples like an{" "}
-                    <Link url="/app/additional" removeUnderline>
-                      additional page in the app nav
-                    </Link>
-                    , as well as an{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      Admin GraphQL
-                    </Link>{" "}
-                    mutation demo, to provide a starting point for app
-                    development.
-                  </Text>
-                </BlockStack>
-                <BlockStack gap="200">
-                  <Text as="h3" variant="headingMd">
-                    Get started with products
-                  </Text>
-                  <Text as="p" variant="bodyMd">
-                    Generate a product with GraphQL and get the JSON output for
-                    that product. Learn more about the{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      productCreate
-                    </Link>{" "}
-                    mutation in our API references.
-                  </Text>
-                </BlockStack>
-                <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
-                  </Button>
-                  {fetcher.data?.product && (
-                    <Button
-                      url={`shopify:admin/products/${productId}`}
-                      target="_blank"
-                      variant="plain"
-                    >
-                      View product
-                    </Button>
-                  )}
-                </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
+            <Card title="Enhance Your Metadata with Majik" sectioned>
+              <Text as="h1" variant="headingLg">
+                Revolutionize Your Shopify Metadata Management
+              </Text>
+              <Text as="p" variant="bodyMd">
+                Majik uses AI-powered metadata generation from Plotch.ai to provide you with the best, most accurate product metadata in the market. Improve product visibility and organization in your Shopify store with high-quality metadata generation.
+              </Text>
+              <Button primary onClick={() => alert("Let's get started!")}>
+                Get Started
+              </Button>
+            </Card>
+
+            <Card title="Features" sectioned>
+              <BlockStack gap="300">
+                <Text variant="headingMd">Generate Metadata</Text>
+                <Text as="p" variant="bodyMd">
+                  Select products from your store, and Majik will generate metadata for you at just ₹1 per product. Our AI ensures the most accurate and relevant metadata. Once you place the order, the request is processed immediately.
+                </Text>
+
+                <Text variant="headingMd">Review Metadata</Text>
+                <Text as="p" variant="bodyMd">
+                  View and manage your metadata generation requests in real-time. Apply the metadata to your products at any time from the Review page. Process, review, and apply effortlessly.
+                </Text>
+
+                <Text variant="headingMd">Manage Product Metadata</Text>
+                <Text as="p" variant="bodyMd">
+                  Get an overview of all your product metadata. Use the MetaProducts page to create new metafields, update existing ones, or delete unwanted ones. The 'cartesian' namespace ensures that metadata created here is consistent and easy to manage.
+                </Text>
               </BlockStack>
             </Card>
+
+            <Card title="Display Metadata in Your Storefront" sectioned>
+              <Text as="p" variant="bodyMd">
+                Use the following code to display the metafields generated by Majik on your storefront:
+              </Text>
+
+              <Button onClick={toggleNamespace}>
+                Show {namespace === "cartesian" ? "Global" : "Cartesian"} Namespace
+              </Button>
+
+              <Box padding="400" background="bg-surface-active" borderWidth="025" borderRadius="200" borderColor="border" overflowX="scroll">
+                <pre style={{ margin: 0 }}>
+                  <code>{metafieldCode}</code>
+                </pre>
+              </Box>
+
+              <Text as="p" variant="bodyMd">
+                Simply paste this code into your Shopify theme to display product metafields generated using Majik.
+              </Text>
+            </Card>
           </Layout.Section>
-          <Layout.Section variant="oneThird">
-            <BlockStack gap="500">
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    App template specs
+
+          <Layout.Section secondary>
+            <Card title="Why Choose Majik?" sectioned>
+              <InlineStack gap="300" align="center">
+                <Box>
+                  <Text variant="headingMd">AI-Powered Accuracy</Text>
+                  <Text variant="bodyMd">
+                    Majik, powered by Plotch.ai, ensures the highest-quality metadata using cutting-edge AI technology. Your store deserves nothing less.
                   </Text>
-                  <BlockStack gap="200">
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Framework
-                      </Text>
-                      <Link
-                        url="https://remix.run"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Remix
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Database
-                      </Text>
-                      <Link
-                        url="https://www.prisma.io/"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Prisma
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Interface
-                      </Text>
-                      <span>
-                        <Link
-                          url="https://polaris.shopify.com"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          Polaris
-                        </Link>
-                        {", "}
-                        <Link
-                          url="https://shopify.dev/docs/apps/tools/app-bridge"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          App Bridge
-                        </Link>
-                      </span>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        API
-                      </Text>
-                      <Link
-                        url="https://shopify.dev/docs/api/admin-graphql"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphQL API
-                      </Link>
-                    </InlineStack>
-                  </BlockStack>
-                </BlockStack>
-              </Card>
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Next steps
+                </Box>
+                <Box>
+                  <Text variant="headingMd">Real-Time Updates</Text>
+                  <Text variant="bodyMd">
+                    Every change you make to your metadata is reflected in real-time, giving you full control over your Shopify store.
                   </Text>
-                  <List>
-                    <List.Item>
-                      Build an{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/getting-started/build-app-example"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        {" "}
-                        example app
-                      </Link>{" "}
-                      to get started
-                    </List.Item>
-                    <List.Item>
-                      Explore Shopify’s API with{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphiQL
-                      </Link>
-                    </List.Item>
-                  </List>
-                </BlockStack>
-              </Card>
-            </BlockStack>
+                </Box>
+                <Box>
+                  <Text variant="headingMd">Affordable</Text>
+                  <Text variant="bodyMd">
+                    Generate accurate product metadata for just ₹1 per product, saving you both time and money.
+                  </Text>
+                </Box>
+              </InlineStack>
+            </Card>
+
+            <Card title="Next Steps" sectioned>
+              <List type="bullet">
+                <List.Item>
+                  Visit the <Link url="/generate">Generate Page</Link> to start creating high-quality metadata.
+                </List.Item>
+                <List.Item>
+                  Track your metadata requests in real-time on the <Link url="/review">Review Page</Link>.
+                </List.Item>
+                <List.Item>
+                  Manage and edit existing metadata from the <Link url="/metaproducts">MetaProducts Page</Link>.
+                </List.Item>
+              </List>
+            </Card>
           </Layout.Section>
         </Layout>
       </BlockStack>
