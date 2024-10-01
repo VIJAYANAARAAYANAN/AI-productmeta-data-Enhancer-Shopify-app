@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Page, Layout, Card, Button, Text, BlockStack, Box, Link, InlineStack } from "@shopify/polaris";
+import { Page, Layout, Card, Button, Text, BlockStack, Box, Link, InlineStack, List} from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 
 export default function Index() {
