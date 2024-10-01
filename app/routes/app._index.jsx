@@ -41,9 +41,11 @@ export default function Index() {
               <Text as="p" variant="bodyMd">
                 Majik uses AI-powered metadata generation from Plotch.ai to provide you with the best, most accurate product metadata in the market. Improve product visibility and organization in your Shopify store with high-quality metadata generation.
               </Text>
-              <Button plain>
-                <Link to={`/app/productdetails`}>Get Started</Link>
+            <Link to="/app/productdetails" style={{ textDecoration: 'none' }}>
+              <Button primary style={{ backgroundColor: 'white', color: 'black', borderColor: 'black' }}>
+                Get Started
               </Button>
+            </Link>
             </Card>
             <br></br>
             
@@ -75,7 +77,7 @@ export default function Index() {
               <Button onClick={toggleNamespace}>
                 Show {namespace === "cartesian" ? "Global" : "Cartesian"} Namespace
               </Button>
-              <br></br>
+              <div style={{ marginBottom: '16px' }} />
               
               <Box padding="400" background="bg-surface-active" borderWidth="025" borderRadius="200" borderColor="border" overflowX="scroll">
                 <pre style={{ margin: 0 }}>
@@ -118,13 +120,52 @@ export default function Index() {
             <Card title="Next Steps" sectioned>
               <List type="bullet">
                 <List.Item>
-                  Visit the <Link to={`/app/productdetails`}>View</Link> to start creating high-quality metadata.
+                  Visit the{" "}
+                  <Link
+                    to={`/app/productdetails`}
+                    style={{
+                      color: "black",
+                      textDecoration: "none",
+                      borderBottom: "1px solid black",
+                    }}
+                    onMouseEnter={(e) => (e.target.style.borderBottom = "2px solid black")}
+                    onMouseLeave={(e) => (e.target.style.borderBottom = "1px solid black")}
+                  >
+                    View
+                  </Link>{" "}
+                  to start creating high-quality metadata.
                 </List.Item>
                 <List.Item>
-                  Track your metadata requests in real-time on the <Link to={`/app/review`}>View</Link>.
+                  Track your metadata requests in real-time on the{" "}
+                  <Link
+                    to={`/app/review`}
+                    style={{
+                      color: "black",
+                      textDecoration: "none",
+                      borderBottom: "1px solid black",
+                    }}
+                    onMouseEnter={(e) => (e.target.style.borderBottom = "2px solid black")}
+                    onMouseLeave={(e) => (e.target.style.borderBottom = "1px solid black")}
+                  >
+                    View
+                  </Link>
+                  .
                 </List.Item>
                 <List.Item>
-                  Manage and edit existing metadata from the <Link to={`/app/netafields`}>View</Link>.
+                  Manage and edit existing metadata from the{" "}
+                  <Link
+                    to={`/app/metafields`}
+                    style={{
+                      color: "black",
+                      textDecoration: "none",
+                      borderBottom: "1px solid black",
+                    }}
+                    onMouseEnter={(e) => (e.target.style.borderBottom = "2px solid black")}
+                    onMouseLeave={(e) => (e.target.style.borderBottom = "1px solid black")}
+                  >
+                    View
+                  </Link>
+                  .
                 </List.Item>
               </List>
             </Card>
