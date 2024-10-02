@@ -8,11 +8,12 @@ import {
   Button,
   Toast,
   Frame,
+  Modal,
   Banner,
 } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { authenticate } from "../shopify.server";
-
+import "./css/applymetaview.css";
 export const loader = async ({ params, request }) => {
   console.log("Loader function triggered");
   const requestId = params.requestId;
@@ -205,6 +206,9 @@ export default function MetaView() {
   const [toastMessage, setToastMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Modal state
+  const [isModalActive, setIsModalActive] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   useEffect(() => {
     if (fetcher.data && fetcher.data.message) {
       setToastMessage(fetcher.data.message);
@@ -219,6 +223,9 @@ export default function MetaView() {
     console.log(product);
     const productId = `${product.source_product_id}`;
     console.log("Applying metafields for product ID:", productId);
+    setModalMessage("Applying metafields...");
+    setIsModalActive(true);
+    
     fetcher.submit(
       {
         productId,
@@ -238,40 +245,47 @@ export default function MetaView() {
 
   return (
     <Frame>
-      <Page title={`Request ID: ${requestId}`}>
+      <Page>
         <Layout>
           <Layout.Section>
+            <Card>
+              <div className="classtitle">
+                <h3>Request MetaFields of product</h3>
+              </div>
+            </Card>
             <Card title="Request Details">
               {error ? (
                 <Text size="small" color="critical">
                   Error fetching request details: {error}
                 </Text>
               ) : (
-                <div>
+                <div className="metadata-area">
                   {errorBanner}
-                  <p>Details for Request ID: {requestId}</p>
+                  <p>Meta Details for Request ID: {requestId}</p>
                   {requestData ? (
                     requestData.map((product) => (
                       <div
                         key={product.gen_product_id}
-                        style={styles.flexContainer}
+                        className="flexContainer"
                       >
-                        <div style={styles.applyButton}>
-                          <Button onClick={() => handleApply(product)}>
+                        <div className="applyButton">
+                          <Button
+                            onClick={() => handleApply(product)}
+                            variant="primary"
+                          >
                             Apply
                           </Button>
                         </div>
-                        <div style={styles.imageContainer}>
+                        <div className="imageContainer">
                           <img
                             src={product.image_link}
                             alt={product.product_name}
-                            style={styles.image}
                           />
                         </div>
                         <Text size="large" element="h2">
                           {product.product_name}
                         </Text>
-                        <div style={styles.detailsContainer}>
+                        <div className="detailsContainer">
                           {Object.entries(product).map(([key, value]) => {
                             if (
                               value &&
@@ -283,7 +297,7 @@ export default function MetaView() {
                               ].includes(key)
                             ) {
                               return (
-                                <div key={key} style={styles.detailItem}>
+                                <div key={key} className="detailItem">
                                   <strong>{key.replace(/_/g, " ")}:</strong>{" "}
                                   {value}
                                 </div>
@@ -309,40 +323,3 @@ export default function MetaView() {
     </Frame>
   );
 }
-
-const styles = {
-  flexContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    alignItems: "center",
-    marginBottom: "20px",
-  },
-  imageContainer: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  applyButton: {
-    display: "flex",
-    justifyContent: "flex-end",
-    width: "93%",
-  },
-  image: {
-    width: "300px",
-    height: "auto",
-    borderRadius: "8px",
-  },
-  detailsContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: "16px",
-    marginTop: "20px",
-    borderBottom: "1px solid",
-    paddingBottom: "30px",
-    marginBottom: "20px",
-  },
-  detailItem: {
-    marginBottom: "8px",
-  },
-};

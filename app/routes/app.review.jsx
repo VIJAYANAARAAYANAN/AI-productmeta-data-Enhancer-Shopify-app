@@ -210,14 +210,14 @@ export default function RequestTable() {
                   variant="primary"
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  ⏮️ Previous
+                  Previous
                 </Button>
                 <Button
                   disabled={!hasNext}
                       variant="primary"
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
-                  Next ⏭️
+                  Next
                 </Button>
               </div>
           </Layout.Section>

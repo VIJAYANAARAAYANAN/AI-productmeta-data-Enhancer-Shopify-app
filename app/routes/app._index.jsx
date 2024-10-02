@@ -148,7 +148,6 @@ export default function Index() {
                   <code>{metafieldCode}</code>
                 </pre>
               </Box>
-
               <p>
                 Simply paste this code into your Shopify theme to display product
                 metafields generated using Majik.
@@ -180,7 +179,7 @@ export default function Index() {
               <Box>
                 <h2>Affordable</h2>
                 <p>
-                  Generate accurate product metadata for just ₹10 per product,
+                  Generate accurate product metadata for just $1 per 10 products/month,
                   saving you both time and money.
                 </p>
               </Box>

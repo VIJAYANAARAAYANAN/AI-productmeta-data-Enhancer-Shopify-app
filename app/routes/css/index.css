@@ -9,12 +9,12 @@
   margin-bottom: 10px;
 }
 .SecondDiv h2 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 3px;
+
 }
 .SecondDiv p {
-  font-size: 13px;
+  font-size: 12px;
   margin-bottom: 12px;
 }
 .ThirdDivision h3 {
@@ -22,4 +22,7 @@
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 10px;
+}
+.ThirdDivision p{
+    margin-top: 10px
 }

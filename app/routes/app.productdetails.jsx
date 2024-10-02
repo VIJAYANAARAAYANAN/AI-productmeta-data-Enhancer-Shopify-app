@@ -1,7 +1,7 @@
 import * as React from "react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigate,Link } from "@remix-run/react";
 import { json } from "@remix-run/node";
-import './css/productdetails.css';
+import "./css/productdetails.css";
 import {
   Page,
   Layout,
@@ -83,14 +83,14 @@ export default function Products() {
   const [filteredProducts, setFilteredProducts] = React.useState(products);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [modalMessage, setModalMessage] = React.useState("");
-
+  const [showReviewbutton, setshowReviewbutton] = React.useState(false);
   React.useEffect(() => {
     if (searchQuery === "") {
       setFilteredProducts(products);
     } else {
       const lowerCaseQuery = searchQuery.toLowerCase();
       const filtered = products.filter((product) =>
-        product.node.title.toLowerCase().includes(lowerCaseQuery)
+        product.node.title.toLowerCase().includes(lowerCaseQuery),
       );
       setFilteredProducts(filtered);
     }
@@ -100,7 +100,7 @@ export default function Products() {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
         ? prevSelected.filter((id) => id !== productId)
-        : [...prevSelected, productId]
+        : [...prevSelected, productId],
     );
   };
 
@@ -110,19 +110,19 @@ export default function Products() {
       const blob = await response.blob();
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.error('Error downloading image:', error);
+      console.error("Error downloading image:", error);
       return null;
     }
   };
 
   const extractImageName = (url) => {
-    const parts = url.split('/');
-    const fileName = parts[parts.length - 1].split('?')[0];
+    const parts = url.split("/");
+    const fileName = parts[parts.length - 1].split("?")[0];
     return fileName;
   };
 
@@ -150,7 +150,7 @@ export default function Products() {
           product_source: "shopify",
           source_product_id: product.id,
         };
-      })
+      }),
     );
 
     const payload = {
@@ -162,30 +162,37 @@ export default function Products() {
 
     try {
       const response = await fetch(
-        'https://cartesian-api.plotch.io/catalog/genmetadata/image/upload',
+        "https://cartesian-api.plotch.io/catalog/genmetadata/image/upload",
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (response.ok) {
-        console.log('API action success:', result);
+        console.log("API action success:", result);
         setModalMessage("Upload successful!. Check Review");
+        setshowReviewbutton(true);
         setSelectedProducts([]);
       } else {
-        console.error('Error from API:', result);
+        console.error("Error from API:", result);
         setModalMessage("Error occurred during upload. Please try again.");
       }
     } catch (error) {
-      console.error('Error during API request:', error);
+      console.error("Error during API request:", error);
       setModalMessage("Error occurred during upload. Please try again.");
     }
+  };
+
+  const navigate = useNavigate();
+  
+  const handleReviewNavigate = () => {
+    navigate("/app/review");
   };
 
   return (
@@ -195,12 +202,15 @@ export default function Products() {
           <Layout.Section>
             <div className="products-container">
               <Card padding="300">
-                <h2 className="products-title">Products List</h2>
+                <h2 className="products-title">All Products</h2>
                 <div className="action-button-container">
                   <p>Select your products for Majik🪄</p>
-                  <Button onClick={handleSubmit} variant="primary">
-                    Majik🪄
-                  </Button>
+                  {/* <Button onClick={handleSubmit} variant="primary"   style={{ fontSize: '18px', padding: '12px 24px', height: '50px' }}>
+                    Generate Metadata🪄
+                  </Button> */}
+                  <button onClick={handleSubmit} className="generateButton">
+                    Generate Metadata
+                  </button>
                 </div>
               </Card>
               <div className="search-bar">
@@ -228,14 +238,21 @@ export default function Products() {
                       />
                       <div className="product-image">
                         <img
-                          src={product.node.images.edges[0]?.node.originalSrc || ""}
-                          alt={product.node.images.edges[0]?.node.altText || "Product Image"}
+                          src={
+                            product.node.images.edges[0]?.node.originalSrc || ""
+                          }
+                          alt={
+                            product.node.images.edges[0]?.node.altText ||
+                            "Product Image"
+                          }
                         />
                       </div>
                       <div className="product-details">
                         <h3 className="product-title">{product.node.title}</h3>
                         <div className="pricedetail">
-                          <p className="product-status">{product.node.status}</p>
+                          <p className="product-status">
+                            {product.node.status}
+                          </p>
                           <p className="product-price">{price}</p>
                         </div>
                       </div>
@@ -251,12 +268,19 @@ export default function Products() {
           onClose={() => setIsModalOpen(false)}
           title="Upload Status"
           primaryAction={{
-            content: 'Close',
+            content: "Close",
             onAction: () => setIsModalOpen(false),
           }}
         >
           <Modal.Section>
             <p>{modalMessage}</p>
+            {showReviewbutton && (
+              <div className="reviewbutton">
+                <Button variant="primary" onClick={handleReviewNavigate()}>
+                <Link to="/app/review">Review</Link>
+                  </Button>
+              </div>
+            )}
           </Modal.Section>
         </Modal>
       </Page>
