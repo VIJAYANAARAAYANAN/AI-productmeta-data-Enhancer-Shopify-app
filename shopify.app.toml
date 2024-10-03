@@ -1,8 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
-name = "Ai-product-meta-enhancer"
-handle = "ai-product-meta-enhancer"
+name = "  Majik"
+handle = "Majik"
 application_url = "https://medicaid-pending-ted-printed.trycloudflare.com"
 embedded = true
 
