@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useFetcher, useLoaderData, useNavigate,Link } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigate, Link } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import "./css/productdetails.css";
 import {
@@ -190,7 +190,7 @@ export default function Products() {
   };
 
   const navigate = useNavigate();
-  
+
   const handleReviewNavigate = () => {
     navigate("/app/review");
   };
@@ -204,7 +204,7 @@ export default function Products() {
               <Card padding="300">
                 <h2 className="products-title">All Products</h2>
                 <div className="action-button-container">
-                  <p>Select your products for Majik🪄</p>
+                  <p>Generate Metadata</p>
                   {/* <Button onClick={handleSubmit} variant="primary"   style={{ fontSize: '18px', padding: '12px 24px', height: '50px' }}>
                     Generate Metadata🪄
                   </Button> */}
@@ -276,9 +276,9 @@ export default function Products() {
             <p>{modalMessage}</p>
             {showReviewbutton && (
               <div className="reviewbutton">
-                <Button variant="primary" onClick={handleReviewNavigate()}>
-                <Link to="/app/review">Review</Link>
-                  </Button>
+                {/* <Link to="/app/review" className="customLink"> */}
+                <Button onClick={handleReviewNavigate} variant="primary">Review</Button>
+                {/* </Link> */}
               </div>
             )}
           </Modal.Section>

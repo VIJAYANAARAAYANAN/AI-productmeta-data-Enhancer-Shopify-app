@@ -1,8 +1,8 @@
 import * as React from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
-import '@shopify/polaris/build/esm/styles.css';
-import './css/requesttable.css';
+import "@shopify/polaris/build/esm/styles.css";
+import "./css/requesttable.css";
 import {
   Page,
   Layout,
@@ -98,7 +98,7 @@ export const loader = async ({ request }) => {
 
 const handleViewClick = () => {
   console.log("View button clicked");
-}
+};
 
 // React component with dynamic data handling and logging
 export default function RequestTable() {
@@ -132,7 +132,7 @@ export default function RequestTable() {
   // Pagination handlers
   const paginatedRows = rows.slice(
     currentPage * rowsPerPage,
-    (currentPage + 1) * rowsPerPage
+    (currentPage + 1) * rowsPerPage,
   );
 
   const handleDateformat = (reqDate) => {
@@ -148,26 +148,23 @@ export default function RequestTable() {
       <Page fullWidth>
         <Layout>
           <Layout.Section>
-       
-              <div className="wholearea">
+            <div className="wholearea">
               <div className="grid-container">
+                <p>Review Metadata</p>
+              </div>
+              <div className="allrows">
                 <div className="grid-header">
-           
                   <div>Request Id</div>
                   <div>Request Status</div>
                   <div>Request Date</div>
                   <div>Num Products</div>
                   <div>Sheet</div>
                   <div>Review</div>
-              
                 </div>
-                </div>
-                <div className="allrows">
                 {isLoading ? (
                   <div>Loading...</div>
                 ) : (
                   paginatedRows.map((request, index) => (
-               
                     <div className="grid-row" key={index}>
                       <div>{request.requestId}</div>
                       <div>
@@ -177,6 +174,11 @@ export default function RequestTable() {
                               ? "success"
                               : "attention"
                           }
+                          className={
+                            request.requestStatus === "COMPLETED"
+                              ? "completedStatus"
+                              : ""
+                          }
                         >
                           {request.requestStatus}
                         </Badge>
@@ -185,41 +187,49 @@ export default function RequestTable() {
                       <div>{request.numProducts}</div>
                       <div>
                         <Button
-                          plain
+                          variant="primary"
                           onClick={() => handleDownload(request.downloadLink)}
                         >
                           Download
                         </Button>
                       </div>
                       <div className="viewbutton">
-                        <Button onClick={handleViewClick} plain>
+                        <Button
+                          onClick={handleViewClick}
+                          variant="primary"
+                          disabled={request.requestStatus !== "COMPLETED"}
+                        >
                           <Link to={`/app/metaview/${request.requestId}`}>
                             View
                           </Link>
                         </Button>
                       </div>
                     </div>
-
                   ))
                 )}
               </div>
-              </div>
-              <div className="pagination-buttons">
-                <Button
-                  disabled={!hasPrevious}
-                  variant="primary"
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                  Previous
-                </Button>
-                <Button
-                  disabled={!hasNext}
-                      variant="primary"
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                  Next
-                </Button>
-              </div>
+            </div>
+            <div className="pagination-buttons">
+              <Button
+                disabled={!hasPrevious}
+                variant="primary"
+                onClick={() => setCurrentPage(currentPage - 1)}
+              >
+                Previous
+              </Button>
+
+              <span className="page-number">
+                {currentPage + 1}    /    {Math.ceil(rows.length / rowsPerPage)}
+              </span>
+
+              <Button
+                disabled={!hasNext}
+                variant="primary"
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
+                Next
+              </Button>
+            </div>
           </Layout.Section>
         </Layout>
       </Page>

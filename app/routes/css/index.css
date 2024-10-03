@@ -11,7 +11,13 @@
 .SecondDiv h2 {
   font-size: 14px;
   font-weight: 600;
-
+}
+.redirectbutton{
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
 }
 .SecondDiv p {
   font-size: 12px;

@@ -1,7 +1,5 @@
-//app.metafields.jsx
-
 import * as React from "react";
-import { useFetcher, useLoaderData , Link} from "@remix-run/react";
+import { useFetcher, useLoaderData, Link } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import "./css/metafields.css"; // Updated styles will go here
 import {
@@ -13,6 +11,7 @@ import {
   BlockStack,
   Frame,
   Thumbnail,
+  TextField,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -69,81 +68,111 @@ export const loader = async ({ request }) => {
     return new Response("Error fetching data", { status: 500 });
   }
 };
+
 const handleProductClick = (product_id) => {
   console.log("Product has been clicked", product_id);
-}
+};
 
 export default function Products() {
   const data = useLoaderData();
   const products = data.products || [];
-  console.log("Products", products);
+  const [searchText, setSearchText] = React.useState("");
+
+  const filteredProducts = products.filter((product) =>
+    product.node.title.toLowerCase().includes(searchText.toLowerCase()),
+  );
+
+  console.log("Products", filteredProducts);
+
   return (
     <Frame>
-      <Page >
+      <Page>
         <Layout>
           <Layout.Section>
             <div className="product-list-container">
               {/* Heading */}
-              <BlockStack gap="300">
-              <Card padding="400" className="product-heading">
-                <h3 className="product-top">Products Metafields</h3>
-              </Card>
+              <BlockStack gap="200">
+                <Card padding="400" className="product-heading">
+                  <h3 className="product-top">Products Metadata</h3>
+                </Card>
 
-              {/* Product List using Divs */}
-              <Card padding="0" className="product-body">
-                <div className="product-head">
-                  <div className="product-head-details">
-                    <span className="product-headtitle">Product</span>
-                  </div>
-                  <div className="shead-tatusmeta">
-                    <div className="product-headstatus">Status</div>
-                    <div className="product-headmeta">Metafields</div>
-                  </div>
+                {/* Search Bar */}
+                <div className="search-bar">
+                  <TextField
+                    value={searchText}
+                    onChange={(value) => setSearchText(value)}
+                    placeholder="Search by product name"
+                    clearButton
+                    onClearButtonClick={() => setSearchText("")}
+                  />
                 </div>
-                <div className="product-list">
-                  {products.map((product, index) => {
-                    const imageUrl =
-                      product.node.images.edges[0]?.node.originalSrc || "";
-                    const altText =
-                      product.node.images.edges[0]?.node.altText ||
-                      "Product Image";
-                     const status = product.node.status;
-                     const metafieldsCount = product.node.metafields.edges.length;
-                     const navid = product.node.id.split('/').pop();
-                    
-                    return (
-                      <div key={index} className="product-row" onClick={() => handleProductClick(product.node.id)}> 
-                      <Link to={`/app/Productmetaview/${navid}`} className="product-row">
 
-                      
-                        {/* Thumbnail and Product Title */}
-                        <div className="product-details">
-                          <Thumbnail
-                            source={imageUrl}
-                            alt={altText}
-                            className="product-thumbnail"
-                          />
-                          <span className="product-title">
-                            {product.node.title}
-                          </span>
-                        </div>
-                        <div className="statusmeta">
-                          
-                          {/* Status */}
-                          <div className="product-status">{status}</div>
+                {/* Product List using Divs */}
+                <Card padding="0" className="product-body">
+                  <div className="product-head">
+                    <div className="product-head-details">
+                      <span className="product-headtitle">Product</span>
+                    </div>
+                    <div className="shead-tatusmeta">
+                      <div className="product-headstatus">Status</div>
+                      <div className="product-headmeta">Metafields</div>
+                    </div>
+                  </div>
 
-                          {/* Metafields Count */}
-                          <div className="product-metafields">
-                            {metafieldsCount} metafields
-                          </div>
-                        </div>
-                        </Link>
+                  <div className="product-list">
+                    {filteredProducts.length === 0 ? (
+                      <div className="no-products-found">
+                        No product found
                       </div>
-                   
-                    );
-                  })}
-                </div>
-              </Card>
+                    ) : (
+                      filteredProducts.map((product, index) => {
+                        const imageUrl =
+                          product.node.images.edges[0]?.node.originalSrc || "";
+                        const altText =
+                          product.node.images.edges[0]?.node.altText ||
+                          "Product Image";
+                        const status = product.node.status;
+                        const metafieldsCount =
+                          product.node.metafields.edges.length;
+                        const navid = product.node.id.split("/").pop();
+
+                        return (
+                          <div
+                            key={index}
+                            className="product-row"
+                            onClick={() => handleProductClick(product.node.id)}
+                          >
+                            <Link
+                              to={`/app/Productmetaview/${navid}`}
+                              className="product-row"
+                            >
+                              {/* Thumbnail and Product Title */}
+                              <div className="product-details">
+                                <Thumbnail
+                                  source={imageUrl}
+                                  alt={altText}
+                                  className="product-thumbnail"
+                                />
+                                <span className="rowproduct-title">
+                                  {product.node.title}
+                                </span>
+                              </div>
+                              <div className="statusmeta">
+                                {/* Status */}
+                                <div className="product-status">{status}</div>
+
+                                {/* Metafields Count */}
+                                <div className="product-metafields">
+                                  {metafieldsCount} metafields
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </Card>
               </BlockStack>
             </div>
           </Layout.Section>

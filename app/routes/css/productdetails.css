@@ -9,6 +9,7 @@
   font-weight: 600;
   margin-bottom: 10px;
   margin-top: 10px;
+  padding-left: 10px;
 }
 .generateButton{
   padding: 12px;
@@ -120,6 +121,7 @@
 .action-button-container p{
   font-size: 15px;
   font-weight: 500;
+  padding-left: 10px;
 }
 .action-button {
   background-color: #000000;
@@ -134,4 +136,8 @@
 .reviewbutton{
   display: flex;
   margin-top: 10px;
+}
+.customLink {
+  text-decoration: none;
+  color: white;
 }

@@ -2,8 +2,8 @@
   width: 100%;
   display: flex;
   align-items: center;
-  border-top: 1px solid #e4d6d6;
-  border-bottom: 1px solid #ede2e2;
+  border-top: 1px solid #e1e1e1;
+ 
   text-decoration: none;
   color: black;
   cursor: pointer;
@@ -22,7 +22,9 @@
   align-items: center;
   padding: 5px 5px 5px 10px;
 }
-
+.rowproduct-title{
+  font-weight: 600;
+}
 .statusmeta {
   display: flex;
   gap: 30px;
@@ -70,6 +72,11 @@
   background-color: #d5ebff;
   padding: 0px 5px 0px 5px;
   border-radius: 10px;
+}
+.no-products-found{
+  display: flex;
+  padding: 10px;
+  justify-content: center;
 }
 @media screen and (max-width: 580px) {
   .product-status{

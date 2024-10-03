@@ -5,16 +5,18 @@
     flex-direction: column;
 }
 .grid-container {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
+  
     padding: 5px 10px 5px 10px;
     border: 1px solid darkgrey;
     width: 90%;
     border-radius: 20px;
     background-color: white;
   }
-
+  .grid-container p{
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 10px 8px 10px;
+  }
   
   .grid-header {
     display: contents;
@@ -45,12 +47,16 @@
     display: flex;
     justify-content: space-between;
     padding: 20px;
+    align-items: center;
+  }
+  .page-number{
+    font-size: 14px;
+    font-weight: 500;
   }
   .allrows{
     display: grid;
     width: 90%;
     grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
     padding: 10px 20px 20px 20px;
     background-color: white;
     border-radius: 20px;
@@ -60,5 +66,16 @@
   .viewbutton{
     text-decoration: none;
     color: #000;
+  }
+  .completedStatus {
+    color: green !important;
+  }
+  .viewbutton a {
+    text-decoration: none;
+    color: #fff;
+  }
+  
+  .viewbutton a:disabled {
+    color: lightgray;
   }
   
