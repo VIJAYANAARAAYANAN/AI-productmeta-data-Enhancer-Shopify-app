@@ -36,7 +36,7 @@ export default function App() {
         <Link to="/app" rel="home">Home</Link>
         <Link to="/app/productdetails">Generate Metadata</Link>
         <Link to="/app/review">Review Metadata</Link>
-        <Link to="/app/metafields">Product Metadata</Link>
+        <Link to="/app/metafields">Manage Metadata</Link>
       </NavMenu>
       {/* Pass loading state to the Loader */}
       <Loader isOpen={isLoading} onClose={() => setIsLoading(false)} />

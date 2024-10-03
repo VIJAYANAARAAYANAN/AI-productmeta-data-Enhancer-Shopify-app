@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Ai-product-meta-enhancer"
 handle = "ai-product-meta-enhancer"
-application_url = "https://visible-peers-person-app.trycloudflare.com"
+application_url = "https://medicaid-pending-ted-printed.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://visible-peers-person-app.trycloudflare.com/auth/callback",
-  "https://visible-peers-person-app.trycloudflare.com/auth/shopify/callback",
-  "https://visible-peers-person-app.trycloudflare.com/api/auth/callback"
+  "https://medicaid-pending-ted-printed.trycloudflare.com/auth/callback",
+  "https://medicaid-pending-ted-printed.trycloudflare.com/auth/shopify/callback",
+  "https://medicaid-pending-ted-printed.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
