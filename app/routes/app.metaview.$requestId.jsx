@@ -270,7 +270,6 @@ export default function MetaView() {
                       >
                         <div className="applyButton">
                           <button className="metaapply" onClick={() => handleApply(product)}> Apply Metafields</button>
-
                         </div>
                         <div className="imageContainer">
                           <img

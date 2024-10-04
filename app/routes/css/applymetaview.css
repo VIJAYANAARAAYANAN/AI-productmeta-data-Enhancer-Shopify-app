@@ -17,7 +17,9 @@
 }
 
 .applyButton {
- 
+  display: flex;
+  justify-content: flex-end;
+  width: 93%;
 }
 
 .imageContainer {
@@ -46,9 +48,6 @@
 }
 
 .metaapply {
-  display: flex;
-  justify-content: flex-end;
-  width: 93%;
   padding: 8px;
   border-radius: 12px;
   background-color: #ff3e6b;
