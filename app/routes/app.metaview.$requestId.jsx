@@ -210,10 +210,12 @@ export default function MetaView() {
   // Modal state
   const [isModalActive, setIsModalActive] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+
   useEffect(() => {
     if (fetcher.data && fetcher.data.message) {
       setToastMessage(fetcher.data.message);
       setToastActive(true);
+      setIsModalActive(false);
       if (!fetcher.data.success) {
         setErrorMessage(fetcher.data.message);
       }
@@ -221,12 +223,13 @@ export default function MetaView() {
   }, [fetcher.data]);
 
   const handleApply = async (product) => {
-    console.log(product);
     const productId = `${product.source_product_id}`;
     console.log("Applying metafields for product ID:", productId);
-    setModalMessage("Applying metafields...");
-    setIsModalActive(true);
-    
+
+    // Set initial toast message to show that metafields are being applied
+    setToastMessage("Applying metafields...");
+    setToastActive(true);
+
     fetcher.submit(
       {
         productId,
@@ -250,69 +253,74 @@ export default function MetaView() {
         <Layout>
           <Layout.Section>
             <BlockStack gap={200}>
-            <Card>
-              <div className="classtitle">
-                <h3>Request MetaFields of product</h3>
-              </div>
-            </Card>
-            <Card title="Request Details">
-              {error ? (
-                <Text size="small" color="critical">
-                  Error fetching request details: {error}
-                </Text>
-              ) : (
-                <div className="metadata-area">
-                  {errorBanner}
-                  <p>Meta Details for Request ID: {requestId}</p>
-                  {requestData ? (
-                    requestData.map((product) => (
-                      <div
-                        key={product.gen_product_id}
-                        className="flexContainer"
-                      >
-                        <div className="applyButton">
-                          <button className="metaapply" onClick={() => handleApply(product)}> Apply Metafields</button>
-                        </div>
-                        <div className="imageContainer">
-                          <img
-                            src={product.image_link}
-                            alt={product.product_name}
-                          />
-                        </div>
-                        <Text size="large" element="h2">
-                          {product.product_name}
-                        </Text>
-                        <div className="detailsContainer">
-                          {Object.entries(product).map(([key, value]) => {
-                            if (
-                              value &&
-                              value.trim() !== "" &&
-                              ![
-                                "product_name",
-                                "gen_product_id",
-                                "image_link",
-                              ].includes(key)
-                            ) {
-                              return (
-                                <div key={key} className="detailItem">
-                                  <strong>{key.replace(/_/g, " ")}:</strong>{" "}
-                                  {value}
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <Text size="small" color="subdued">
-                      No product metadata available.
-                    </Text>
-                  )}
+              <Card>
+                <div className="classtitle">
+                  <h3>Product Metafields</h3>
                 </div>
-              )}
-            </Card>
+              </Card>
+              <Card title="Request Details">
+                {error ? (
+                  <Text size="small" color="critical">
+                    Error fetching request details: {error}
+                  </Text>
+                ) : (
+                  <div className="metadata-area">
+                    {errorBanner}
+                    <p>Meta Details for Request ID: {requestId}</p>
+                    {requestData ? (
+                      requestData.map((product) => (
+                        <div
+                          key={product.gen_product_id}
+                          className="flexContainer"
+                        >
+                          <div className="applyButton">
+                            <button
+                              className="metaapply"
+                              onClick={() => handleApply(product)}
+                            >
+                              Apply Metafields
+                            </button>
+                          </div>
+                          <div className="imageContainer">
+                            <img
+                              src={product.image_link}
+                              alt={product.product_name}
+                            />
+                          </div>
+                          <Text size="large" element="h2">
+                            {product.product_name}
+                          </Text>
+                          <div className="detailsContainer">
+                            {Object.entries(product).map(([key, value]) => {
+                              if (
+                                value &&
+                                value.trim() !== "" &&
+                                ![
+                                  "product_name",
+                                  "gen_product_id",
+                                  "image_link",
+                                ].includes(key)
+                              ) {
+                                return (
+                                  <div key={key} className="detailItem">
+                                    <strong>{key.replace(/_/g, " ")}:</strong>{" "}
+                                    {value}
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <Text size="small" color="subdued">
+                        No product metadata available.
+                      </Text>
+                    )}
+                  </div>
+                )}
+              </Card>
             </BlockStack>
           </Layout.Section>
         </Layout>
