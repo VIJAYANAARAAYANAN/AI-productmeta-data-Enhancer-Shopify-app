@@ -269,12 +269,8 @@ export default function MetaView() {
                         className="flexContainer"
                       >
                         <div className="applyButton">
-                          <Button
-                            onClick={() => handleApply(product)}
-                            variant="primary"
-                          >
-                            Apply
-                          </Button>
+                          <button className="metaapply" onClick={() => handleApply(product)}> Apply Metafields</button>
+
                         </div>
                         <div className="imageContainer">
                           <img

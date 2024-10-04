@@ -64,11 +64,11 @@
     border: 1px solid darkgrey;
   }
 
-  
   .viewbutton{
     text-decoration: none;
     color: #000;
   }
+  
   .completedStatus {
     color: green !important;
   }
