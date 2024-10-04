@@ -35,16 +35,21 @@
 
 .detailsContainer {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 20px;
   border-bottom: 1px solid;
   padding-bottom: 30px;
   margin-bottom: 20px;
+  width: 90%;
 }
 
 .detailItem {
   margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  justify-content: center;
 }
 
 .metaapply {

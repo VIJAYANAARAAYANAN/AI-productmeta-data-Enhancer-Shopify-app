@@ -1,83 +1,130 @@
-.wholearea{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+.wholearea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 .grid-container {
-  
-    padding: 5px 10px 5px 10px;
-    border: 1px solid darkgrey;
-    width: 90%;
-    border-radius: 20px;
-    background-color: white;
-  }
-  .grid-container p{
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 10px 8px 10px;
-  }
-  
-  .grid-header {
-    display: contents;
-    font-weight: 600;
-    background-color: #f4f6f8;
-    padding: 10px;
-    border-bottom: 1px solid #dfe3e8;
-    text-align: center;
-    padding-bottom: 20px;
-  }
-  .grid-header div{
-    padding: 12px 0 12px 0;
-  }
-  .grid-row {
-    display: contents;
-    padding: 10px;
-    border-bottom: 1px solid #898a8c;
-    text-align: center;
-  }
-  
-  .grid-row > div {
-    padding: 10px 0;
+  padding: 5px 10px 5px 10px;
+  border: 1px solid darkgrey;
+  width: 90%;
+  border-radius: 20px;
+  background-color: white;
 }
-.grid-row div{
-    border-bottom: 1px solid lightgray;
-}  
-  .pagination-buttons {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    align-items: center;
-  }
-  .page-number{
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .allrows{
-    display: grid;
-    width: 90%;
-    grid-template-columns: repeat(6, 1fr);
-    padding: 10px 20px 20px 20px;
-    background-color: white;
-    border-radius: 20px;
-    margin-top: 5px;
-    border: 1px solid darkgrey;
-  }
+.grid-container p {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px 8px 10px;
+}
 
-  .viewbutton{
-    text-decoration: none;
-    color: #000;
-  }
-  
-  .completedStatus {
-    color: green !important;
-  }
-  .viewbutton a {
-    text-decoration: none;
-    color: #fff;
-  }
-  
-  .viewbutton a:disabled {
-    color: lightgray;
-  }
-  
+.grid-header {
+  display: contents;
+  font-weight: 600;
+  background-color: #f4f6f8;
+  padding: 10px;
+  border-bottom: 1px solid #dfe3e8;
+  text-align: center;
+  padding-bottom: 20px;
+}
+.grid-header div {
+  padding: 12px 0 12px 0;
+}
+.grid-row {
+  display: contents;
+  padding: 10px;
+  border-bottom: 1px solid #898a8c;
+  text-align: center;
+}
+
+.grid-row > div {
+  padding: 10px 0;
+}
+.grid-row div {
+  border-bottom: 1px solid lightgray;
+}
+.grid-row p{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.downloadpink {
+  padding: 8px;
+  border-radius: 12px;
+  background-color: #ff3e6b;
+  color: white;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.Viewpink {
+  padding: 8px 12px 8px 12px;
+  border-radius: 12px;
+  background-color: #ff3e6b;
+  color: white;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.disabled {
+  background-color: #ffc1cf; 
+  color: #665454; 
+  font-weight: 500;
+  cursor:default;
+}
+
+.pagination-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  align-items: center;
+}
+.page-number {
+  font-size: 14px;
+  font-weight: 500;
+}
+.allrows {
+  display: grid;
+  width: 90%;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 10px 20px 20px 20px;
+  background-color: white;
+  border-radius: 20px;
+  margin-top: 5px;
+  border: 1px solid darkgrey;
+}
+
+.viewbutton {
+  text-decoration: none;
+  color: #000;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 5px;
+
+  font-weight: 500;
+}
+.status p {
+}
+.completedStatus {
+  justify-content: center;
+  display: flex;
+  color: green;
+}
+
+.pendingStatus {
+  color: red;
+  justify-content: center;
+  display: flex;
+}
+.viewbutton a {
+  text-decoration: none;
+  color: #fff;
+}
+
+.viewbutton a:disabled {
+  color: lightgray;
+}

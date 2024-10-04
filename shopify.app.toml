@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://theatre-elimination-ingredients-least.trycloudflare.com"
+application_url = "https://habitat-number-finals-catalogue.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://theatre-elimination-ingredients-least.trycloudflare.com/auth/callback",
-  "https://theatre-elimination-ingredients-least.trycloudflare.com/auth/shopify/callback",
-  "https://theatre-elimination-ingredients-least.trycloudflare.com/api/auth/callback"
+  "https://habitat-number-finals-catalogue.trycloudflare.com/auth/callback",
+  "https://habitat-number-finals-catalogue.trycloudflare.com/auth/shopify/callback",
+  "https://habitat-number-finals-catalogue.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

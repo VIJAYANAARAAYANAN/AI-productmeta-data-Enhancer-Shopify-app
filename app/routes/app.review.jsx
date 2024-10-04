@@ -166,43 +166,54 @@ export default function RequestTable() {
                 ) : (
                   paginatedRows.map((request, index) => (
                     <div className="grid-row" key={index}>
-                      <div>{request.requestId}</div>
                       <div>
-                        <Badge
-                          status={
-                            request.requestStatus === "COMPLETED"
-                              ? "success"
-                              : "attention"
-                          }
-                          className={
-                            request.requestStatus === "COMPLETED"
-                              ? "completedStatus"
-                              : ""
-                          }
-                        >
-                          {request.requestStatus}
-                        </Badge>
+                        <p>{request.requestId}</p>
                       </div>
-                      <div>{handleDateformat(request.requestDate)}</div>
-                      <div>{request.numProducts}</div>
+                      <div
+                        className={`${
+                          request.requestStatus === "COMPLETED"
+                            ? "completedStatus"
+                            : "pendingStatus"
+                        }`}
+                      >
+                        <p className="statusres">{request.requestStatus}</p>
+                      </div>
+
                       <div>
-                        <Button
-                          variant="primary"
+                        <p>{handleDateformat(request.requestDate)}</p>
+                      </div>
+                      <div>
+                        <p>{request.numProducts}</p>
+                      </div>
+                      <div>
+                        <button
+                          className={`downloadpink ${request.requestStatus !== "COMPLETED" ? "disabled" : ""}`}
                           onClick={() => handleDownload(request.downloadLink)}
-                        >
-                          Download
-                        </Button>
-                      </div>
-                      <div className="viewbutton">
-                        <Button
-                          onClick={handleViewClick}
-                          variant="primary"
                           disabled={request.requestStatus !== "COMPLETED"}
                         >
-                          <Link to={`/app/metaview/${request.requestId}`}>
-                            View
-                          </Link>
-                        </Button>
+                          Download
+                        </button>
+                      </div>
+                      <div className="viewbutton">
+                        <button
+                          className={`Viewpink ${request.requestStatus !== "COMPLETED" ? "disabled" : ""}`}
+                          onClick={handleViewClick}
+                          disabled={request.requestStatus !== "COMPLETED"}
+                        >
+                          {request.requestStatus === "COMPLETED" ? (
+                            <Link
+                              to={`/app/metaview/${request.requestId}`}
+                              style={{
+                                color: "inherit",
+                                textDecoration: "none",
+                              }}
+                            >
+                              View
+                            </Link>
+                          ) : (
+                            <span>View</span>
+                          )}
+                        </button>
                       </div>
                     </div>
                   ))
@@ -219,7 +230,7 @@ export default function RequestTable() {
               </Button>
 
               <span className="page-number">
-                {currentPage + 1}    /    {Math.ceil(rows.length / rowsPerPage)}
+                {currentPage + 1} / {Math.ceil(rows.length / rowsPerPage)}
               </span>
 
               <Button

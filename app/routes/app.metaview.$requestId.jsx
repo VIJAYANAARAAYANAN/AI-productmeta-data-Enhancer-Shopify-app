@@ -10,6 +10,7 @@ import {
   Frame,
   Modal,
   Banner,
+  BlockStack,
 } from "@shopify/polaris";
 import { useState, useEffect } from "react";
 import { authenticate } from "../shopify.server";
@@ -248,6 +249,7 @@ export default function MetaView() {
       <Page>
         <Layout>
           <Layout.Section>
+            <BlockStack gap={200}>
             <Card>
               <div className="classtitle">
                 <h3>Request MetaFields of product</h3>
@@ -311,6 +313,7 @@ export default function MetaView() {
                 </div>
               )}
             </Card>
+            </BlockStack>
           </Layout.Section>
         </Layout>
       </Page>
