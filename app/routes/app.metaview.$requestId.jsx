@@ -159,7 +159,7 @@ export const action = async ({ request }) => {
   const mutation = `
   mutation UpdateProductMetafield {
   productUpdate(
-    input: {
+    product: {  
       id: "${productId}",
       metafields: [${metafieldsString}]
     }
@@ -172,6 +172,7 @@ export const action = async ({ request }) => {
       message
     }
   }
+    
 }
 
   `;

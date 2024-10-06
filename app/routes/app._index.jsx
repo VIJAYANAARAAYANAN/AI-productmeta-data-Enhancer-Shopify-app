@@ -131,7 +131,7 @@ export default function Index() {
                 <Button onClick={toggleNamespace} variant="primary">
                   Show {namespace === "cartesian" ? "Global" : "Cartesian"} Namespace
                 </Button>
-                <div style={{ marginBottom: "16px" }} />
+                <div className="marginclass" />
                 <Box
                   padding="400"
                   background="bg-surface-active"
