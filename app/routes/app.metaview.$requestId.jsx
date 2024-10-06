@@ -157,22 +157,23 @@ export const action = async ({ request }) => {
     .join(", ");
 
   const mutation = `
-    mutation UpdateProductMetafield {
-      productUpdate(
-        input: {
-          id: "${productId}",
-          metafields: [${metafieldsString}]
-        }
-      ) {
-        product {
-          id
-        }
-        userErrors {
-          field
-          message
-        }
-      }
+  mutation UpdateProductMetafield {
+  productUpdate(
+    input: {
+      id: "${productId}",
+      metafields: [${metafieldsString}]
     }
+  ) {
+    product {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
   `;
 
   try {
