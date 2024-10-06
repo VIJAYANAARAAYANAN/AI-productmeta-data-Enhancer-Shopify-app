@@ -88,22 +88,22 @@ export const action = async ({ request, params }) => {
     .join(", ");
 
   const mutation = `
-    mutation UpdateProductMetafield {
-      productUpdate(
-        input: {
-          id: "${productId}",
-          metafields: [${metafieldsString}]
-        }
-      ) {
-        product {
-          id
-        }
-        userErrors {
-          field
-          message
-        }
-      }
+   mutation UpdateProductMetafield {
+  productUpdate(
+    product: {
+      id: "${productId}",
+      metafields: [${metafieldsString}]
     }
+  ) {
+    product {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
   `;
 
   try {
@@ -119,7 +119,7 @@ export const action = async ({ request, params }) => {
       "This is the result data",
       resultData.data.productUpdate.product,
     );
-   
+
     return json({
       success: true,
       message: "Metafields applied successfully!",
@@ -197,17 +197,16 @@ export default function DynamicRowsWithProductId() {
     // Send metafields to the action function (using form submission)
     const formData = new FormData();
     formData.append("metafields", JSON.stringify(metafields));
-   
+
     // Create a POST request to trigger the action function
     fetch(`/app/ProductMetafieldAdd/${productId}`, {
       method: "POST",
       body: formData,
     }).then((response) => {
-    
       if (response.ok) {
         console.log("Metafields successfully updated!"); // Log success message
         setConfirmationModalActive(false);
-       
+
         setIsPopupVisible(true);
         // window.location.reload();
       } else {
@@ -365,9 +364,13 @@ export default function DynamicRowsWithProductId() {
         <Modal.Section>
           <p>Do you want to save the changes you made to the metafields?</p>
           <div className="loaderpart">
-          {loaderview && (
-            <img className="loadergif" src={loadergif} alt="Creating Metafields"/>
-          )}
+            {loaderview && (
+              <img
+                className="loadergif"
+                src={loadergif}
+                alt="Creating Metafields"
+              />
+            )}
           </div>
         </Modal.Section>
       </Modal>

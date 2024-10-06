@@ -65,18 +65,18 @@ export const action = async ({ request, params }) => {
     const productId = formData.get("productId");
 
     const mutation = `
-      mutation {
-        productUpdate(
-          input: {
-            id: "${productId}",
-            metafields: ${JSON.stringify(updatedMetafields).replace(/"([^"]+)":/g, "$1:")}
-          }
-        ) {
-          userErrors {
-            field
-            message
-          }
-        }
+     mutation {
+  productUpdate(
+    product: {
+      id: "${productId}",
+      metafields: ${JSON.stringify(updatedMetafields).replace(/"([^"]+)":/g, "$1:")}
+    }
+  ) {
+    userErrors {
+      field
+      message
+    }
+  }
       }`;
 
     try {
