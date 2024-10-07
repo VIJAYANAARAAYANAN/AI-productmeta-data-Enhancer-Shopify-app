@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://slight-specialist-favour-albany.trycloudflare.com"
+application_url = "https://apartment-media-widely-add.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://slight-specialist-favour-albany.trycloudflare.com/auth/callback",
-  "https://slight-specialist-favour-albany.trycloudflare.com/auth/shopify/callback",
-  "https://slight-specialist-favour-albany.trycloudflare.com/api/auth/callback"
+  "https://apartment-media-widely-add.trycloudflare.com/auth/callback",
+  "https://apartment-media-widely-add.trycloudflare.com/auth/shopify/callback",
+  "https://apartment-media-widely-add.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
