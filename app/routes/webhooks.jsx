@@ -4,15 +4,6 @@ import { authenticate } from "../shopify.server";
 export const action = async ({ request }) => {
   const { topic, shop } = await authenticate.webhook(request);
 
-  let requestBody;
-  try {
-    requestBody = await request.text();
-    console.log(`Incoming webhook request: ${requestBody}`);
-  } catch (error) {
-    console.error("Error reading request body:", error);
-    return new Response("Failed to read request body", { status: 500 });
-  }
-
   // Handle different webhook topics
   switch (topic) {
     case "APP_UNINSTALLED":
