@@ -4,16 +4,21 @@ import { authenticate } from "../shopify.server";
 export const action = async ({ request }) => {
   const { topic, shop } = await authenticate.webhook(request);
 
-  const requestBody = await request.text();
-  console.log(`Incoming webhook request: ${requestBody}`);
+  let requestBody;
+  try {
+    requestBody = await request.text();
+    console.log(`Incoming webhook request: ${requestBody}`);
+  } catch (error) {
+    console.error("Error reading request body:", error);
+    return new Response("Failed to read request body", { status: 500 });
+  }
 
   // Handle different webhook topics
   switch (topic) {
     case "APP_UNINSTALLED":
       console.log(`App uninstalled by shop: ${shop}`);
-      // await db.session.deleteMany({ where: { shop } });
       break;
-    
+
     case "CUSTOMERS_DATA_REQUEST":
       console.log(`Customer data request received for shop: ${shop}`);
       break;
@@ -26,9 +31,9 @@ export const action = async ({ request }) => {
       console.log(`Shop data redaction request received for shop: ${shop}`);
       break;
 
-
     default:
-      throw new Response("Unhandled webhook topic", { status: 404 });
+      console.error("Unhandled webhook topic:", topic);
+      return new Response("Unhandled webhook topic", { status: 404 });
   }
 
   // Respond with 200 status code to acknowledge the webhook
