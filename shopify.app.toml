@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://jackets-minds-schedule-safari.trycloudflare.com"
+application_url = "https://expected-irc-weddings-fs.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://jackets-minds-schedule-safari.trycloudflare.com/auth/callback",
-  "https://jackets-minds-schedule-safari.trycloudflare.com/auth/shopify/callback",
-  "https://jackets-minds-schedule-safari.trycloudflare.com/api/auth/callback"
+  "https://expected-irc-weddings-fs.trycloudflare.com/auth/callback",
+  "https://expected-irc-weddings-fs.trycloudflare.com/auth/shopify/callback",
+  "https://expected-irc-weddings-fs.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
@@ -28,6 +28,7 @@ api_version = "2024-10"
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
   uri = "/webhooks"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
 [pos]
 embedded = false
