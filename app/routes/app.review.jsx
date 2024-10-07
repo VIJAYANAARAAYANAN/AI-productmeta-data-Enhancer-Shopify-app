@@ -144,7 +144,7 @@ export default function RequestTable() {
   const hasPrevious = currentPage > 0;
 
   return (
-    <Frame>
+    <Frame sidebar='hidden'>
       <Page fullWidth>
         <Layout>
           <Layout.Section>

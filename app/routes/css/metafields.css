@@ -28,6 +28,7 @@
 .statusmeta {
   display: flex;
   gap: 30px;
+  text-wrap: nowrap;
 }
 .product-headstatus{
   padding-right: 5px;
@@ -85,4 +86,13 @@
   .product-headmeta{
     display: none !important;
   }
+  .product-details{
+    width: 70%;
+  }
+  .rowproduct-title {
+    width: 70%;            
+    white-space: nowrap;  
+    overflow: hidden;      
+    text-overflow: ellipsis; 
+}
 }

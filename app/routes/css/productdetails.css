@@ -11,10 +11,10 @@
   margin-top: 10px;
   padding-left: 10px;
 }
-.generateButton{
+.generateButton {
   padding: 12px;
   border-radius: 12px;
-  background-color: #FF3E6B;
+  background-color: #ff3e6b;
   color: white;
   border: none;
   font-weight: 500;
@@ -30,7 +30,6 @@
   border-radius: 20px;
 }
 
-
 .product-row {
   display: flex;
   flex-direction: row;
@@ -40,7 +39,7 @@
   border-radius: 8px;
   background-color: #ffffff;
 }
-.search-bar{
+.search-bar {
   margin-top: 10px;
 }
 .product-checkbox {
@@ -52,7 +51,7 @@
   cursor: pointer;
   display: inline-block;
   position: relative;
-  border:1px solid black;
+  border: 1px solid black;
   border-radius: 4px;
 }
 .product-checkbox:checked {
@@ -68,7 +67,6 @@
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-
 }
 
 .product-image img {
@@ -88,10 +86,10 @@
   gap: 16px;
   padding-right: 10px;
 }
-.pricedetail{
+.pricedetail {
   display: flex;
   gap: 5px;
-  align-content:  center;
+  align-content: center;
 }
 
 .product-title {
@@ -118,7 +116,7 @@
   display: flex;
   justify-content: space-between;
 }
-.action-button-container p{
+.action-button-container p {
   font-size: 15px;
   font-weight: 500;
   padding-left: 10px;
@@ -133,11 +131,27 @@
   cursor: pointer;
   transition: background-color 0.3s;
 }
-.reviewbutton{
+.reviewbutton {
   display: flex;
   margin-top: 10px;
 }
 .customLink {
   text-decoration: none;
   color: white;
+}
+
+@media screen and (max-width: 500px) {
+  .action-button-container p {
+    font-size: 12px;
+  }
+  .generateButton {
+    padding: 8px;
+    font-size: 13px;
+  }
+  .pricedetail{
+    display: none;
+  }
+  .product-title{
+    font-size: 12px;
+  }
 }

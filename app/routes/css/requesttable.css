@@ -27,7 +27,8 @@
   padding-bottom: 20px;
 }
 .grid-header div {
-  padding: 12px 0 12px 0;
+  padding: 12px 10px 12px 3px;
+  text-wrap: nowrap;
 }
 .grid-row {
   display: contents;
@@ -42,9 +43,10 @@
 .grid-row div {
   border-bottom: 1px solid lightgray;
 }
-.grid-row p{
+.grid-row p {
   margin-top: auto;
   margin-bottom: auto;
+  padding: 0px 12px;
 }
 .downloadpink {
   padding: 8px;
@@ -69,10 +71,10 @@
 }
 
 .disabled {
-  background-color: #ffc1cf; 
-  color: #665454; 
+  background-color: #ffc1cf;
+  color: #665454;
   font-weight: 500;
-  cursor:default;
+  cursor: default;
 }
 
 .pagination-buttons {
@@ -94,6 +96,7 @@
   border-radius: 20px;
   margin-top: 5px;
   border: 1px solid darkgrey;
+  overflow-y: scroll;
 }
 
 .viewbutton {
@@ -127,4 +130,11 @@
 
 .viewbutton a:disabled {
   color: lightgray;
+}
+
+@media screen and (max-width:500px){
+  .downloadpink{
+    margin-right: 12px;
+  }
+  
 }
