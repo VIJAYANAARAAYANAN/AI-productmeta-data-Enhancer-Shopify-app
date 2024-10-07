@@ -392,9 +392,9 @@ export default function Productmetaview() {
             </div>
           ))
         ) : (
-          <div>No metafields available.</div>
+          <div className="Nometadata">No metafields available.</div>
         )}
-      </div>
+          </div>
       <div className="button-container">
         <Button
           className="submitbutton"
