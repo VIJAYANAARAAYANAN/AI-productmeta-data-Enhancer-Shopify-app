@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://apartment-media-widely-add.trycloudflare.com"
+application_url = "https://jackets-minds-schedule-safari.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://apartment-media-widely-add.trycloudflare.com/auth/callback",
-  "https://apartment-media-widely-add.trycloudflare.com/auth/shopify/callback",
-  "https://apartment-media-widely-add.trycloudflare.com/api/auth/callback"
+  "https://jackets-minds-schedule-safari.trycloudflare.com/auth/callback",
+  "https://jackets-minds-schedule-safari.trycloudflare.com/auth/shopify/callback",
+  "https://jackets-minds-schedule-safari.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

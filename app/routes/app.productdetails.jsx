@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useFetcher, useLoaderData, useNavigate, Link } from "@remix-run/react";
 import { json } from "@remix-run/node";
+import { useState, useEffect } from "react";
 import "./css/productdetails.css";
 import {
   Page,
@@ -10,6 +11,7 @@ import {
   Card,
   TextField,
   Modal,
+  Toast,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -84,6 +86,18 @@ export default function Products() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [modalMessage, setModalMessage] = React.useState("");
   const [showReviewbutton, setshowReviewbutton] = React.useState(false);
+
+  const [toastActive, setToastActive] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const toastMarkup = toastActive ? (
+    <Toast content={toastMessage} onDismiss={() => setToastActive(false)} />
+  ) : null;
+
+  const errorBanner = errorMessage ? (
+    <Banner status="critical">{errorMessage}</Banner>
+  ) : null;
+
   React.useEffect(() => {
     if (searchQuery === "") {
       setFilteredProducts(products);
@@ -150,7 +164,7 @@ export default function Products() {
           product_source: "shopify",
           source_product_id: product.id,
         };
-      }),
+      })
     );
 
     const payload = {
@@ -169,7 +183,7 @@ export default function Products() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        },
+        }
       );
 
       const result = await response.json();
@@ -195,6 +209,14 @@ export default function Products() {
     navigate("/app/review");
   };
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    if (showReviewbutton) {
+      setToastMessage("Images uploaded successfully");
+      setToastActive(true);
+    }
+  };
+
   return (
     <Frame>
       <Page fullWidth>
@@ -205,9 +227,6 @@ export default function Products() {
                 <h2 className="products-title">All Products</h2>
                 <div className="action-button-container">
                   <p>Generate Metadata</p>
-                  {/* <Button onClick={handleSubmit} variant="primary"   style={{ fontSize: '18px', padding: '12px 24px', height: '50px' }}>
-                    Generate Metadata🪄
-                  </Button> */}
                   <button onClick={handleSubmit} className="generateButton">
                     Generate Metadata
                   </button>
@@ -265,24 +284,25 @@ export default function Products() {
         </Layout>
         <Modal
           open={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleModalClose}
           title="Upload Status"
           primaryAction={{
             content: "Close",
-            onAction: () => setIsModalOpen(false),
+            onAction: handleModalClose,
           }}
         >
           <Modal.Section>
             <p>{modalMessage}</p>
             {showReviewbutton && (
               <div className="reviewbutton">
-                {/* <Link to="/app/review" className="customLink"> */}
-                <Button onClick={handleReviewNavigate} variant="primary">Review</Button>
-                {/* </Link> */}
+                <Button onClick={handleReviewNavigate} variant="primary">
+                  Review
+                </Button>
               </div>
             )}
           </Modal.Section>
         </Modal>
+        {toastMarkup}
       </Page>
     </Frame>
   );
