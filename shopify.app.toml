@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://expected-irc-weddings-fs.trycloudflare.com"
+application_url = "https://majik-ai-metadata-enhancer.onrender.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://expected-irc-weddings-fs.trycloudflare.com/auth/callback",
-  "https://expected-irc-weddings-fs.trycloudflare.com/auth/shopify/callback",
-  "https://expected-irc-weddings-fs.trycloudflare.com/api/auth/callback"
+  "https://majik-ai-metadata-enhancer.onrender.com/auth/callback",
+  "https://majik-ai-metadata-enhancer.onrender.com/auth/shopify/callback",
+  "https://majik-ai-metadata-enhancer.onrender.com/api/auth/callback"
 ]
 
 [webhooks]
