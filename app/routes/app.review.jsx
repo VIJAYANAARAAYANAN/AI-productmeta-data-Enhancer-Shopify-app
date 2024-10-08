@@ -144,106 +144,100 @@ export default function RequestTable() {
   const hasPrevious = currentPage > 0;
 
   return (
-    <Frame sidebar='hidden'>
-      <Page fullWidth>
-        <Layout>
-          <Layout.Section>
-            <div className="wholearea">
-              <div className="grid-container">
-                <p>Review Metadata</p>
-              </div>
-              <div className="allrows">
-                <div className="grid-header">
-                  <div>Request Id</div>
-                  <div>Request Status</div>
-                  <div>Request Date</div>
-                  <div>Num Products</div>
-                  <div>Sheet</div>
-                  <div>Review</div>
+    <div className="Maincontainer">
+      <div className="wholearea">
+        <div className="grid-container">
+          <p>Review Metadata</p>
+        </div>
+        <div className="allrows">
+          <div className="grid-header">
+            <div>Request Id</div>
+            <div>Request Status</div>
+            <div>Request Date</div>
+            <div>Num Products</div>
+            <div>Sheet</div>
+            <div>Review</div>
+          </div>
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            paginatedRows.map((request, index) => (
+              <div className="grid-row" key={index}>
+                <div>
+                  <p>{request.requestId}</p>
                 </div>
-                {isLoading ? (
-                  <div>Loading...</div>
-                ) : (
-                  paginatedRows.map((request, index) => (
-                    <div className="grid-row" key={index}>
-                      <div>
-                        <p>{request.requestId}</p>
-                      </div>
-                      <div
-                        className={`${
-                          request.requestStatus === "COMPLETED"
-                            ? "completedStatus"
-                            : "pendingStatus"
-                        }`}
+                <div
+                  className={`${
+                    request.requestStatus === "COMPLETED"
+                      ? "completedStatus"
+                      : "pendingStatus"
+                  }`}
+                >
+                  <p className="statusres">{request.requestStatus}</p>
+                </div>
+
+                <div>
+                  <p>{handleDateformat(request.requestDate)}</p>
+                </div>
+                <div>
+                  <p>{request.numProducts}</p>
+                </div>
+                <div>
+                  <button
+                    className={`downloadpink ${request.requestStatus !== "COMPLETED" ? "disabled" : ""}`}
+                    onClick={() => handleDownload(request.downloadLink)}
+                    disabled={request.requestStatus !== "COMPLETED"}
+                  >
+                    Download
+                  </button>
+                </div>
+                <div className="viewbutton">
+                  <button
+                    className={`Viewpink ${request.requestStatus !== "COMPLETED" ? "disabled" : ""}`}
+                    onClick={handleViewClick}
+                    disabled={request.requestStatus !== "COMPLETED"}
+                  >
+                    {request.requestStatus === "COMPLETED" ? (
+                      <Link
+                        to={`/app/metaview/${request.requestId}`}
+                        style={{
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
                       >
-                        <p className="statusres">{request.requestStatus}</p>
-                      </div>
-
-                      <div>
-                        <p>{handleDateformat(request.requestDate)}</p>
-                      </div>
-                      <div>
-                        <p>{request.numProducts}</p>
-                      </div>
-                      <div>
-                        <button
-                          className={`downloadpink ${request.requestStatus !== "COMPLETED" ? "disabled" : ""}`}
-                          onClick={() => handleDownload(request.downloadLink)}
-                          disabled={request.requestStatus !== "COMPLETED"}
-                        >
-                          Download
-                        </button>
-                      </div>
-                      <div className="viewbutton">
-                        <button
-                          className={`Viewpink ${request.requestStatus !== "COMPLETED" ? "disabled" : ""}`}
-                          onClick={handleViewClick}
-                          disabled={request.requestStatus !== "COMPLETED"}
-                        >
-                          {request.requestStatus === "COMPLETED" ? (
-                            <Link
-                              to={`/app/metaview/${request.requestId}`}
-                              style={{
-                                color: "inherit",
-                                textDecoration: "none",
-                              }}
-                            >
-                              View
-                            </Link>
-                          ) : (
-                            <span>View</span>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
+                        View
+                      </Link>
+                    ) : (
+                      <span>View</span>
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="pagination-buttons">
-              <Button
-                disabled={!hasPrevious}
-                variant="primary"
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                Previous
-              </Button>
+            ))
+          )}
+        </div>
+      </div>
+      <div className="pagination-buttons">
+        <Button
+          disabled={!hasPrevious}
+          variant="primary"
+          onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          Previous
+        </Button>
 
-              <span className="page-number">
-                {currentPage + 1} / {Math.ceil(rows.length / rowsPerPage)}
-              </span>
+        <span className="page-number">
+          {currentPage + 1} / {Math.ceil(rows.length / rowsPerPage)}
+        </span>
 
-              <Button
-                disabled={!hasNext}
-                variant="primary"
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                Next
-              </Button>
-            </div>
-          </Layout.Section>
-        </Layout>
-      </Page>
-    </Frame>
+        <Button
+          disabled={!hasNext}
+          variant="primary"
+          onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
   );
 }

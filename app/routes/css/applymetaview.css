@@ -5,6 +5,7 @@
 
 .metadata-area p {
   font-size: 13px;
+  margin-bottom: 10px;
   font-weight: 500;
 }
 
@@ -36,7 +37,7 @@
 .detailsContainer {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 10px;
   margin-top: 20px;
   border-bottom: 1px solid;
   padding-bottom: 30px;
@@ -50,6 +51,9 @@
   flex-direction: column;
   text-align: left;
   justify-content: center;
+  border: 1px solid #e1e1e1;
+  padding: 5px;
+  border-radius: 6px;
 }
 
 .metaapply {
@@ -61,4 +65,66 @@
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
+}
+
+/* Media Queries */
+@media screen and (min-width: 768px) and (max-width: 837px) {
+  .detailsContainer {
+    grid-template-columns: repeat(1, 1fr); /* Single column */
+    gap: 8px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 774px) {
+  .detailsContainer {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    gap: 8px;
+    width: 100%;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 562px) {
+  .metadata-area p{
+    margin-bottom: 10px;
+  }
+  .metaapply {
+    padding: 7px;
+    font-weight: 400;
+    font-size: 12px;
+  }
+  
+  .detailsContainer {
+    grid-template-columns: 1fr; /* Single column for mobile */
+    gap: 6px;
+    width: 100%;
+    height: 300px;
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+  }
+
+  /* Custom scrollbar styles for WebKit browsers */
+  .detailsContainer::-webkit-scrollbar {
+    width: 2px; /* Width of the vertical scrollbar */
+  }
+
+  .detailsContainer::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+  }
+
+  .detailsContainer::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+  }
+
+  .detailsContainer::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color of the scrollbar thumb on hover */
+  }
+
+  /* Custom scrollbar styles for Firefox */
+  .detailsContainer {
+    scrollbar-width: thin; /* Makes the scrollbar thin */
+    scrollbar-color: #888 #f1f1f1; /* Thumb color and track color */
+  }
 }
