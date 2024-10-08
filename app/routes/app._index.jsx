@@ -13,8 +13,8 @@ import {
 import { Link } from "@remix-run/react";
 import { useNavigate } from "react-router-dom";
 import { TitleBar } from "@shopify/app-bridge-react";
-import loadingGif from './assets/loader.gif';
-import './css/index.css';
+import loadingGif from "./assets/loader.gif";
+import "./css/index.css";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -26,11 +26,8 @@ export default function Index() {
   };
 
   const handleNavigation = (path) => {
-    // Show the loading modal
-    setIsLoading(true);
-
-    // Navigate to the specified path
-    navigate(path);
+    setIsLoading(true); // Show loading modal
+    navigate(path); // Navigate to the desired path
   };
 
   const metafieldCode =
@@ -66,17 +63,49 @@ export default function Index() {
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
+            <div className="videoContainer">
+              <iframe
+                width="740"
+                height="325"
+                src="https://www.youtube.com/embed/luh7FD43Grw"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </Layout.Section>
+
+          <Layout.Section>
             <Card sectioned>
               <div className="topDivison">
                 <h1>Revolutionize Your Shopify Metadata Management</h1>
                 <ul>
                   <li>AI-powered tool for eCommerce metadata enhancement.</li>
-                  <li>Automatically generates detailed metadata from product images.</li>
-                  <li>Utilizes advanced computer vision and natural language processing (NLP).</li>
-                  <li>Creates product metadata, attributes, and specifications effortlessly.</li>
-                  <li>Helps businesses improve product discovery and customer engagement.</li>
-                  <li>Streamlines the listing process, reducing the need for manual input.</li>
-                  <li>Optimizes product pages for better online search performance.</li>
+                  <li>
+                    Automatically generates detailed metadata from product
+                    images.
+                  </li>
+                  <li>
+                    Utilizes advanced computer vision and natural language
+                    processing (NLP).
+                  </li>
+                  <li>
+                    Creates product metadata, attributes, and specifications
+                    effortlessly.
+                  </li>
+                  <li>
+                    Helps businesses improve product discovery and customer
+                    engagement.
+                  </li>
+                  <li>
+                    Streamlines the listing process, reducing the need for
+                    manual input.
+                  </li>
+                  <li>
+                    Optimizes product pages for better online search
+                    performance.
+                  </li>
                 </ul>
               </div>
               <Button
@@ -100,14 +129,15 @@ export default function Index() {
                   <p>
                     Select products from your store, and Majik will generate
                     metadata for you at just ₹1 per product. Our AI ensures the
-                    most accurate and relevant metadata. Once you place the order,
-                    the request is processed immediately.
+                    most accurate and relevant metadata. Once you place the
+                    order, the request is processed immediately.
                   </p>
                   <h2>Review Metadata</h2>
                   <p>
-                    View and manage your metadata generation requests in real-time.
-                    Apply the metadata to your products at any time from the Review
-                    page. Process, review, and apply effortlessly.
+                    View and manage your metadata generation requests in
+                    real-time. Apply the metadata to your products at any time
+                    from the Review page. Process, review, and apply
+                    effortlessly.
                   </p>
                   <h2>Manage Product Metadata</h2>
                   <p>
@@ -129,7 +159,8 @@ export default function Index() {
                   Majik on your storefront:
                 </h3>
                 <Button onClick={toggleNamespace} variant="primary">
-                  Show {namespace === "cartesian" ? "Global" : "Cartesian"} Namespace
+                  Show {namespace === "cartesian" ? "Global" : "Cartesian"}{" "}
+                  Namespace
                 </Button>
                 <div className="marginclass" />
                 <Box
@@ -146,8 +177,8 @@ export default function Index() {
                   </pre>
                 </Box>
                 <p>
-                  Simply paste this code into your Shopify theme to display product
-                  metafields generated using Majik.
+                  Simply paste this code into your Shopify theme to display
+                  product metafields generated using Majik.
                 </p>
               </div>
             </Card>
@@ -161,47 +192,70 @@ export default function Index() {
                   <h2>AI-Powered Accuracy</h2>
                   <p>
                     Majik, powered by Plotch.ai, ensures the highest-quality
-                    metadata using cutting-edge AI technology. Your store deserves
-                    nothing less.
+                    metadata using cutting-edge AI technology. Your store
+                    deserves nothing less.
                   </p>
                 </div>
               </Box>
               <Box>
                 <h2>Real-Time Updates</h2>
                 <p>
-                  Every change you make to your metadata is reflected in real-time,
-                  giving you full control over your Shopify store.
+                  Every change you make to your metadata is reflected in
+                  real-time, giving you full control over your Shopify store.
                 </p>
               </Box>
               <Box>
                 <h2>Affordable</h2>
                 <p>
-                  Generate accurate product metadata for just $1 per 10 products/month,
-                  saving you both time and money.
+                  Generate accurate product metadata for just $1 per 10
+                  products/month, saving you both time and money.
                 </p>
               </Box>
             </Card>
             <br />
-
-            <Card title="Next Steps" sectioned>
+            <div className="bottompart">
+            <Card title="Next Steps" sectioned marginBottom>
               <List type="bullet">
                 <List.Item>
-                
-                  
-                  <p>Visit the <span className="redirectbutton" onClick={() => handleNavigation("/app/productdetails")}>View</span>  to start creating high-quality metadata.</p>
+                  <p>
+                    Visit the{" "}
+                    <span
+                      className="redirectbutton"
+                      onClick={() => handleNavigation("/app/productdetails")}
+                    >
+                      View
+                    </span>{" "}
+                    to start creating high-quality metadata.
+                  </p>
                   {/* <Button className="redirectButton" plain onClick={() => handleNavigation("/app/productdetails")}>
                     View
                   </Button>{" "} */}
-                
                 </List.Item>
                 <List.Item>
-                  <p>Track your metadata requests in real-time on the{" "}<span className="redirectbutton" onClick={() => handleNavigation("/app/review")}>View.</span></p>
+                  <p>
+                    Track your metadata requests in real-time on the{" "}
+                    <span
+                      className="redirectbutton"
+                      onClick={() => handleNavigation("/app/review")}
+                    >
+                      View.
+                    </span>
+                  </p>
                 </List.Item>
                 <List.Item>
-                  <p>Manage and edit existing metadata from the{" "}<span className="redirectbutton" onClick={() => handleNavigation("/app/metafields")}>View</span></p>
+                  <p>
+                    Manage and edit existing metadata from the{" "}
+                    <span
+                      className="redirectbutton"
+                      onClick={() => handleNavigation("/app/metafields")}
+                    >
+                      View
+                    </span>
+                  </p>
                 </List.Item>
               </List>
             </Card>
+            </div>
           </Layout.Section>
         </Layout>
       </BlockStack>

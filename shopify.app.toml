@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://attending-lg-visible-times.trycloudflare.com"
+application_url = "https://milwaukee-improved-boulevard-reseller.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://attending-lg-visible-times.trycloudflare.com/auth/callback",
-  "https://attending-lg-visible-times.trycloudflare.com/auth/shopify/callback",
-  "https://attending-lg-visible-times.trycloudflare.com/api/auth/callback"
+  "https://milwaukee-improved-boulevard-reseller.trycloudflare.com/auth/callback",
+  "https://milwaukee-improved-boulevard-reseller.trycloudflare.com/auth/shopify/callback",
+  "https://milwaukee-improved-boulevard-reseller.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -35,3 +35,19 @@
 .ThirdDivision p{
     margin-top: 10px
 }
+.videoContainer{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  align-items: center;
+}
+.bottompart{
+  margin-bottom: 15px;
+}
+.bottompart span{
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+}
