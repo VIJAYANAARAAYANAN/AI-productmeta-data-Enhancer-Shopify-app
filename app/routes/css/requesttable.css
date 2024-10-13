@@ -52,8 +52,8 @@
   border-bottom: 1px solid lightgray;
 }
 .grid-row p {
-  margin-top: auto;
-  margin-bottom: auto;
+  /* margin-top: auto;
+  margin-bottom: auto; */
   padding: 0px 12px;
 }
 .downloadpink {
