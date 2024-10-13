@@ -151,7 +151,6 @@
   justify-content: flex-end;
 }
 
-
 @media screen and (max-width: 500px) {
   .action-button-container p {
     font-size: 12px;

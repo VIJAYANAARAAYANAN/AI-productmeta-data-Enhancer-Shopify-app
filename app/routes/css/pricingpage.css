@@ -25,6 +25,8 @@
   }
   .activatespan{
     color: forestgreen;
+    font-size: 13px;
+    font-weight: 500;
   }
   .pricing-status,
   .pricing-test-plan,
