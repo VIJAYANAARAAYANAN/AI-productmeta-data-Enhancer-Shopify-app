@@ -139,6 +139,18 @@
   text-decoration: none;
   color: white;
 }
+.blurred-content p{
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+}
+.subbutton{
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 
 @media screen and (max-width: 500px) {
   .action-button-container p {

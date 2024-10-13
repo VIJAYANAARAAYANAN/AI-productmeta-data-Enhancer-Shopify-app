@@ -599,14 +599,17 @@ export default function Products() {
                 </>
               ) : (
                 <div className="blurred-content">
+                  <Card padding="300">
                   <p>Your plan does not include the Majik-Pro features.</p>
+                  </Card>
+                  <div className="subbutton">
                   <a
                     href={subscriptionUrl}
-                    target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button>Subscribe to Majik-Pro</Button>
+                    <Button variant="primary">Subscribe to Majik-Pro</Button>
                   </a>
+                  </div>
                 </div>
               )}
             </div>

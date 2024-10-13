@@ -1,0 +1,42 @@
+.pricehead p{
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    border: 1px solid lightgrey;
+    padding: 5px;
+    border: 1px solid lightgray;
+    border-radius: 6px;
+}
+.maininfoPrice{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+.pricing-subtitle {
+    font-size: 13px;
+    color: #666;
+  }
+  
+  .pricing-plan-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .activatespan{
+    color: forestgreen;
+  }
+  .pricing-status,
+  .pricing-test-plan,
+  .pricing-active-payment {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .no-billing-info {
+    font-size: 14px;
+    margin-top: 10px;
+    color: #fe4040;
+    text-align: center;
+
+  }

@@ -53,9 +53,10 @@
 // }
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
-import { Page, Text, Card } from "@shopify/polaris";
+import { Page, Card } from "@shopify/polaris";
 import { useLoaderData } from "@remix-run/react";
 import React from "react";
+import './css/pricingpage.css';
 
 export const loader = async ({ request }) => {
   const { billing, session } = await authenticate.admin(request);
@@ -78,29 +79,32 @@ export default function PricingPage() {
   const subscription = billingDetails?.appSubscriptions?.[0];
 
   return (
-    <Page title="Current Pricing Plan">
+    <Page>
       <Card sectioned>
-        <Text variant="bodyMd" color="subdued">
+        <div className="pricehead">
+          <p className="pricing-title">Current Pricing Plan</p>
+        </div>
+        {/* <p className="pricing-subtitle">
           You are currently on the following plan:
-        </Text>
+        </p> */}
 
         {subscription ? (
-          <div style={{ marginTop: '20px' }}>
-            <Text variant="headingMd">{subscription.name}</Text>
-            <Text variant="bodyMd" color="subdued">
-              Status: {subscription.status}
-            </Text>
-            <Text variant="bodyMd" color="subdued">
+          <div className="maininfoPrice">
+            <p className="pricing-plan-name">{subscription.name}</p>
+            <p className="pricing-status">
+              Status: <span className="activatespan">{subscription.status}</span>
+            </p>
+            <p className="pricing-test-plan">
               Test Plan: {subscription.test ? 'Yes' : 'No'}
-            </Text>
-            <Text variant="bodyMd" color="subdued">
+            </p>
+            <p className="pricing-active-payment">
               Active Payment: {subscription.hasActivePayment ? 'Yes' : 'No'}
-            </Text>
+            </p>
           </div>
         ) : (
-          <Text variant="bodyMd" color="subdued">
+          <p className="no-billing-info">
             No billing information available. Please check your plan in the Shopify Admin.
-          </Text>
+          </p>
         )}
       </Card>
     </Page>
