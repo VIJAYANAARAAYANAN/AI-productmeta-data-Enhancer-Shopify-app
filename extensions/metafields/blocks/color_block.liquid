@@ -1,0 +1,26 @@
+{% assign metafield_namespace = block.settings.namespace %}
+{% assign metafield_key = block.settings.key %}
+
+{% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
+
+{% if metafield_value %}
+  {% if metafield_value.value contains '#' %}
+    <div style="background-color: {{ metafield_value.value }}; border-radius: 50%; width: 25px; height: 25px; display: inline-block;"></div>
+  {% else %}
+    <span>Invalid color value</span>
+  {% endif %}
+{% else %}
+  <span>No color available</span>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Color",
+  "target": "section",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product", "autofill": true },
+    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "demo" },
+    { "type": "text", "id": "key", "label": "Metafield Key", "default": "color_value" }
+  ]
+}
+{% endschema %}

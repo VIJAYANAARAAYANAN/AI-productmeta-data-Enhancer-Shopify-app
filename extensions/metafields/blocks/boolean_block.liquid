@@ -1,0 +1,27 @@
+{% assign metafield_namespace = block.settings.namespace %}
+{% assign metafield_key = block.settings.key %}
+
+{% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
+
+{% if metafield_value %}
+  {% assign is_true = metafield_value.value | downcase %}
+  {% if is_true == 'true' %}
+    <div>Yes</div>
+  {% else %}
+    <div>No</div>
+  {% endif %}
+{% else %}
+  <span>No data available</span>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Boolean",
+  "target": "section",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product", "autofill": true },
+    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "demo" },
+    { "type": "text", "id": "key", "label": "Metafield Key", "default": "is_featured" }
+  ]
+}
+{% endschema %}

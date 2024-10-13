@@ -1,0 +1,31 @@
+{% assign metafield_namespace = block.settings.namespace %}
+{% assign metafield_key = block.settings.key %}
+
+{% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
+
+{% if metafield_value %}
+  {% assign avg_rating = metafield_value.value | round %}
+  <span style="color:{{ block.settings.colour }}">
+    {% render 'stars', rating: avg_rating %}
+  </span>
+  {% if avg_rating >= 4 %}
+    <br>
+    <img src="{{ "thumbs-up.png" | asset_img_url: '15x' }}" height="15" width="15" loading="lazy">
+    {{ 'ratings.home.recommendationText' | t }}
+  {% endif %}
+{% else %}
+  <span>No rating available</span>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Star Rating",
+  "target": "section",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product", "autofill": true },
+    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "demo" },
+    { "type": "text", "id": "key", "label": "Metafield Key", "default": "avg_rating" },
+    { "type": "color", "id": "colour", "label": "Star Colour", "default": "#ff0000" }
+  ]
+}
+{% endschema %}
