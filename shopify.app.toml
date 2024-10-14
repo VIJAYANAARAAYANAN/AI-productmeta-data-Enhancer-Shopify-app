@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://fri-elizabeth-thinking-nepal.trycloudflare.com"
+application_url = "https://dave-novelty-obligations-somalia.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://fri-elizabeth-thinking-nepal.trycloudflare.com/auth/callback",
-  "https://fri-elizabeth-thinking-nepal.trycloudflare.com/auth/shopify/callback",
-  "https://fri-elizabeth-thinking-nepal.trycloudflare.com/api/auth/callback"
+  "https://dave-novelty-obligations-somalia.trycloudflare.com/auth/callback",
+  "https://dave-novelty-obligations-somalia.trycloudflare.com/auth/shopify/callback",
+  "https://dave-novelty-obligations-somalia.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

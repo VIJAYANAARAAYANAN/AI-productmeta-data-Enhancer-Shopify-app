@@ -113,7 +113,8 @@ export default function Products() {
     <Banner status="critical">{errorMessage}</Banner>
   ) : null;
 
-  const isMajikProPlan = subscription?.name === "Majik-Pro"; // Check if the plan is Majik-Pro
+  const isMajikProOrBasicPlan = subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic";
+
 
   const subscriptionUrl = shopId
     ? `https://admin.shopify.com/store/${shopId}/charges/majik/pricing_plans`
