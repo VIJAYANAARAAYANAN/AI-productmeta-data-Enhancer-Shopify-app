@@ -32,6 +32,10 @@
   font-weight: 600;
   margin-bottom: 10px;
 }
+.ThirdDivision h4{
+  font-size: 14px;
+  margin-bottom: 10px;
+}
 .ThirdDivision p{
     margin-top: 10px
 }
@@ -50,4 +54,49 @@
   font-size: 14px;
   font-weight: 500;
   text-decoration: underline;
+}
+
+.instructionArea p{
+  margin: 0;
+}
+.instructionArea img{
+  width: 100%;
+  border-radius: 12px;
+  padding: 13px 0px;
+}
+.pageimages{
+  border-radius: 12px;
+}
+.addblockpart{
+  display: flex;
+}
+.addblockpart img{
+  width: 55%;
+  height: 250px;
+}
+.subtexts-add{
+  /* color: #5e5dc2; */
+  font-size: 14px;
+  font-weight: 600;
+}
+.subtexts-app{
+  /* color: #008f6e; */
+  font-size: 14px;
+  font-weight: 600;
+}
+.subtexts-block{
+  /* color: #f9d02e; */
+  font-size: 14px;
+  font-weight: 600;
+}
+.subpro{
+  font-size: 14px;
+  font-weight: 600;
+}
+.addBlockimg{
+  width: 50%;
+  height: 270px;
+}
+.steps{
+  font-weight: 600;
 }
