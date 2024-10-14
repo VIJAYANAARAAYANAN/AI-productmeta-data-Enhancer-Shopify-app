@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { TitleBar } from "@shopify/app-bridge-react";
 import loadingGif from "./assets/loader.gif";
 import "./css/index.css";
-import onlineStore from "./assets/onlineStore.png";
+import onlinestore from "./assets/OnlineStore.png";
 import themeSelection from "./assets/ThemeSelection.png";
 import addBlock from "./assets/EditedAddblock.png";
 import mergedblock from './assets/editedmergedimg.png';
@@ -169,7 +169,7 @@ export default function Index() {
                     online store
                   </p>
                   <div className="pageimages">
-                    <img src={onlineStore} alt="online Store" />
+                    <img src={onlinestore} alt="online Store" />
                   </div>
                   <p>
                     <span className="steps">Step:2</span> -{`>`} Choose the
