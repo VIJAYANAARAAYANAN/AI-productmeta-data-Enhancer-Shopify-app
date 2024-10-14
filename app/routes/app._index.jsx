@@ -205,7 +205,7 @@ export default function Index() {
                   Show {namespace === "cartesian" ? "Global" : "Cartesian"}{" "}
                   Namespace
                 </Button> */}
-
+ 
                 {/* <Box
                   padding="400"
                   background="bg-surface-active"
