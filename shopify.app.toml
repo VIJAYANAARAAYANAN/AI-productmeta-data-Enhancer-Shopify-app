@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "  Majik"
 handle = "Majik"
-application_url = "https://den-without-musician-bulletin.trycloudflare.com"
+application_url = "https://want-bugs-tagged-gentleman.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://den-without-musician-bulletin.trycloudflare.com/auth/callback",
-  "https://den-without-musician-bulletin.trycloudflare.com/auth/shopify/callback",
-  "https://den-without-musician-bulletin.trycloudflare.com/api/auth/callback"
+  "https://want-bugs-tagged-gentleman.trycloudflare.com/auth/callback",
+  "https://want-bugs-tagged-gentleman.trycloudflare.com/auth/shopify/callback",
+  "https://want-bugs-tagged-gentleman.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
