@@ -7,6 +7,7 @@ async function storeNewShopDetails(session) {
   const ownerEmail = session.email || "unknown"; // Handle email if available
   const plan = "free"; // Default to free plan 
 
+  
   console.log("Storing new shop details:", { shopDomain, ownerEmail, plan });
 
   // Check if the store already exists
