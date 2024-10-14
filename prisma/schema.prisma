@@ -5,9 +5,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
   provider = "sqlite"
   url      = "file:dev.sqlite"
@@ -29,4 +26,28 @@ model Session {
   locale        String?
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
+}
+
+model Store {
+  id                Int      @id @default(autoincrement())
+  shopDomain        String   @unique  // Shopify store domain, must be unique
+  ownerEmail        String?  // Store owner's email
+  metafieldsCreated Int      @default(0)  // Number of metafields created
+  plan              String   // Plan type ('free' or 'premium')
+  lastReset         DateTime // Date when the metafield count was last reset
+  metafields        Metafield[] // Relation to metafields created by this store
+  createdAt         DateTime @default(now())  // When the store was added
+  updatedAt         DateTime @updatedAt       // Automatically updates on modification
+
+  @@index([shopDomain]) // Index on shopDomain for faster lookups
+}
+
+model Metafield {
+  id        Int      @id @default(autoincrement())
+  key       String   // Metafield key
+  value     String   // Metafield value
+  store     Store    @relation(fields: [storeId], references: [id])
+  storeId   Int      // Foreign key relation to the store
+  createdAt DateTime @default(now()) // When the metafield was created
+  updatedAt DateTime @updatedAt      // Automatically updates on modification
 }
