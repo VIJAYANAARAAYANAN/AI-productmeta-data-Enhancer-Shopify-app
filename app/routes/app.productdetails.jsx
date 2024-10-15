@@ -23,8 +23,12 @@ export const loader = async ({ request }) => {
   // Fetch the current billing details (active plan)
   const billingDate = new Date();
   const billingDetails = await billing.check();
+  const billings = await admin.rest.resources.RecurringApplicationCharge.all({
+    session: session,
+  });
   console.log(billingDate);
-  console.log("check",billingDetails);
+  console.log(billings);
+  console.log("check", billingDetails);
 
   const productQuery = `
     {
@@ -99,12 +103,14 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredProducts, setFilteredProducts] = React.useState(products);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isPricingModal, setIsPricingModal] = React.useState(false);
   const [modalMessage, setModalMessage] = React.useState("");
   const [showReviewbutton, setshowReviewbutton] = React.useState(false);
 
   const [toastActive, setToastActive] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
   const toastMarkup = toastActive ? (
     <Toast content={toastMessage} onDismiss={() => setToastActive(false)} />
   ) : null;
@@ -113,8 +119,9 @@ export default function Products() {
     <Banner status="critical">{errorMessage}</Banner>
   ) : null;
 
-  const isMajikProPlan = subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic";; // Check if the plan is Majik-Pro
-
+  const isMajikProPlan =
+    subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic"; // Check if the plan is Majik-Pro
+  console.log(isMajikProPlan);
   const subscriptionUrl = shopId
     ? `https://admin.shopify.com/store/${shopId}/charges/majik/pricing_plans`
     : "";
@@ -163,6 +170,16 @@ export default function Products() {
   };
 
   const handleSubmit = async () => {
+    // Check if the user has a valid subscription plan
+    if (!isMajikProPlan) {
+      // Show modal prompting the user to select a plan
+      setIsPricingModal(true);
+      setModalMessage("Please select a plan before generating metafields.");
+      setshowReviewbutton(false); // Disable review button in this modal
+      return;
+    }
+
+    // If the user has a valid plan, proceed with generating the metafields
     setIsModalOpen(true);
     setModalMessage("Your products are being uploaded...");
 
@@ -231,6 +248,10 @@ export default function Products() {
     navigate("/app/review");
   };
 
+  const handlePricingRedirect = () => {
+    navigate("/app/pricing"); // Redirect to pricing page
+  };
+
   const handleModalClose = () => {
     setIsModalOpen(false);
     if (showReviewbutton) {
@@ -245,86 +266,66 @@ export default function Products() {
         <Layout>
           <Layout.Section>
             <div className="products-container">
-              {isMajikProPlan ? (
-                <>
-                  <Card padding="300">
-                    <h2 className="products-title">All Products</h2>
-                    <div className="action-button-container">
-                      <p>Generate Metadata</p>
-                      <button onClick={handleSubmit} className="generateButton">
-                        Generate Metadata
-                      </button>
-                    </div>
-                  </Card>
-                  <div className="search-bar">
-                    <TextField
-                      value={searchQuery}
-                      onChange={(value) => setSearchQuery(value)}
-                      placeholder="Search by product name"
-                    />
-                  </div>
-                  <div className="products-list">
-                    {filteredProducts.map((product) => {
-                      const variant = product.node.variants.edges[0]?.node;
-                      const price = variant?.price ? `₹${variant.price}` : "";
-                      const compareAtPrice = variant?.compareAtPrice
-                        ? `₹${variant.compareAtPrice}`
-                        : "";
-
-                      return (
-                        <div key={product.node.id} className="product-row">
-                          <input
-                            type="checkbox"
-                            checked={selectedProducts.includes(product.node.id)}
-                            onChange={() =>
-                              handleCheckboxChange(product.node.id)
-                            }
-                            className="product-checkbox"
-                          />
-                          <div className="product-image">
-                            <img
-                              src={
-                                product.node.images.edges[0]?.node
-                                  .originalSrc || ""
-                              }
-                              alt={
-                                product.node.images.edges[0]?.node.altText ||
-                                "Product Image"
-                              }
-                            />
-                          </div>
-                          <div className="product-details">
-                            <h3 className="product-title">
-                              {product.node.title}
-                            </h3>
-                            <div className="pricedetail">
-                              <p className="product-status">
-                                {product.node.status}
-                              </p>
-                              <p className="product-price">{price}</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <div className="blurred-content">
-                  <Card padding="300">
-                  <p>Your plan does not include the Majik-Pro features.</p>
-                  </Card>
-                  <div className="subbutton">
-                  <a
-                    href={subscriptionUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+              <Card padding="300">
+                <h2 className="products-title">All Products</h2>
+                <div className="action-button-container">
+                  <p>Generate Metadata</p>
+                  <button
+                    onClick={handleSubmit}
+                    className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}
+                    disabled={selectedProducts.length === 0} 
                   >
-                    <Button variant="primary">Subscribe to Majik-Pro</Button>
-                  </a>
-                  </div>
+                    Generate Metadata
+                  </button>
                 </div>
-              )}
+              </Card>
+              <div className="search-bar">
+                <TextField
+                  value={searchQuery}
+                  onChange={(value) => setSearchQuery(value)}
+                  placeholder="Search by product name"
+                />
+              </div>
+              <div className="products-list">
+                {filteredProducts.map((product) => {
+                  const variant = product.node.variants.edges[0]?.node;
+                  const price = variant?.price ? `₹${variant.price}` : "";
+                  const compareAtPrice = variant?.compareAtPrice
+                    ? `₹${variant.compareAtPrice}`
+                    : "";
+
+                  return (
+                    <div key={product.node.id} className="product-row">
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(product.node.id)}
+                        onChange={() => handleCheckboxChange(product.node.id)}
+                        className="product-checkbox"
+                      />
+                      <div className="product-image">
+                        <img
+                          src={
+                            product.node.images.edges[0]?.node.originalSrc || ""
+                          }
+                          alt={
+                            product.node.images.edges[0]?.node.altText ||
+                            "Product Image"
+                          }
+                        />
+                      </div>
+                      <div className="product-details">
+                        <h3 className="product-title">{product.node.title}</h3>
+                        <div className="pricedetail">
+                          <p className="product-status">
+                            {product.node.status}
+                          </p>
+                          <p className="product-price">{price}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </Layout.Section>
         </Layout>
@@ -333,8 +334,24 @@ export default function Products() {
           onClose={handleModalClose}
           title="Processing Metadata"
         >
-          <p>{modalMessage}</p>
+          <p className="modalUploading">{modalMessage}</p>
         </Modal>
+
+        <Modal
+          open={isPricingModal}
+          onClose={handleModalClose}
+          title={showReviewbutton ? "Processing Metadata" : "Select a Plan"}
+        >
+          <p className="checkPricingplan">{modalMessage}</p>
+          <div className="checkPricingButton">
+            {!showReviewbutton && (
+              <Button variant="primary" onClick={handlePricingRedirect}>
+                Go to Pricing
+              </Button>
+            )}
+          </div>
+        </Modal>
+
         {toastMarkup}
         {errorBanner}
       </Page>

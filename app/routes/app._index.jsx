@@ -318,7 +318,7 @@ export default function Index() {
             </div>
           </Modal.Section>
         </Modal>
-      )}
+      )} 
     </Page>
   );
 }

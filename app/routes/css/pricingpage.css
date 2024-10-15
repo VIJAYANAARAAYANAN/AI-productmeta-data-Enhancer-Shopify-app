@@ -72,3 +72,18 @@ button {
   flex-direction: column;
   margin-bottom: 10px;
 }
+
+
+.selected-plan {
+  border: 2px solid #5c6ac4; /* Add a bold border for the selected plan */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Add shadow to make it stand out */
+  background-color: #f4f6f8; /* Subtle background color change */
+}
+
+.pricing-cards .Polaris-Card {
+  transition: all 0.3s ease;
+}
+
+.pricing-cards .Polaris-Card.subdued {
+  opacity: 0.7;
+}
