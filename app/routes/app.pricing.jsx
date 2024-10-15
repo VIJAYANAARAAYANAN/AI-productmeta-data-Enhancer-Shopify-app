@@ -1,112 +1,95 @@
-// import { json } from "@remix-run/node";
-// import { authenticate } from "../shopify.server";
-// import { Page, Spinner, Text } from "@shopify/polaris";
-// import React, { useEffect, useState } from "react";
-// import { useLoaderData } from "@remix-run/react";
-
-// export const loader = async ({ request }) => {
-//   const { session } = await authenticate.admin(request);
-//   let { shop } = session;
-//   let myShop = shop.replace(".myshopify.com", "");
-//   const pricingUrl = `https://admin.shopify.com/store/${myShop}/charges/majik/pricing_plans`;
-
-//   return json({ pricingUrl });
-// };
-
-// export default function UpgradePage() {
-//   const { pricingUrl } = useLoaderData();
-//   const [isLoading, setIsLoading] = useState(true);
-
-//   useEffect(() => {
-//     if (pricingUrl) {
-//       setIsLoading(false);
-//     }
-//   }, [pricingUrl]);
-
-//   return (
-//     <Page title="Upgrade Your Plan">
-//       <div style={{ textAlign: 'center', marginTop: '20px' }}>
-//         {isLoading ? (
-//           <>
-//             <Spinner size="large" />
-//             <Text variant="bodyMd" color="subdued" style={{ marginTop: '20px' }}>
-//               Please wait while we fetch the pricing details...
-//             </Text>
-//           </>
-//         ) : (
-//           <>
-//             <Text variant="headingMd" style={{ marginTop: '20px' }}>
-//               Shopify Pricing Plans
-//             </Text>
-//             <div style={{ marginTop: '20px', border: '1px solid #e1e1e1', padding: '20px', borderRadius: '8px' }}>
-//               <iframe
-//                 src={pricingUrl}
-//                 style={{ width: '100%', height: '600px', border: 'none' }}
-//                 title="Shopify Pricing Plans"
-//               />
-//             </div>
-//           </>
-//         )}
-//       </div>
-//     </Page>
-//   );
-// }
-import { json } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
-import { Page, Card } from "@shopify/polaris";
+import * as React from "react";
 import { useLoaderData } from "@remix-run/react";
-import React from "react";
-import './css/pricingpage.css';
+import { json } from "@remix-run/node";
+import { Page, Layout, Frame, Card, Button } from "@shopify/polaris";
+import "./css/pricingpage.css";
+import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   const { billing, session } = await authenticate.admin(request);
   const { shop } = session;
   const myShop = shop.replace(".myshopify.com", "");
 
-  // Fetch the current billing details (active plan)
+  // Fetch billing details (active plan)
   const billingDetails = await billing.check();
+  const subscription = billingDetails?.appSubscriptions?.[0];
 
   return json({
-    shop: myShop,
     billingDetails: billingDetails || null,
+    subscription: subscription,
+    shopId: myShop, // Shop ID for the subscription URL
   });
 };
 
-export default function PricingPage() {
-  const { billingDetails, shop } = useLoaderData();
-  
-  console.log(billingDetails);
-  const subscription = billingDetails?.appSubscriptions?.[0];
+export default function Pricing() {
+  const data = useLoaderData();
+  const billingDetails = data.billingDetails;
+  const subscription = data.subscription;
+  const shopId = data.shopId; // Shop ID from the loader
+
+  const subscriptionUrl = shopId
+    ? `https://admin.shopify.com/store/${shopId}/charges/majik/pricing_plans`
+    : "";
+
+  const isMajikProPlan = subscription?.name === "Majik-Pro";
 
   return (
-    <Page>
-      <Card sectioned>
-        <div className="pricehead">
-          <p className="pricing-title">Current Pricing Plan</p>
-        </div>
-        {/* <p className="pricing-subtitle">
-          You are currently on the following plan:
-        </p> */}
+    <Frame>
+      <Page fullWidth>
+        <Layout>
+          <Layout.Section>
+            <div className="pricing-container">
+              <h1 className="pricing-title">Choose Your Plan</h1>
+              <div className="pricing-cards">
+                <Card title="Free Plan" sectioned>
+                  <p>Majik-Basic</p>
+                  <h3>Free</h3>
+                  <div className="pricingdetail">
+                  <p>Generate up to 5 product metafields per month.</p>
+                  <p>Modify unlimited metafiled</p>
+                  <p>Create unlimited metadata</p>
+                  <p>High quality Metadata</p>
+                  </div>
+                  {isMajikProPlan ? (
+                    <Button disabled>Current Plan</Button>
+                  ) : (
+                    <a
+                      href={subscriptionUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="primary">Subscribe to Free Plan</Button>
+                    </a>
+                  )}
+                </Card>
 
-        {subscription ? (
-          <div className="maininfoPrice">
-            <p className="pricing-plan-name">{subscription.name}</p>
-            <p className="pricing-status">
-              Status: <span className="activatespan">{subscription.status}</span>
-            </p>
-            <p className="pricing-test-plan">
-              Test Plan: {subscription.test ? 'Yes' : 'No'}
-            </p>
-            <p className="pricing-active-payment">
-              Active Payment: {subscription.hasActivePayment ? 'Yes' : 'No'}
-            </p>
-          </div>
-        ) : (
-          <p className="no-billing-info">
-            No billing information available. Please check your plan in the Shopify Admin.
-          </p>
-        )}
-      </Card>
-    </Page>
+                <Card title="Majik-Pro Plan - $10/month" sectioned>
+                  <p>Majik-Pro</p>
+                  <h3>$10 / month</h3>
+                  <div className="pricingdetail">
+                  <p>Generate up to 100 product metafields per month.</p>
+                  <p>Modify unlimited metafiled</p>
+                  <p>Create unlimited metadata</p>
+                  <p>High quality Metadata</p>
+                
+                  </div>
+                  {isMajikProPlan ? (
+                    <Button disabled>Current Plan</Button>
+                  ) : (
+                    <a
+                      href={subscriptionUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="primary">Subscribe to Majik-Pro</Button>
+                    </a>
+                  )}
+                </Card>
+              </div>
+            </div>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    </Frame>
   );
 }

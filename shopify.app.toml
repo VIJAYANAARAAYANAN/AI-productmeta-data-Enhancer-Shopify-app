@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://liberty-soldier-limiting-buy.trycloudflare.com"
+application_url = "https://implementation-appendix-visitors-control.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://liberty-soldier-limiting-buy.trycloudflare.com/auth/callback",
-  "https://liberty-soldier-limiting-buy.trycloudflare.com/auth/shopify/callback",
-  "https://liberty-soldier-limiting-buy.trycloudflare.com/api/auth/callback"
+  "https://implementation-appendix-visitors-control.trycloudflare.com/auth/callback",
+  "https://implementation-appendix-visitors-control.trycloudflare.com/auth/shopify/callback",
+  "https://implementation-appendix-visitors-control.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

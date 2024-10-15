@@ -1,44 +1,74 @@
-.pricehead p{
-    font-size: 15px;
-    font-weight: 500;
-    margin-bottom: 5px;
-    border: 1px solid lightgrey;
-    padding: 5px;
-    border: 1px solid lightgray;
-    border-radius: 6px;
-}
-.maininfoPrice{
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-top: 10px;
+.pricing-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  border: 1px solid lightgray;
+  border-radius: 12px;
+  padding: 20px;
+  background-color: white;
 }
 
-.pricing-subtitle {
-    font-size: 13px;
-    color: #666;
-  }
-  
-  .pricing-plan-name {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .activatespan{
-    color: forestgreen;
-    font-size: 13px;
-    font-weight: 500;
-  }
-  .pricing-status,
-  .pricing-test-plan,
-  .pricing-active-payment {
-    font-size: 14px;
-    color: #333;
-  }
-  
-  .no-billing-info {
-    font-size: 14px;
-    margin-top: 10px;
-    color: #fe4040;
-    text-align: center;
+.pricing-plan {
+  width: 300px;
+}
 
-  }
+.pricing-header {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.pricing-price {
+  font-size: 2em;
+  font-weight: bold;
+  color: #1a202c;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.pricing-features {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.pricing-features li {
+  font-size: 1em;
+  margin: 5px 0;
+  text-align: center;
+}
+
+button {
+  margin-top: 10px;
+}
+
+.pricing-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pricing-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.pricing-cards h3 {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px 0px;
+}
+.pricing-cards p {
+  font-size: 14px;
+  font-weight: 500;
+}
+.pricingdetail {
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
