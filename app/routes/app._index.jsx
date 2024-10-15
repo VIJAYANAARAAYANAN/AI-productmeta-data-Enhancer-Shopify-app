@@ -320,5 +320,6 @@ export default function Index() {
         </Modal>
       )} 
     </Page>
+    
   );
 }
