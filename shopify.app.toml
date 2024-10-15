@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
-name = "  Majik"
+name = "Majik"
 handle = "Majik"
-application_url = "https://want-bugs-tagged-gentleman.trycloudflare.com"
+application_url = "https://liberty-soldier-limiting-buy.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://want-bugs-tagged-gentleman.trycloudflare.com/auth/callback",
-  "https://want-bugs-tagged-gentleman.trycloudflare.com/auth/shopify/callback",
-  "https://want-bugs-tagged-gentleman.trycloudflare.com/api/auth/callback"
+  "https://liberty-soldier-limiting-buy.trycloudflare.com/auth/callback",
+  "https://liberty-soldier-limiting-buy.trycloudflare.com/auth/shopify/callback",
+  "https://liberty-soldier-limiting-buy.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

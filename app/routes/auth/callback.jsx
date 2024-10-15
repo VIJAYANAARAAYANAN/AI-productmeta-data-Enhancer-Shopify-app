@@ -1,21 +1,22 @@
-import { json, redirect } from "remix";
-import { authenticate } from "@shopify/shopify-app-remix/server";
-import prisma from "../../db.server";
+import { redirect } from "remix";
+import { authenticate } from "@shopify/shopify-app-remix/server"; 
+import prisma from "../../db.server"; // Adjust the path to your prisma instance if needed
 
+// Function to store new shop details after authentication
 async function storeNewShopDetails(session) {
-  const shopDomain = session.shop;  // Store's shop domain
-  const ownerEmail = session.email || "unknown"; // Handle email if available
-  const plan = "free"; // Default to free plan 
 
+  console.log("Callback route triggered");
   
+  const shopDomain = session.shop;
+  const ownerEmail = session.email || "unknown";
+  const plan = "free"; // Default plan
+
   console.log("Storing new shop details:", { shopDomain, ownerEmail, plan });
 
-  // Check if the store already exists
+  // Check if store already exists in the database
   const existingStore = await prisma.store.findUnique({
     where: { shopDomain },
   });
-
-  console.log("Checking if store exists in the database:", { existingStore });
 
   if (!existingStore) {
     try {
@@ -33,19 +34,26 @@ async function storeNewShopDetails(session) {
       console.error("Error creating new store in the database:", error);
     }
   } else {
-    console.log(`Store ${shopDomain} already exists in the database.`);
+    console.log(`Store ${shopDomain} already exists.`);
   }
 }
 
+// Loader function triggered on callback route
 export const loader = async ({ request }) => {
-  console.log("Loader function invoked."); // Log when loader is called
-  const session = await authenticate(request); // Authenticate the user
+  console.log("Callback route accessed."); // Log when the callback is hit
+  console.log("Request URL:", request.url); // Log the request URL
 
-  console.log("Authentication successful, session:", session); // Log session details
-
-  // Store shop details after authentication
-  await storeNewShopDetails(session);
-
-  // Redirect to your app's main page after successful authentication
-  return redirect("/");
+  try {
+    const session = await authenticate(request); // Authenticate with Shopify
+    console.log("Session details:", session); // Log session details
+    
+    // Store the shop's details in the database
+    await storeNewShopDetails(session);
+    
+    // Redirect to the main page of your app after successful authentication
+    return redirect("/");
+  } catch (error) {
+    console.error("Error in callback:", error);
+    return redirect("/auth/error"); // Redirect to error page if something goes wrong
+  }
 };
