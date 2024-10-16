@@ -9,14 +9,14 @@
   text-align: justify;
 }
 .topDivison p {
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 10px;
 }
 .marginclass{
   margin-bottom: 17px;
 }
 .SecondDiv h2 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 .redirectbutton{
@@ -27,7 +27,7 @@
   text-decoration: underline;
 }
 .SecondDiv p {
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 12px;
 }
 .ThirdDivision h1{
@@ -67,6 +67,7 @@
 
 .instructionArea p{
   margin: 0;
+  font-size: 14px;
 }
 .instructionArea img{
   width: 100%;
@@ -108,4 +109,12 @@
 }
 .steps{
   font-weight: 600;
+}
+.whymajik h2{
+  font-size: 14px;
+  font-weight: 500;
+}
+.whymajik p{
+  font-size: 13px;
+  margin-bottom:8px ;
 }

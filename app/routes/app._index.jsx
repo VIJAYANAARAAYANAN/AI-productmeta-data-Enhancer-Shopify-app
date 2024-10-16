@@ -43,7 +43,7 @@ export default function Index() {
   };
   return (
     <div className="mainindex">
-    <Page width='90%'>
+    <Page>
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
@@ -210,8 +210,8 @@ export default function Index() {
 
           <Layout.Section secondary>
             <Card title="Why Choose Majik?" sectioned>
-              <Box>
-                <div>
+            
+                <div className="whymajik">
                   <h2>AI-Powered Accuracy</h2>
                   <p>
                     Majik, powered by Plotch.ai, ensures the highest-quality
@@ -219,21 +219,21 @@ export default function Index() {
                     deserves nothing less.
                   </p>
                 </div>
-              </Box>
-              <Box>
+            
+                <div className="whymajik">
                 <h2>Real-Time Updates</h2>
                 <p>
                   Every change you make to your metadata is reflected in
                   real-time, giving you full control over your Shopify store.
                 </p>
-              </Box>
-              <Box>
+              </div>
+              <div className="whymajik">
                 <h2>Affordable</h2>
                 <p>
                   Generate accurate product metadata for just $1 per 10
                   products/month, saving you both time and money.
                 </p>
-              </Box>
+              </div>
             </Card>
             <br />
             <div className="bottompart">

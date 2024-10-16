@@ -139,6 +139,10 @@ export default function Products() {
     }
   }, [searchQuery, products]);
 
+  React.useEffect(() =>{
+    console.log("Render product details page");
+  },[])
+
   const handleCheckboxChange = (productId) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
