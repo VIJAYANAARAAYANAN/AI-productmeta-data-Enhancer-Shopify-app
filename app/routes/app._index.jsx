@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Page,
   Layout,
@@ -25,45 +25,25 @@ export default function Index() {
   const [namespace, setNamespace] = useState("cartesian");
   const [isLoading, setIsLoading] = useState(false);
 
+
+  //useEffect to handle the data passing and storing of the store domain ID
+  useEffect(() =>{
+    console.log("The useEffect has been executed");
+    const params = new URLSearchParams(window.location.search);
+    const shopDomain = params.get("shop");
+    console.log(shopDomain);
+  },[])
   const toggleNamespace = () => {
     setNamespace(namespace === "cartesian" ? "global" : "cartesian");
   };
-
+  
   const handleNavigation = (path) => {
     setIsLoading(true); // Show loading modal
     navigate(path); // Navigate to the desired path
   };
-
-  const metafieldCode =
-    namespace === "cartesian"
-      ? `
-    <div class="metafields-container">  
-      {% assign product_namespace = "cartesian" %}
-      {% for metafield in product.metafields[product_namespace] %}
-        {% if metafield[1].value != blank %}
-          <p><strong>{{ metafield[0] | replace: '_', ' ' | capitalize }}:</strong> {{ metafield[1].value }}</p>
-        {% endif %}
-      {% endfor %}
-    </div>`
-      : `
-    <div class="metafields-container">
-    {% assign possible_namespaces = "Your namespaces separated by ', ' " | split: ", " %}
-    {% for namespace in possible_namespaces %}
-      {% assign metafields = product.metafields[namespace] %}
-      {% if metafields %}
-        {% for metafield in metafields %}
-          {% if metafield[1].value != blank %}
-            <p>
-              <strong>{{ metafield[0] | replace: '_', ' ' | capitalize }}:</strong> {{ metafield[1].value }}
-            </p>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-    {% endfor %}
-  </div>`;
-
   return (
-    <Page>
+    <div className="mainindex">
+    <Page width='90%'>
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
@@ -124,7 +104,7 @@ export default function Index() {
                 Get Started
               </Button>
             </Card>
-            <br />
+            <br/>
 
             <Card title="Features" sectioned>
               <BlockStack gap="300">
@@ -320,6 +300,6 @@ export default function Index() {
         </Modal>
       )} 
     </Page>
-    
+    </div>
   );
 }
