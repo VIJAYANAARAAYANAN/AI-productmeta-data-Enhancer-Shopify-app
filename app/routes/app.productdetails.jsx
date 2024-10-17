@@ -586,6 +586,7 @@ export default function Products() {
       const startDate = new Date(billingOnDate);
       startDate.setDate(startDate.getDate() - 29);
       console.log("Start date for request count:", startDate);
+      console.log(startDate.toISOString().split("T")[0]);
 
       let responseCount;
       try {
