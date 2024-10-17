@@ -386,9 +386,10 @@ export const loader = async ({ request }) => {
   const myShop = shop.replace(".myshopify.com", "");
 
   const billingDetails = await billing.check();
-  const billingId = billingDetails?.appSubscriptions?.[0]?.id?.split("/").pop() || '';
+  const billingId =
+    billingDetails?.appSubscriptions?.[0]?.id?.split("/").pop() || "";
 
-  let billings = '';
+  let billings = "";
   if (billingId) {
     billings = await admin.rest.resources.RecurringApplicationCharge.find({
       session: session,
@@ -440,7 +441,7 @@ export const loader = async ({ request }) => {
   try {
     const productResponse = await admin.graphql(productQuery);
     const shopResponse = await admin.graphql(shopQuery);
-    
+
     const products = await productResponse.json();
     const shopData = await shopResponse.json();
 
@@ -450,7 +451,7 @@ export const loader = async ({ request }) => {
       billingDetails: billingDetails || null,
       subscription: billingDetails?.appSubscriptions?.[0] || {},
       shopId: myShop,
-      billings: billings || '',
+      billings: billings || "",
     });
   } catch (error) {
     console.error("Error fetching products or shop details:", error);
@@ -463,13 +464,14 @@ export default function Products() {
     products = [],
     shop = {},
     subscription = {},
-    shopId = '',
-    billings = '',
+    shopId = "",
+    billings = {},
   } = useLoaderData();
 
-  console.log(subscription);
-  console.log(shopId);
-  console.log(billings);
+  console.log("Subscription data:", subscription);
+  console.log("Shop ID:", shopId);
+  console.log("Billings:", billings);
+  console.log("The billing is done on date :",billings.billing_on);
 
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -485,9 +487,9 @@ export default function Products() {
   const [toastMessage, setToastMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const isMajikProPlan =
-    subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic";
-  let GENERATE_LIMIT = subscription?.name === "Majik-Pro" ? 100 : subscription?.name === "Majik-Basic" ? 5 : 0;
+  const isMajikProPlan = subscription?.name === "Majik-Pro";
+  const isMajikBasicPlan = subscription?.name === "Majik-Basic"; // Check if the plan is Majik-Basic
+  const GENERATE_LIMIT = isMajikProPlan ? 100 : isMajikBasicPlan || subscription?.name === "Free" ? 5 : 0;
 
   useEffect(() => {
     if (searchQuery === "") {
@@ -495,7 +497,7 @@ export default function Products() {
     } else {
       const lowerCaseQuery = searchQuery.toLowerCase();
       const filtered = products.filter((product) =>
-        product.node?.title?.toLowerCase().includes(lowerCaseQuery)
+        product.node?.title?.toLowerCase().includes(lowerCaseQuery),
       );
       setFilteredProducts(filtered);
     }
@@ -505,7 +507,7 @@ export default function Products() {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
         ? prevSelected.filter((id) => id !== productId)
-        : [...prevSelected, productId]
+        : [...prevSelected, productId],
     );
   };
 
@@ -528,16 +530,22 @@ export default function Products() {
   const extractImageName = (url) => url.split("/").pop().split("?")[0];
 
   const handleSubmit = async () => {
-    if (!isMajikProPlan) {
+    console.log("handleSubmit triggered");
+
+    // Check if user is on the Majik-Pro plan
+    if (!isMajikProPlan && !isMajikBasicPlan && subscription?.name !== "Free") {
+      console.log("User is not on a valid plan. Showing pricing modal.");
       setIsPricingModal(true);
       setModalMessage("Please select a plan before generating metafields.");
       setShowReviewButton(false);
       return;
-    }
+  }
 
+    console.log("User is on Majik-Pro plan. Proceeding with upload.");
     setIsModalOpen(true);
     setModalMessage("Your products are being uploaded...");
 
+    // Filter and map selected products
     const selectedProductDetails = products
       .filter((product) => selectedProducts.includes(product.node?.id))
       .map((product) => ({
@@ -546,33 +554,43 @@ export default function Products() {
         imageUrl: product.node?.images?.edges?.[0]?.node?.originalSrc || "",
       }));
 
-    const base64Images = await Promise.all(
-      selectedProductDetails.map(async (product) => {
-        const base64Image = await downloadImageAsBase64(product.imageUrl);
-        return {
-          image_id: product.id,
-          image_name: extractImageName(product.imageUrl),
-          image_data: base64Image,
-          product_source: "shopify",
-          source_product_id: product.id,
-        };
-      })
-    );
+    console.log("Selected products:", selectedProductDetails);
 
-    const payload = {
-      customer_id: shopId,
-      images: base64Images,
-    };
+    try {
+      const base64Images = await Promise.all(
+        selectedProductDetails.map(async (product) => {
+          console.log("Processing product:", product);
+          const base64Image = await downloadImageAsBase64(product.imageUrl);
+          return {
+            image_id: product.id,
+            image_name: extractImageName(product.imageUrl),
+            image_data: base64Image,
+            product_source: "shopify",
+            source_product_id: product.id,
+          };
+        }),
+      );
 
-    try {  
-      console.log("Entered");
-      const billingOnDate = billings?.billing_on || new Date();
-      const startDate = billingOnDate;
-      console.log(startDate);
+      console.log("Base64 encoded images:", base64Images);
+      console.log("The length of the base64images is ",base64Images.length);
+
+      const payload = {
+        customer_id: shopId,
+        images: base64Images,
+      };
+
+      console.log("Payload to be sent:", payload);
+
+      // Get billing date and check requests count
+      const billingOnDate = billings.billing_on;
+      const startDate = new Date(billingOnDate);
       startDate.setDate(startDate.getDate() - 30);
-      console.log(startDate);
-      try{
-        const responseCount = await fetch(
+      console.log("Start date for request count:", startDate);
+
+      let responseCount;
+      try {
+        console.log("Fetching request count...");
+        responseCount = await fetch(
           "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
           {
             method: "POST",
@@ -583,23 +601,28 @@ export default function Products() {
               store_id: shopId,
               date: startDate.toISOString().split("T")[0],
             }),
-          }
+          },
         );
-      }catch(error){
-        setModalMessage("Data Retrive failed! Try again");
-        console.log(error);
+      } catch (error) {
+        console.error("Error fetching request count:", error);
+        setModalMessage("Data Retrieve failed! Try again");
         return;
       }
-      console.log("retrive-done");
-        
+
       const countResult = await responseCount.json();
-      const totalCount = countResult.total_count;
-      console.log(totalCount);
+      console.log("Request count result:", countResult);
+
+      const totalCount = parseInt(countResult.total_count, 10);
+      console.log("Total count of previous requests:", totalCount);
+      console.log("Total available count:", GENERATE_LIMIT);
+      console.log("The count of the current request is :",base64Images.length);
       if (totalCount + base64Images.length > GENERATE_LIMIT) {
+        console.log("INSUFFICIENT CREDITS");
         setModalMessage("INSUFFICIENT CREDITS");
         return;
       }
 
+      // Upload images and metadata
       const response = await fetch(
         "https://cartesian-api.plotch.io/catalog/genmetadata/image/upload",
         {
@@ -608,11 +631,15 @@ export default function Products() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
-      console.log("Cartesian-api-called");
+
       if (response.ok) {
+        console.log("Image upload successful");
+
+        // Store request data
         try {
+          console.log("Storing request data...");
           await fetch(
             "https://cartesian-api.plotch.io/catalog/shopify/storerequest",
             {
@@ -625,18 +652,25 @@ export default function Products() {
                 data: payload.images,
                 data_count: payload.images.length,
               }),
-            }
+            },
           );
           setModalMessage("Upload successful! Check Review");
+          console.log("Data stored successfully.");
         } catch (error) {
-          setModalMessage("Data upload failed!");
           console.error("Error during storerequest API call:", error);
+          setModalMessage("Data upload failed!");
           return;
         }
+
+        // Final state updates
         setModalMessage("Upload successful! Check Review");
-        setShowReviewButton(true); // Corrected casing here
+        setShowReviewButton(true);
         setSelectedProducts([]);
       } else {
+        console.error(
+          "Error occurred during image upload:",
+          response.statusText,
+        );
         setModalMessage("Error occurred during upload. Please try again.");
       }
     } catch (error) {
@@ -646,6 +680,9 @@ export default function Products() {
   };
 
   const handleReviewNavigate = () => navigate("/app/review");
+  const handlePricingRedirect = () => {
+    navigate("/app/pricing"); // Redirect to pricing page
+  };
   const handleModalClose = () => setIsModalOpen(false);
 
   return (
@@ -679,7 +716,9 @@ export default function Products() {
                   filteredProducts.map((product) => {
                     const variant = product.node.variants.edges[0]?.node;
                     const price = variant?.price ? `₹${variant.price}` : "";
-                    const compareAtPrice = variant?.compareAtPrice ? `₹${variant.compareAtPrice}` : "";
+                    const compareAtPrice = variant?.compareAtPrice
+                      ? `₹${variant.compareAtPrice}`
+                      : "";
 
                     return (
                       <div key={product.node.id} className="product-row">
@@ -691,16 +730,30 @@ export default function Products() {
                         />
                         <div className="product-image">
                           <img
-                            src={product.node.images.edges[0]?.node.originalSrc || ""}
-                            alt={product.node.images.edges[0]?.node.altText || "Product Image"}
+                            src={
+                              product.node.images.edges[0]?.node.originalSrc ||
+                              ""
+                            }
+                            alt={
+                              product.node.images.edges[0]?.node.altText ||
+                              "Product Image"
+                            }
                           />
                         </div>
                         <div className="product-details">
-                          <h3 className="product-title">{product.node.title}</h3>
+                          <h3 className="product-title">
+                            {product.node.title}
+                          </h3>
                           <div className="pricedetail">
-                            <p className="product-status">{product.node.status}</p>
+                            <p className="product-status">
+                              {product.node.status}
+                            </p>
                             <p className="product-price">{price}</p>
-                            {compareAtPrice && <p className="product-compare-price">{compareAtPrice}</p>}
+                            {compareAtPrice && (
+                              <p className="product-compare-price">
+                                {compareAtPrice}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -729,7 +782,7 @@ export default function Products() {
           <p className="checkPricingplan">{modalMessage}</p>
           <div className="checkPricingButton">
             {!showReviewButton && ( // Corrected casing here
-              <Button variant="primary" onClick={handleReviewNavigate}>
+              <Button variant="primary" onClick={handlePricingRedirect}>
                 Go to Pricing
               </Button>
             )}
