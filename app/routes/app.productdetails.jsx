@@ -568,21 +568,26 @@ export default function Products() {
       const billingOnDate = new Date(billings?.[0]?.billing_on || new Date());
       const startDate = new Date(billingOnDate);
       startDate.setDate(startDate.getDate() - 30);
-
-      const responseCount = await fetch(
-        "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            store_id: shopId,
-            date: startDate.toISOString().split("T")[0],
-          }),
-        }
-      );
-
+      try{
+        const responseCount = await fetch(
+          "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              store_id: shopId,
+              date: startDate.toISOString().split("T")[0],
+            }),
+          }
+        );
+      }catch(error){
+        setModalMessage("Data Retrive failed! Try again");
+        console.log(error);
+        return;
+      }
+        
       const countResult = await responseCount.json();
       const totalCount = countResult.total_count;
 
@@ -618,8 +623,11 @@ export default function Products() {
               }),
             }
           );
+          setModalMessage("Upload successful! Check Review");
         } catch (error) {
+          setModalMessage("Data upload failed!");
           console.error("Error during storerequest API call:", error);
+          return;
         }
         setModalMessage("Upload successful! Check Review");
         setShowReviewButton(true); // Corrected casing here
