@@ -584,7 +584,7 @@ export default function Products() {
       // Get billing date and check requests count
       const billingOnDate = billings.billing_on;
       const startDate = new Date(billingOnDate);
-      startDate.setDate(startDate.getDate() - 29);
+      startDate.setDate(startDate.getDate() - 30);
       console.log("Start date for request count:", startDate);
       console.log(startDate.toISOString().split("T")[0]);
 
