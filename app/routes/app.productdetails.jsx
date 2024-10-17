@@ -619,7 +619,7 @@ export default function Products() {
               body: JSON.stringify({
                 store_id: shopId,
                 data: payload.images,
-                count: payload.images.length,
+                data_count: payload.images.length,
               }),
             }
           );
