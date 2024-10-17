@@ -590,6 +590,7 @@ export default function Products() {
         console.log(error);
         return;
       }
+      console.log("retrive-done");
         
       const countResult = await responseCount.json();
       const totalCount = countResult.total_count;
