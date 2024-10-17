@@ -564,10 +564,13 @@ export default function Products() {
       images: base64Images,
     };
 
-    try {
+    try {  
+      console.log("Entered");
       const billingOnDate = new Date(billings?.[0]?.billing_on || new Date());
       const startDate = new Date(billingOnDate);
+      console.log(startDate);
       startDate.setDate(startDate.getDate() - 30);
+      console.log(startDate);
       try{
         const responseCount = await fetch(
           "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
@@ -590,7 +593,7 @@ export default function Products() {
         
       const countResult = await responseCount.json();
       const totalCount = countResult.total_count;
-
+      console.log(totalCount);
       if (totalCount + base64Images.length > GENERATE_LIMIT) {
         setModalMessage("INSUFFICIENT CREDITS");
         return;
@@ -606,7 +609,7 @@ export default function Products() {
           body: JSON.stringify(payload),
         }
       );
-
+      console.log("Cartesian-api-called");
       if (response.ok) {
         try {
           await fetch(
