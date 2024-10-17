@@ -8,8 +8,32 @@
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 10px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   padding-left: 10px;
+}
+.remainCredits{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.remainCredits p{
+  font-weight: 700;
+  font-weight: 14px;
+}
+.badge {
+  display: inline-block;
+  background-color: #ff3e6b;
+  color: white;
+  padding: 3px 7px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+
+.remainCredits span{
+  font-weight: 600;
 }
 .generateButton {
   padding: 12px;
@@ -61,7 +85,7 @@
   content: "";
   position: absolute;
   top: 1.5px;
-  left: 6px;
+  left: 5px;
   width: 5px;
   height: 10px;
   border: solid white;
@@ -158,6 +182,11 @@
   margin-left: auto;
   padding: 0px 10px 10px 10px;
   text-align: right; 
+}
+.reviewmodal{
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px;
 }
 .modalUploading{
   padding: 30px 30px 20px 15px;
