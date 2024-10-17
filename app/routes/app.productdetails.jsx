@@ -139,6 +139,7 @@
 //     }
 //   }, [searchQuery, products]);
 
+//   //USE EFFECT THAT CAN BE USED TO SEND THE DATA OF THE STORE THROUGH THE API
 //   React.useEffect(() =>{
 //     console.log("Render product details page");
 //   },[])
@@ -277,7 +278,7 @@
 //                   <button
 //                     onClick={handleSubmit}
 //                     className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}
-//                     disabled={selectedProducts.length === 0} 
+//                     disabled={selectedProducts.length === 0}
 //                   >
 //                     Generate Metadata
 //                   </button>
@@ -362,6 +363,7 @@
 //     </Frame>
 //   );
 // }
+
 import * as React from "react";
 import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
 import { json } from "@remix-run/node";
@@ -386,6 +388,7 @@ export const loader = async ({ request }) => {
   const myShop = shop.replace(".myshopify.com", "");
 
   const billingDetails = await billing.check();
+
   const billingId =
     billingDetails?.appSubscriptions?.[0]?.id?.split("/").pop() || "";
 
@@ -396,6 +399,7 @@ export const loader = async ({ request }) => {
       id: billingId,
     });
   }
+  console.log(billings);
 
   const productQuery = `
     {
@@ -471,7 +475,7 @@ export default function Products() {
   console.log("Subscription data:", subscription);
   console.log("Shop ID:", shopId);
   console.log("Billings:", billings);
-  console.log("The billing is on date :",billings.billing_on);
+  console.log("The billing is done on date :", billings.billing_on);
 
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -486,10 +490,14 @@ export default function Products() {
   const [toastActive, setToastActive] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [totalCount, setTotalCount] = useState(null);
   const isMajikProPlan = subscription?.name === "Majik-Pro";
   const isMajikBasicPlan = subscription?.name === "Majik-Basic"; // Check if the plan is Majik-Basic
-  const GENERATE_LIMIT = isMajikProPlan ? 100 : isMajikBasicPlan || subscription?.name === "Free" ? 5 : 0;
+  const GENERATE_LIMIT = isMajikProPlan
+    ? 100
+    : isMajikBasicPlan || subscription?.name === "Free"
+      ? 5
+      : 0;
 
   useEffect(() => {
     if (searchQuery === "") {
@@ -502,6 +510,51 @@ export default function Products() {
       setFilteredProducts(filtered);
     }
   }, [searchQuery, products]);
+
+  //USE EFFECT TO FETCHE THE TOTAL REMAINING CREDIT POINTS OF THE USER
+  let countResult;
+  useEffect(() => {
+    const fetchcount = async () => {
+      try {
+        console.log("Fetching request count...");
+
+        // Make sure billing_on is a valid Date object
+        const billingOnDate = billings.billing_on;
+        const startDate = new Date(billingOnDate);
+        startDate.setDate(startDate.getDate() - 30);
+        const billingDate = startDate;
+        console.log("Billing date", billingDate);
+
+        const responseCount = await fetch(
+          "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              store_id: shopId,
+              date: billingDate.toISOString().split("T")[0], // Correct format
+            }),
+          },
+        );
+
+        if (!responseCount.ok) {
+          throw new Error("Failed to fetch request count");
+        }
+
+        countResult = await responseCount.json();
+        console.log("Request count result:", countResult);
+        console.log("COUNT", countResult.total_count);
+        setTotalCount(countResult.total_count);
+        // Process the countResult as needed
+      } catch (error) {
+        console.error("Error fetching request count:", error);
+      }
+    };
+
+    fetchcount();
+  }, []); // Add dependencies to ensure they are available
 
   const handleCheckboxChange = (productId) => {
     setSelectedProducts((prevSelected) =>
@@ -539,7 +592,7 @@ export default function Products() {
       setModalMessage("Please select a plan before generating metafields.");
       setShowReviewButton(false);
       return;
-  }
+    }
 
     console.log("User is on Majik-Pro plan. Proceeding with upload.");
     setIsModalOpen(true);
@@ -572,7 +625,7 @@ export default function Products() {
       );
 
       console.log("Base64 encoded images:", base64Images);
-      console.log("The length of the base64images is ",base64Images.length);
+      console.log("The length of the base64images is ", base64Images.length);
 
       const payload = {
         customer_id: shopId,
@@ -586,7 +639,6 @@ export default function Products() {
       const startDate = new Date(billingOnDate);
       startDate.setDate(startDate.getDate() - 30);
       console.log("Start date for request count:", startDate);
-      console.log(startDate.toISOString().split("T")[0]);
 
       let responseCount;
       try {
@@ -616,7 +668,7 @@ export default function Products() {
       const totalCount = parseInt(countResult.total_count, 10);
       console.log("Total count of previous requests:", totalCount);
       console.log("Total available count:", GENERATE_LIMIT);
-      console.log("The count of the current request is :",base64Images.length);
+      console.log("The count of the current request is :", base64Images.length);
       if (totalCount + base64Images.length > GENERATE_LIMIT) {
         console.log("INSUFFICIENT CREDITS");
         setModalMessage("INSUFFICIENT CREDITS");
@@ -693,7 +745,17 @@ export default function Products() {
           <Layout.Section>
             <div className="products-container">
               <Card padding="300">
-                <h2 className="products-title">All Products</h2>
+                <div>
+                  <div className="remainCredits">
+                    <p>
+                      <span>(Available Generation)</span>
+                    </p>
+                    <div className="badge">
+                      {totalCount} / {GENERATE_LIMIT}
+                    </div>
+                  </div>
+                  <h2 className="products-title">All Products</h2>
+                </div>
                 <div className="action-button-container">
                   <p>Generate Metadata</p>
                   <button
@@ -750,11 +812,11 @@ export default function Products() {
                               {product.node.status}
                             </p>
                             <p className="product-price">{price}</p>
-                            {compareAtPrice && (
+                            {/* {compareAtPrice && (
                               <p className="product-compare-price">
                                 {compareAtPrice}
                               </p>
-                            )}
+                            )} */}
                           </div>
                         </div>
                       </div>
