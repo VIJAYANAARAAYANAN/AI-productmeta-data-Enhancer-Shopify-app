@@ -458,228 +458,225 @@ export const loader = async ({ request }) => {
 };
 
 export default function Products() {
-  const {
-    products = [],
-    shop = {},
-    subscription = {},
-    shopId = '',
-    billings = '',
-  } = useLoaderData();
+    const {
+      products = [],
+      shop = {},
+      subscription = {},
+      shopId = '',
+      billings = '',
+    } = useLoaderData();
   
-  console.log(subscription);
-  console.log(billings);
-  console.log(shopId);
+    const fetcher = useFetcher();
+    const navigate = useNavigate();
   
-  const fetcher = useFetcher();
-  const navigate = useNavigate();
-
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(products);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPricingModal, setIsPricingModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [showReviewButton, setShowReviewButton] = useState(false);
-  const [toastActive, setToastActive] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const isMajikProPlan =
-    subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic";
-  let GENERATE_LIMIT = subscription?.name === "Majik-Pro" ? 100 : 5;
-
-  useEffect(() => {
-    if (searchQuery === "") {
-      setFilteredProducts(products);
-    } else {
-      const lowerCaseQuery = searchQuery.toLowerCase();
-      const filtered = products.filter((product) =>
-        product.node.title.toLowerCase().includes(lowerCaseQuery)
+    const [selectedProducts, setSelectedProducts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filteredProducts, setFilteredProducts] = useState(products);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPricingModal, setIsPricingModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
+    const [showReviewButton, setShowReviewButton] = useState(false);
+    const [toastActive, setToastActive] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+  
+    const isMajikProPlan =
+      subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic";
+    let GENERATE_LIMIT = subscription?.name === "Majik-Pro" ? 100 : 5;
+  
+    useEffect(() => {
+      if (searchQuery === "") {
+        setFilteredProducts(products);
+      } else {
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        const filtered = products.filter((product) =>
+          product.node?.title?.toLowerCase().includes(lowerCaseQuery)
+        );
+        setFilteredProducts(filtered);
+      }
+    }, [searchQuery, products]);
+  
+    const handleCheckboxChange = (productId) => {
+      setSelectedProducts((prevSelected) =>
+        prevSelected.includes(productId)
+          ? prevSelected.filter((id) => id !== productId)
+          : [...prevSelected, productId]
       );
-      setFilteredProducts(filtered);
-    }
-  }, [searchQuery, products]);
-
-  const handleCheckboxChange = (productId) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.includes(productId)
-        ? prevSelected.filter((id) => id !== productId)
-        : [...prevSelected, productId]
-    );
-  };
-
-  const downloadImageAsBase64 = async (imageUrl) => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      console.error("Error downloading image:", error);
-      return null;
-    }
-  };
-
-  const extractImageName = (url) => url.split("/").pop().split("?")[0];
-
-  const handleSubmit = async () => {
-    if (!isMajikProPlan) {
-      setIsPricingModal(true);
-      setModalMessage("Please select a plan before generating metafields.");
-      setShowReviewButton(false);
-      return;
-    }
-
-    setIsModalOpen(true);
-    setModalMessage("Your products are being uploaded...");
-
-    const selectedProductDetails = products
-      .filter((product) => selectedProducts.includes(product.node.id))
-      .map((product) => ({
-        id: product.node.id,
-        title: product.node.title,
-        imageUrl: product.node.images.edges[0]?.node.originalSrc || "",
-      }));
-
-    const base64Images = await Promise.all(
-      selectedProductDetails.map(async (product) => {
-        const base64Image = await downloadImageAsBase64(product.imageUrl);
-        return {
-          image_id: product.id,
-          image_name: extractImageName(product.imageUrl),
-          image_data: base64Image,
-          product_source: "shopify",
-          source_product_id: product.id,
-        };
-      })
-    );
-
-    const payload = {
-      customer_id: shopId,
-      images: base64Images,
     };
-
-    try {
-      const billingOnDate = new Date(billings?.[0]?.billing_on || new Date());
-      const startDate = new Date(billingOnDate);
-      startDate.setDate(startDate.getDate() - 30);
-
-      const responseCount = await fetch(
-        "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            store_id: shopId,
-            date: startDate.toISOString().split("T")[0],
-          }),
-        }
-      );
-
-      const countResult = await responseCount.json();
-      const totalCount = countResult.total_count;
-
-      if (totalCount + base64Images.length > GENERATE_LIMIT) {
-        setModalMessage("INSUFFICIENT CREDITS");
+  
+    const downloadImageAsBase64 = async (imageUrl) => {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error("Error downloading image:", error);
+        return null;
+      }
+    };
+  
+    const extractImageName = (url) => url.split("/").pop().split("?")[0];
+  
+    const handleSubmit = async () => {
+      if (!isMajikProPlan) {
+        setIsPricingModal(true);
+        setModalMessage("Please select a plan before generating metafields.");
+        setShowReviewButton(false);
         return;
       }
-
-      const response = await fetch(
-        "https://cartesian-api.plotch.io/catalog/genmetadata/image/upload",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
+  
+      setIsModalOpen(true);
+      setModalMessage("Your products are being uploaded...");
+  
+      const selectedProductDetails = products
+        .filter((product) => selectedProducts.includes(product.node?.id))
+        .map((product) => ({
+          id: product.node?.id,
+          title: product.node?.title,
+          imageUrl: product.node?.images?.edges?.[0]?.node?.originalSrc || "",
+        }));
+  
+      const base64Images = await Promise.all(
+        selectedProductDetails.map(async (product) => {
+          const base64Image = await downloadImageAsBase64(product.imageUrl);
+          return {
+            image_id: product.id,
+            image_name: extractImageName(product.imageUrl),
+            image_data: base64Image,
+            product_source: "shopify",
+            source_product_id: product.id,
+          };
+        })
       );
-
-      if (response.ok) {
-        setModalMessage("Upload successful! Check Review");
-        setShowReviewButton(true);
-        setSelectedProducts([]);
-      } else {
+  
+      const payload = {
+        customer_id: shopId,
+        images: base64Images,
+      };
+  
+      try {
+        const billingOnDate = new Date(billings?.[0]?.billing_on || new Date());
+        const startDate = new Date(billingOnDate);
+        startDate.setDate(startDate.getDate() - 30);
+  
+        const responseCount = await fetch(
+          "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              store_id: shopId,
+              date: startDate.toISOString().split("T")[0],
+            }),
+          }
+        );
+  
+        const countResult = await responseCount.json();
+        const totalCount = countResult.total_count;
+  
+        if (totalCount + base64Images.length > GENERATE_LIMIT) {
+          setModalMessage("INSUFFICIENT CREDITS");
+          return;
+        }
+  
+        const response = await fetch(
+          "https://cartesian-api.plotch.io/catalog/genmetadata/image/upload",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+  
+        if (response.ok) {
+          setModalMessage("Upload successful! Check Review");
+          setShowReviewButton(true);
+          setSelectedProducts([]);
+        } else {
+          setModalMessage("Error occurred during upload. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error during API request:", error);
         setModalMessage("Error occurred during upload. Please try again.");
       }
-    } catch (error) {
-      console.error("Error during API request:", error);
-      setModalMessage("Error occurred during upload. Please try again.");
-    }
-  };
-
-  const handleReviewNavigate = () => navigate("/app/review");
-  const handleModalClose = () => setIsModalOpen(false);
-
-  return (
-    <Frame>
-      <Page fullWidth>
-        <Layout>
-          <Layout.Section>
-            <div className="products-container">
-              <Card padding="300">
-                <h2 className="products-title">All Products</h2>
-                <div className="action-button-container">
-                  <p>Generate Metadata</p>
-                  <button
-                    onClick={handleSubmit}
-                    className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}
-                    disabled={selectedProducts.length === 0}
-                  >
-                    Generate Metadata
-                  </button>
-                </div>
-                <TextField
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder="Search by product name"
-                  type="text"
-                />
-                <div className="products-list">
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                      <div key={product.node.id} className="product-item">
-                        <input
-                          type="checkbox"
-                          id={product.node.id}
-                          checked={selectedProducts.includes(product.node.id)}
-                          onChange={() => handleCheckboxChange(product.node.id)}
-                        />
-                        <img
-                          src={product.node.images.edges[0]?.node.originalSrc || ""}
-                          alt={product.node.images.edges[0]?.node.altText || "No image"}
-                          width={50}
-                          height={50}
-                        />
-                        <p>{product.node.title}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No products found.</p>
-                  )}
-                </div>
-              </Card>
-            </div>
-            <Modal
-              open={isModalOpen}
-              onClose={handleModalClose}
-              title={modalMessage}
-            >
-              {showReviewButton && (
-                <Button primary onClick={handleReviewNavigate}>
-                  Review Metadata
-                </Button>
-              )}
-            </Modal>
-          </Layout.Section>
-        </Layout>
-      </Page>
-    </Frame>
-  );
-}
+    };
+  
+    const handleReviewNavigate = () => navigate("/app/review");
+    const handleModalClose = () => setIsModalOpen(false);
+  
+    return (
+      <Frame>
+        <Page fullWidth>
+          <Layout>
+            <Layout.Section>
+              <div className="products-container">
+                <Card padding="300">
+                  <h2 className="products-title">All Products</h2>
+                  <div className="action-button-container">
+                    <p>Generate Metadata</p>
+                    <button
+                      onClick={handleSubmit}
+                      className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}
+                      disabled={selectedProducts.length === 0}
+                    >
+                      Generate Metadata
+                    </button>
+                  </div>
+                  <TextField
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search by product name"
+                    type="text"
+                  />
+                  <div className="products-list">
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <div key={product.node?.id} className="product-item">
+                          <input
+                            type="checkbox"
+                            id={product.node?.id}
+                            checked={selectedProducts.includes(product.node?.id)}
+                            onChange={() => handleCheckboxChange(product.node?.id)}
+                          />
+                          <img
+                            src={product.node?.images?.edges?.[0]?.node?.originalSrc || ""}
+                            alt={product.node?.images?.edges?.[0]?.node?.altText || "No image"}
+                            width={50}
+                            height={50}
+                          />
+                          <p>{product.node?.title}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No products found.</p>
+                    )}
+                  </div>
+                </Card>
+              </div>
+              <Modal
+                open={isModalOpen}
+                onClose={handleModalClose}
+                title={modalMessage}
+              >
+                {showReviewButton && (
+                  <Button primary onClick={handleReviewNavigate}>
+                    Review Metadata
+                  </Button>
+                )}
+              </Modal>
+            </Layout.Section>
+          </Layout>
+        </Page>
+      </Frame>
+    );
+  }
+  
