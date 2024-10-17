@@ -376,6 +376,7 @@ import {
   TextField,
   Modal,
   Toast,
+  Banner,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 
@@ -465,6 +466,10 @@ export default function Products() {
       shopId = '',
       billings = '',
     } = useLoaderData();
+
+    console.log(subscription);
+    console.log(shopId);
+    console.log(billings);
   
     const fetcher = useFetcher();
     const navigate = useNavigate();
@@ -482,7 +487,7 @@ export default function Products() {
   
     const isMajikProPlan =
       subscription?.name === "Majik-Pro" || subscription?.name === "Majik-Basic";
-    let GENERATE_LIMIT = subscription?.name === "Majik-Pro" ? 100 : 5;
+    let GENERATE_LIMIT = subscription?.name === "Majik-Pro" ? 100 : subscription?.name === "Majik-Basic" ? 5 : 0;
   
     useEffect(() => {
       if (searchQuery === "") {
@@ -598,9 +603,27 @@ export default function Products() {
         );
   
         if (response.ok) {
-          setModalMessage("Upload successful! Check Review");
-          setShowReviewButton(true);
-          setSelectedProducts([]);
+            try{
+                await fetch(
+                    "https://cartesian-api.plotch.io/catalog/shopify/storerequest",
+                    {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        store_id: shopId,
+                        data: payload.images,
+                        count: payload.images.length,
+                    }),
+                    }
+                );  
+            } catch (error) {
+              console.error("Error during storerequest API call:", error);
+            }
+            setModalMessage("Upload successful! Check Review");
+            setShowReviewButton(true);
+            setSelectedProducts([]);
         } else {
           setModalMessage("Error occurred during upload. Please try again.");
         }
@@ -613,70 +636,97 @@ export default function Products() {
     const handleReviewNavigate = () => navigate("/app/review");
     const handleModalClose = () => setIsModalOpen(false);
   
-    return (
-      <Frame>
-        <Page fullWidth>
-          <Layout>
-            <Layout.Section>
-              <div className="products-container">
-                <Card padding="300">
-                  <h2 className="products-title">All Products</h2>
-                  <div className="action-button-container">
-                    <p>Generate Metadata</p>
-                    <button
-                      onClick={handleSubmit}
-                      className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}
-                      disabled={selectedProducts.length === 0}
-                    >
-                      Generate Metadata
-                    </button>
-                  </div>
+  return (
+    <Frame>
+      <Page fullWidth>
+        <Layout>
+          <Layout.Section>
+            <div className="products-container">
+              <Card padding="300">
+                <h2 className="products-title">All Products</h2>
+                <div className="action-button-container">
+                  <p>Generate Metadata</p>
+                  <button
+                    onClick={handleSubmit}
+                    className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}
+                    disabled={selectedProducts.length === 0}
+                  >
+                    Generate Metadata
+                  </button>
+                </div>
+                <div className="search-bar">
                   <TextField
                     value={searchQuery}
-                    onChange={setSearchQuery}
+                    onChange={(value) => setSearchQuery(value)}
                     placeholder="Search by product name"
-                    type="text"
                   />
-                  <div className="products-list">
-                    {filteredProducts.length > 0 ? (
-                      filteredProducts.map((product) => (
-                        <div key={product.node?.id} className="product-item">
-                          <input
-                            type="checkbox"
-                            id={product.node?.id}
-                            checked={selectedProducts.includes(product.node?.id)}
-                            onChange={() => handleCheckboxChange(product.node?.id)}
-                          />
-                          <img
-                            src={product.node?.images?.edges?.[0]?.node?.originalSrc || ""}
-                            alt={product.node?.images?.edges?.[0]?.node?.altText || "No image"}
-                            width={50}
-                            height={50}
-                          />
-                          <p>{product.node?.title}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No products found.</p>
-                    )}
-                  </div>
-                </Card>
-              </div>
-              <Modal
-                open={isModalOpen}
-                onClose={handleModalClose}
-                title={modalMessage}
-              >
-                {showReviewButton && (
-                  <Button primary onClick={handleReviewNavigate}>
-                    Review Metadata
-                  </Button>
-                )}
-              </Modal>
-            </Layout.Section>
-          </Layout>
-        </Page>
-      </Frame>
-    );
-  }
+                </div>
+              </Card>
+              <div className="products-list">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => {
+                    const variant = product.node.variants.edges[0]?.node;
+                    const price = variant?.price ? `₹${variant.price}` : "";
+                    const compareAtPrice = variant?.compareAtPrice ? `₹${variant.compareAtPrice}` : "";
   
+                    return (
+                      <div key={product.node.id} className="product-row">
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.includes(product.node.id)}
+                          onChange={() => handleCheckboxChange(product.node.id)}
+                          className="product-checkbox"
+                        />
+                        <div className="product-image">
+                          <img
+                            src={product.node.images.edges[0]?.node.originalSrc || ""}
+                            alt={product.node.images.edges[0]?.node.altText || "Product Image"}
+                          />
+                        </div>
+                        <div className="product-details">
+                          <h3 className="product-title">{product.node.title}</h3>
+                          <div className="pricedetail">
+                            <p className="product-status">{product.node.status}</p>
+                            <p className="product-price">{price}</p>
+                            {compareAtPrice && <p className="product-compare-price">{compareAtPrice}</p>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>No products found.</p>
+                )}
+              </div>
+            </div>
+          </Layout.Section>
+        </Layout>
+        <Modal
+          open={isModalOpen}
+          onClose={handleModalClose}
+          title="Processing Metadata"
+        >
+          <p className="modalUploading">{modalMessage}</p>
+        </Modal>
+  
+        <Modal
+          open={isPricingModal}
+          onClose={handleModalClose}
+          title={showReviewbutton ? "Processing Metadata" : "Select a Plan"}
+        >
+          <p className="checkPricingplan">{modalMessage}</p>
+          <div className="checkPricingButton">
+            {!showReviewbutton && (
+              <Button variant="primary" onClick={handlePricingRedirect}>
+                Go to Pricing
+              </Button>
+            )}
+          </div>
+        </Modal>
+  
+        {toastMarkup}
+        {errorBanner}
+      </Page>
+    </Frame>
+  );
+}
