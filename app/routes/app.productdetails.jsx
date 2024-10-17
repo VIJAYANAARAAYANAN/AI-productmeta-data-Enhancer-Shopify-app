@@ -566,7 +566,7 @@ export default function Products() {
 
     try {  
       console.log("Entered");
-      const billingOnDate = new Date(billings?.[0]?.billing_on || new Date());
+      const billingOnDate = new Date(billings?.billing_on || new Date());
       const startDate = new Date(billingOnDate);
       console.log(startDate);
       startDate.setDate(startDate.getDate() - 30);
