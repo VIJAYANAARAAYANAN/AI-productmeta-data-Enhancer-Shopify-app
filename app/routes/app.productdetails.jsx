@@ -83,6 +83,7 @@ export const loader = async ({ request }) => {
       billingDetails: billingDetails || null,
       subscription: billingDetails?.appSubscriptions?.[0],
       shopId: myShop, // Add shop ID here
+      billings : billings,
     });
   } catch (error) {
     console.error("Error fetching products or shop details:", error);
@@ -98,6 +99,18 @@ export default function Products() {
   const billingDetails = data.billingDetails;
   const subscription = data.subscription;
   const shopId = data.shopId; // Receive shopId from loader
+  const billings = data.billings;
+
+  console.log(billings.data);
+  console.log(subscription);
+  let GENERATE_LIMIT = 0;
+  if(subscription?.name === "Majik-Pro"){
+    GENERATE_LIMIT = 100;
+  }
+  else if(subscription?.name === "Majik-Basic"){
+    GENERATE_LIMIT = 5;
+  }
+  console.log(GENERATE_LIMIT); 
 
   const [selectedProducts, setSelectedProducts] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState("");
