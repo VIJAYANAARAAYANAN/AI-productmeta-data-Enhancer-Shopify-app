@@ -471,7 +471,7 @@ export default function Products() {
   console.log("Subscription data:", subscription);
   console.log("Shop ID:", shopId);
   console.log("Billings:", billings);
-  console.log("The billing is done on date :",billings.billing_on);
+  console.log("The billing is on date :",billings.billing_on);
 
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -584,7 +584,7 @@ export default function Products() {
       // Get billing date and check requests count
       const billingOnDate = billings.billing_on;
       const startDate = new Date(billingOnDate);
-      startDate.setDate(startDate.getDate() - 30);
+      startDate.setDate(startDate.getDate() - 29);
       console.log("Start date for request count:", startDate);
 
       let responseCount;
