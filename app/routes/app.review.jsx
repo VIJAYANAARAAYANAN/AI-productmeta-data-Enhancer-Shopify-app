@@ -16,10 +16,15 @@ import { authenticate } from "../shopify.server";
 
 // Loader function with detailed logging
 export const loader = async ({ request }) => {
-  console.log("Loader function started");
-
-  const { admin } = await authenticate.admin(request);
-
+  console.log("Loader function started on review");
+  console.log("Getting the shop ID");
+  // const { shop } = session;
+  // const myShop = shop.replace(".myshopify.com", "");
+  // console.log("myShop", myShop);
+  const { admin , session } = await authenticate.admin(request);
+  const { shop } = session;
+  const myShop = shop.replace(".myshopify.com", "");
+  console.log("myShop data",myShop);
   const shopQuery = `
     {
       shop {
@@ -44,7 +49,7 @@ export const loader = async ({ request }) => {
     console.log("Shop ID:", shopId);
     console.log(
       "Making POST request to the API with the shop_id as customer id...",
-      shopId,
+      myShop,
     );
     const requestResponse = await fetch(
       "https://cartesian-api.plotch.io/catalog/genrequestlist/fetch",
@@ -54,7 +59,7 @@ export const loader = async ({ request }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          customer_id: shopId,
+          customer_id: myShop,
         }),
       },
     );
@@ -111,18 +116,30 @@ export default function RequestTable() {
   // Fetch requestData dynamically
   React.useEffect(() => {
     if (data && data.requestData) {
-      // Dynamically update rows with fetched data
-      const formattedRows = data.requestData.map((request) => ({
-        requestId: request.request_id,
-        requestStatus: request.request_status,
-        requestDate: request.request_date,
-        numProducts: request.num_products,
-        downloadLink: request.download_link,
-      }));
+      // Function to parse the date strings into Date objects
+      const parseDate = (dateString) => {
+        const [day, month, yearAndTime] = dateString.split("/");
+        const [year, time] = yearAndTime.split(" ");
+        return new Date(`${year}-${month}-${day}T${time}`);
+      };
+  
+      // Dynamically update rows with fetched data and sort by date (newest first)
+      const formattedRows = data.requestData
+        .map((request) => ({
+          requestId: request.request_id,
+          requestStatus: request.request_status,
+          requestDate: request.request_date,
+          numProducts: request.num_products,
+          downloadLink: request.download_link,
+        }))
+        // Sort by parsed date, newest first
+        .sort((a, b) => parseDate(b.requestDate) - parseDate(a.requestDate));
+  
       setRows(formattedRows);
       setIsLoading(false);
     }
   }, [data]);
+  
 
   // Download handler
   const handleDownload = (url) => {

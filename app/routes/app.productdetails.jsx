@@ -691,6 +691,7 @@ export default function Products() {
         console.log("Image upload successful");
 
         // Store request data
+        console.log("Image is being uploaded with shopId", shopId);
         try {
           console.log("Storing request data...");
           await fetch(
@@ -747,11 +748,11 @@ export default function Products() {
               <Card padding="300">
                 <div>
                   <div className="remainCredits">
-                    <p>
-                      <span>(Available Generation)</span>
+                    <p style={{ margin: 0 }}>
+                      <span>Available Credits : </span>
                     </p>
-                    <div className="badge">
-                      {totalCount} / {GENERATE_LIMIT}
+                    <div className="badge" style={{ marginLeft: '5px' }}>
+                      {GENERATE_LIMIT - totalCount}
                     </div>
                   </div>
                   <h2 className="products-title">All Products</h2>
@@ -834,11 +835,15 @@ export default function Products() {
           onClose={handleModalClose}
           title="Processing Metadata"
         >
-          <Modal.Section>
+          <Modal.Section padding="0">
+            <div className="susuploadmodal">
             <p className="modalUploading">{modalMessage}</p>
+            <div className="rbtn">
             {showReviewButton && ( 
-              <button onClick={handleReviewNavigate}>Review Metadata</button>
+              <Button variant="primary"onClick={handleReviewNavigate}>Review</Button>
             )}
+            </div>
+            </div>
           </Modal.Section>
         </Modal>
 

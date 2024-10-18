@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://binary-hit-danger-lodge.trycloudflare.com"
+application_url = "https://revision-perth-engineer-camel.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://binary-hit-danger-lodge.trycloudflare.com/auth/callback",
-  "https://binary-hit-danger-lodge.trycloudflare.com/auth/shopify/callback",
-  "https://binary-hit-danger-lodge.trycloudflare.com/api/auth/callback"
+  "https://revision-perth-engineer-camel.trycloudflare.com/auth/callback",
+  "https://revision-perth-engineer-camel.trycloudflare.com/auth/shopify/callback",
+  "https://revision-perth-engineer-camel.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

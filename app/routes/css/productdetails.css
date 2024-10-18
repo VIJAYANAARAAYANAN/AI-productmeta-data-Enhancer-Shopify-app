@@ -197,8 +197,15 @@
   justify-content: flex-end;
   padding: 10px 20px;
 }
-.modalUploading{
-  padding: 30px 30px 20px 15px;
+
+.susuploadmodal{
+   display: flex;
+   flex-direction: column;
+   padding: 5px;
+   gap: 10px;
+}
+.rbtn{
+  width: fit-content;
 }
 @media screen and (max-width: 500px) {
   .action-button-container p {
