@@ -755,10 +755,12 @@ export default function Products() {
                       {GENERATE_LIMIT - totalCount}
                     </div>
                   </div>
-                  <h2 className="products-title">All Products</h2>
+                 
                 </div>
                 <div className="action-button-container">
+                  <div> <h2 className="products-title">All Products</h2>
                   <p>Generate Metadata</p>
+                  </div>
                   <button
                     onClick={handleSubmit}
                     className={`generateButton ${selectedProducts.length === 0 ? "disabled" : ""}`}

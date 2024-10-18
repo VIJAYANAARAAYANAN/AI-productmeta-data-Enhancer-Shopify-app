@@ -91,9 +91,10 @@ export const loader = async ({ params, request }) => {
 
 export const action = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-
+  console.log("Request that is received on the action function",request);
   console.log("Action function triggered");
   const formData = await request.formData();
+  console.log("Form data on the action function",formData);
   const productId = formData.get("productId");
   const productData = formData.get("productData");
 
@@ -228,6 +229,7 @@ export default function MetaView() {
   }, [fetcher.data]);
 
   const handleApply = async (product) => {
+    console.log("product received on Apply function",product);
     const productId = `${product.source_product_id}`;
     console.log("Applying metafields for product ID:", productId);
 

@@ -16,6 +16,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  margin-bottom: 7px;
 }
 
 .remainCredits p{
@@ -27,7 +28,7 @@
   display: inline-block;
   background-color: #ff3e6b;
   color: white;
-  padding: 3px 7px;
+  padding: 3px 13px;
   border-radius: 20px;
   font-weight: 600;
   font-size: 14px;
@@ -35,20 +36,22 @@
   padding-top: 5px;
 }
 
-
 .remainCredits span{
   font-weight: 600;
 }
 
 .generateButton {
-  padding: 12px;
-  border-radius: 12px;
-  background-color: #ff3e6b;
-  color: white;
-  border: none;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
+  padding: 12px 12px;
+    border-radius: 12px;
+    background-color: #ff3e6b;
+    color: white;
+    border: none;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    height: fit-content;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .products-list {

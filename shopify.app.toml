@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://discovered-sorted-rouge-multimedia.trycloudflare.com"
+application_url = "https://char-burns-screenshots-indicated.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://discovered-sorted-rouge-multimedia.trycloudflare.com/auth/callback",
-  "https://discovered-sorted-rouge-multimedia.trycloudflare.com/auth/shopify/callback",
-  "https://discovered-sorted-rouge-multimedia.trycloudflare.com/api/auth/callback"
+  "https://char-burns-screenshots-indicated.trycloudflare.com/auth/callback",
+  "https://char-burns-screenshots-indicated.trycloudflare.com/auth/shopify/callback",
+  "https://char-burns-screenshots-indicated.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
