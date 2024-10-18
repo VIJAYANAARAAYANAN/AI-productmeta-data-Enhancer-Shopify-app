@@ -834,7 +834,12 @@ export default function Products() {
           onClose={handleModalClose}
           title="Processing Metadata"
         >
-          <p className="modalUploading">{modalMessage}</p>
+          <Modal.Section>
+            <p className="modalUploading">{modalMessage}</p>
+            {showReviewButton && ( 
+              <button onClick={handleReviewNavigate}>Review Metadata</button>
+            )}
+          </Modal.Section>
         </Modal>
 
         <Modal
