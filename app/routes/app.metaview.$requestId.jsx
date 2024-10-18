@@ -22,6 +22,9 @@ export const loader = async ({ params, request }) => {
   const { admin } = await authenticate.admin(request);
   console.log("Authenticated admin object:", admin);
 
+  const { shop } = session;
+  const myShop = shop.replace(".myshopify.com", "");
+
   const shopQuery = `{
     shop {
       id
@@ -41,8 +44,8 @@ export const loader = async ({ params, request }) => {
       throw new Error("Shop data is missing");
     }
 
-    const shopId = shop.data.shop.id;
-    console.log("Shop ID:", shopId);
+    // const shopId = shop.data.shop.id;
+    console.log("Shop ID:", myShop);
 
     const requestResponse = await fetch(
       "https://cartesian-api.plotch.io/catalog/ai/metadata/fetch",
@@ -53,7 +56,7 @@ export const loader = async ({ params, request }) => {
         },
         body: JSON.stringify({
           request_id: requestId,
-          customer_id: shopId,
+          customer_id: myShop,
         }),
       },
     );
