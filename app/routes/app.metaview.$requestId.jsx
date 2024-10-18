@@ -19,12 +19,12 @@ export const loader = async ({ params, request }) => {
   console.log("Loader function triggered");
   const requestId = params.requestId;
 
-  const { admin } = await authenticate.admin(request);
+  const { admin , session } = await authenticate.admin(request);
   console.log("Authenticated admin object:", admin);
 
   const { shop } = session;
   const myShop = shop.replace(".myshopify.com", "");
-
+  console.log("myShop",myShop);
   const shopQuery = `{
     shop {
       id
@@ -46,7 +46,7 @@ export const loader = async ({ params, request }) => {
 
     // const shopId = shop.data.shop.id;
     console.log("Shop ID:", myShop);
-
+    console.log("Making POST request to fetch the product metafields with..",myShop);
     const requestResponse = await fetch(
       "https://cartesian-api.plotch.io/catalog/ai/metadata/fetch",
       {
