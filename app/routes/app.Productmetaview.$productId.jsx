@@ -229,22 +229,29 @@ export default function Productmetaview() {
             actionType: "delete",
             metafieldId: metafieldToDelete,
           }),
-        },
+        }
       );
-
+  
       if (response.ok) {
         console.log("Metafield deleted successfully!", response);
-        window.location.reload();
-        // Update state or refresh the page to reflect the change
+  
+        // Update the local state to remove the deleted metafield
+        setEditedFields((prevFields) =>
+          prevFields.filter((field) => field.id !== metafieldToDelete)
+        );
+  
+        setloaderview(false);
       } else {
         const errorData = await response.json();
         console.error("Error deleting metafield:", errorData.error);
+        setloaderview(false);
       }
     } catch (error) {
       console.error("Failed to delete metafield:", error.message);
+      setloaderview(false);
     }
   };
-
+  
   // Options for the select dropdown
   const typeOptions = [
     { label: "Single Line Text", value: "single_line_text_field" },
