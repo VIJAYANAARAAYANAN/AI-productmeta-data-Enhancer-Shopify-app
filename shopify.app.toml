@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://vulnerability-intervals-prompt-engineering.trycloudflare.com"
+application_url = "https://permission-buf-truly-risks.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://vulnerability-intervals-prompt-engineering.trycloudflare.com/auth/callback",
-  "https://vulnerability-intervals-prompt-engineering.trycloudflare.com/auth/shopify/callback",
-  "https://vulnerability-intervals-prompt-engineering.trycloudflare.com/api/auth/callback"
+  "https://permission-buf-truly-risks.trycloudflare.com/auth/callback",
+  "https://permission-buf-truly-risks.trycloudflare.com/auth/shopify/callback",
+  "https://permission-buf-truly-risks.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

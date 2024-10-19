@@ -162,22 +162,33 @@ export default function Products() {
     const fetchcount = async () => {
       try {
         console.log("Fetching request count...");
-
-        // Make sure billing_on is a valid Date object
-        const billingOnDate = billings.billing_on;
-        const startDate = new Date(billingOnDate);
-        startDate.setDate(startDate.getDate() - 30); 
+  
+        // Parse the billing date properly
+        const billingOnDate = new Date(billings.billing_on);
+  
+        // Calculate exactly one month back from the billing date
+        const startDate = new Date(billingOnDate); // Clone the date
+        startDate.setMonth(startDate.getMonth() - 1);
+  
+        // If the billing date is the 31st and the previous month has fewer days, adjust the day
+        if (billingOnDate.getDate() !== startDate.getDate()) {
+          // Adjust the startDate to the last day of the previous month if needed
+          startDate.setDate(0); 
+        }
+  
         const billingDate = startDate;
-        console.log("Billing date", billingDate);
+        console.log("Billing date after adjusting for exact month difference:", billingDate);
+  
         const userPlan = formatString(billings.name);
         console.log("Response Count body to fetch the count data", JSON.stringify({
           store_id: shopId,
           date: billingDate.toISOString().split("T")[0], // Correct format
-          plan : userPlan
+          plan: userPlan
         }));
-       
+  
         setuserplan(userPlan);
-        console.log("Formatted user plan",userPlan);
+        console.log("Formatted user plan", userPlan);
+  
         const responseCount = await fetch(
           "https://cartesian-api.plotch.io/catalog/shopify/retrieverequest",
           {
@@ -192,24 +203,25 @@ export default function Products() {
             }),
           },
         );
-
+  
         if (!responseCount.ok) {
           throw new Error("Failed to fetch request count");
         }
-
-        countResult = await responseCount.json();
-        console.log(":", countResult);
+  
+        const countResult = await responseCount.json();
+        console.log("Request count result:", countResult);
         console.log("COUNT", countResult.total_count);
         setTotalCount(countResult.total_count);
-        // Process the countResult as needed
+        
       } catch (error) {
         console.error("Error fetching request count:", error);
       }
-    }; 
-
+    };
+  
     fetchcount();
-  }, []); // Add dependencies to ensure they are available
-
+  }, [billings, shopId, setTotalCount]);   // Add dependencies to ensure they are available
+ 
+    
   const handleCheckboxChange = (productId) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
