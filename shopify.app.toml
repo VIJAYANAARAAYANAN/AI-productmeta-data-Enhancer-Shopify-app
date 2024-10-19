@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://permission-buf-truly-risks.trycloudflare.com"
+application_url = "https://duo-growing-nails-poor.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://permission-buf-truly-risks.trycloudflare.com/auth/callback",
-  "https://permission-buf-truly-risks.trycloudflare.com/auth/shopify/callback",
-  "https://permission-buf-truly-risks.trycloudflare.com/api/auth/callback"
+  "https://duo-growing-nails-poor.trycloudflare.com/auth/callback",
+  "https://duo-growing-nails-poor.trycloudflare.com/auth/shopify/callback",
+  "https://duo-growing-nails-poor.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
