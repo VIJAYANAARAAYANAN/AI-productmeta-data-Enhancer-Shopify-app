@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://dicke-person-mighty-hispanic.trycloudflare.com"
+application_url = "https://springfield-zimbabwe-heaven-bullet.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://dicke-person-mighty-hispanic.trycloudflare.com/auth/callback",
-  "https://dicke-person-mighty-hispanic.trycloudflare.com/auth/shopify/callback",
-  "https://dicke-person-mighty-hispanic.trycloudflare.com/api/auth/callback"
+  "https://springfield-zimbabwe-heaven-bullet.trycloudflare.com/auth/callback",
+  "https://springfield-zimbabwe-heaven-bullet.trycloudflare.com/auth/shopify/callback",
+  "https://springfield-zimbabwe-heaven-bullet.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

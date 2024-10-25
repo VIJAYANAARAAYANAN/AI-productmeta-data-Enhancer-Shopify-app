@@ -68,9 +68,20 @@
   padding: 8px;
   border: 1px solid #898989;
   border-radius: 5px;
-
+  height: fit-content;
 }
 
+
+.jsontextbox{
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  height: fit-content;
+  scrollbar-width: 5px;
+  resize: vertical;
+  background-color: #f9f9f9;
+}
 .readonly-input {
   background-color: #f0f0f0;
   border: 1px solid #ccc;

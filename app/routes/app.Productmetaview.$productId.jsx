@@ -65,19 +65,34 @@ export const action = async ({ request, params }) => {
     const productId = formData.get("productId");
 
     const mutation = `
-     mutation {
-  productUpdate(
-    product: {
-      id: "${productId}",
-      metafields: ${JSON.stringify(updatedMetafields).replace(/"([^"]+)":/g, "$1:")}
+    mutation {
+      productUpdate(
+        input: {
+          id: "${productId}",
+          metafields: [
+            ${updatedMetafields
+              .map(
+                (metafield) => `
+              {
+                id: "${metafield.id}",
+                value: "${metafield.value}",
+                namespace: "${metafield.namespace}",
+                key: "${metafield.key}",
+                type: "${metafield.type}"
+              }
+            `,
+              )
+              .join(",")}
+          ]
+        }
+      ) {
+        userErrors {
+          field
+          message
+        }
+      }
     }
-  ) {
-    userErrors {
-      field
-      message
-    }
-  }
-      }`;
+  `;
 
     try {
       const response = await admin.graphql(mutation);
@@ -156,6 +171,8 @@ export default function Productmetaview() {
   const [confirmationModalActive, setConfirmationModalActive] = useState(false); // State for the confirmation modal
   const [loaderview, setloaderview] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("Copy Crystal code");
+  const [errormessage, setErrorMessage] = useState("");
+  const [errorfound, seterrorfound] = useState(false);
   const [deleteModalActive, setDeleteModalActive] = useState(false);
   const [metafieldToDelete, setMetafieldToDelete] = useState(null); // Store the metafield to delete
 
@@ -165,7 +182,7 @@ export default function Productmetaview() {
     })),
   );
 
-  console.log("Editted metafields on main function", editedFields);
+  // console.log("Editted metafields on main function", editedFields);
 
   const [successModalActive, setSuccessModalActive] = useState(false);
 
@@ -178,36 +195,54 @@ export default function Productmetaview() {
   // Function to open the confirmation modal
   const openConfirmationModal = () => {
     setConfirmationModalActive(true);
+    seterrorfound(false);
   };
 
   // Function to handle confirmation of save action
   const handleConfirmSave = async () => {
+    seterrorfound(false);
     setloaderview(true);
+    console.log("Handle Confirm Save have been triggered");
+    console.log("Edited fields being sent json:", JSON.stringify(editedFields));
+    console.log("Product id that is used in handleConfirmSave", product.id.split("/")[4]);
+
     try {
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
         {
           method: "POST",
-          body: new URLSearchParams({
+          headers: {
+            "Content-Type": "application/json", // Ensure you're sending JSON
+          },
+          body: JSON.stringify({
             actionType: "update",
-            metafields: JSON.stringify(editedFields),
+            metafields: editedFields, // Keep this as an object/array, no need for extra JSON.stringify
             productId: product.id,
           }),
         },
       );
 
+      console.log("actual response", response);
       if (response.ok) {
         console.log("Response from the POST on Confirm change", response);
+        seterrorfound(false);
         setConfirmationModalActive(false);
         setSuccessModalActive(true);
+        setloaderview(false);
         setTimeout(() => {
           setSuccessModalActive(false);
         }, 3000);
       } else {
+        console.log("THE POST IN THE HANDLECONFIRMSAVE FAILED");
+        setloaderview(false);
+        setErrorMessage("Failed to save metadata");
+        seterrorfound(true);
         const errorData = await response.json();
         console.error("Error saving metafields:", errorData.error);
       }
     } catch (error) {
+      setErrorMessage("Sorry failed to save metafield");
+      seterrorfound(true);
       console.error("Failed to save metafields:", error.message);
     }
   };
@@ -229,17 +264,16 @@ export default function Productmetaview() {
             actionType: "delete",
             metafieldId: metafieldToDelete,
           }),
-        }
+        },
       );
-  
+
       if (response.ok) {
         console.log("Metafield deleted successfully!", response);
-  
+
         // Update the local state to remove the deleted metafield
         setEditedFields((prevFields) =>
-          prevFields.filter((field) => field.id !== metafieldToDelete)
+          prevFields.filter((field) => field.id !== metafieldToDelete),
         );
-  
         setloaderview(false);
       } else {
         const errorData = await response.json();
@@ -251,7 +285,7 @@ export default function Productmetaview() {
       setloaderview(false);
     }
   };
-  
+
   // Options for the select dropdown
   const typeOptions = [
     { label: "Single Line Text", value: "single_line_text_field" },
@@ -332,6 +366,7 @@ export default function Productmetaview() {
         {editedFields && editedFields.length > 0 ? (
           editedFields.map((field, index) => (
             <div className="meta-row" key={field.id}>
+              {/* Type Selector */}
               <div className="meta-cell">
                 <Select
                   options={typeOptions}
@@ -339,6 +374,8 @@ export default function Productmetaview() {
                   value={field.type}
                 />
               </div>
+
+              {/* Namespace (Read-Only) */}
               <div className="meta-cell">
                 <input
                   type="text"
@@ -350,6 +387,8 @@ export default function Productmetaview() {
                   }}
                 />
               </div>
+
+              {/* Key (Read-Only) */}
               <div className="meta-cell">
                 <input
                   type="text"
@@ -361,16 +400,97 @@ export default function Productmetaview() {
                   }}
                 />
               </div>
+
+              {/* Value (Conditional Input Types) */}
               <div className="meta-cell">
-                <input
-                  type="text"
-                  value={field.value}
-                  onChange={(e) =>
-                    handleInputChange(index, "value", e.target.value)
-                  }
-                />
+                {field.type === "single_line_text_field" ? (
+                  <input
+                    type="text"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                    placeholder="Enter text"
+                  />
+                ) : field.type === "multi_line_text_field" ? (
+                  <textarea
+                    className="textareabox"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                    placeholder="Enter text"
+                  />
+                ) : field.type === "number_integer" ||
+                  field.type === "number_decimal" ? (
+                  <input
+                    type="number"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                    step={field.type === "number_decimal" ? "0.01" : "1"}
+                    placeholder="Enter number"
+                  />
+                ) : field.type === "date" ? (
+                  <input
+                    type="date"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                  />
+                ) : field.type === "color" ? (
+                  <input
+                    type="text"
+                    value={
+                      field.value.startsWith("#")
+                        ? field.value
+                        : `#${field.value}`
+                    }
+                    onChange={(e) => {
+                      let colorValue = e.target.value;
+                      if (!colorValue.startsWith("#")) {
+                        colorValue = `#${colorValue}`;
+                      }
+                      handleInputChange(index, "value", colorValue);
+                    }}
+                    maxLength="7"
+                    placeholder="#000000"
+                  />
+                ) : field.type === "boolean" ? (
+                  <select
+                    className="boolenType"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                  >
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                ) : field.type === "link" || field.type === "url" ? (
+                  <input
+                    type="url"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                    placeholder="Enter URL"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(index, "value", e.target.value)
+                    }
+                    placeholder="Enter value"
+                  />
+                )}
               </div>
-             
+
+              {/* Delete, Copy, and Line Icons */}
               <div className="delete-cell">
                 <div className="icon-container">
                   <img
@@ -379,13 +499,10 @@ export default function Productmetaview() {
                     alt="Delete Row"
                     onClick={() => handleDeleteClick(field.id)}
                   />
-                  {/* <span className="tooltip-message">Delete</span> */}
                 </div>
                 <div className="lineicon">
-              <img src={lineicon} alt="lineicon"/>
-              </div>
-
-                {/* Copy Icon with Tooltip */}
+                  <img src={lineicon} alt="lineicon" />
+                </div>
                 <div className="icon-container">
                   <img
                     src={copyicon}
@@ -401,7 +518,8 @@ export default function Productmetaview() {
         ) : (
           <div className="Nometadata">No metafields available.</div>
         )}
-          </div>
+      </div>
+
       <div className="button-container">
         <Button
           className="submitbutton"
@@ -438,6 +556,7 @@ export default function Productmetaview() {
                 alt="Creating Metafields"
               />
             )}
+            {errorfound && <p>{errormessage}</p>}
           </div>
         </Modal.Section>
       </Modal>
