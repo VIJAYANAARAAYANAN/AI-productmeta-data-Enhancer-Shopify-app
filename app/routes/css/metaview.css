@@ -166,7 +166,11 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 8px;
-  max-height: 33px
+  max-height: 40px;
+  resize: none; /* Prevent resizing */
+}
+.textareabox::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
 }
 .boolenType {
   width: 100%;

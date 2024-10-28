@@ -153,7 +153,11 @@ export default function DynamicRowsWithProductId() {
 
   // Handle input change for each row
   const handleInputChange = (index, key, value) => {
+    
     const newRows = [...rows];
+    if (newRows[index].type === "boolean" && !newRows[index].value) {
+      newRows[index].value = "True";
+    }
     newRows[index][key] = value;
     setRows(newRows);
   };

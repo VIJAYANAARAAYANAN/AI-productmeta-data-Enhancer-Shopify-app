@@ -9,6 +9,8 @@ import deleteicon from "./assets/delete.svg";
 import loadergif from "./assets/loader.gif";
 import copyicon from "./assets/copy.svg";
 import lineicon from "./assets/line.svg";
+import { DataType } from "@shopify/shopify-api";
+
 // Loader function to fetch product and metafields data
 export const loader = async ({ params, request }) => {
   console.log("params received in MetaView loader", params);
@@ -54,50 +56,109 @@ export const loader = async ({ params, request }) => {
   }
 };
 
-// Action function to update metafields
 export const action = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const actionType = formData.get("actionType");
+  console.log("Raw Request obtained", request);
+  // Parse JSON body
+  let body;
+  try {
+    body = await request.json();
+    console.log("Parsed JSON body:", body);
+  } catch (err) {
+    console.error("Error parsing JSON:", err);
+    return json({ error: "Invalid JSON format." }, { status: 400 });
+  }
+
+  const { actionType, metafields, productId, metafieldId } = body;
+  console.log("Action type:", actionType);
+  console.log("Product ID:", productId);
+  console.log("Metafields in body:", metafieldId);
 
   if (actionType === "update") {
-    const updatedMetafields = JSON.parse(formData.get("metafields"));
-    const productId = formData.get("productId");
+    console.log("ACTION FUNCTION FOR UPDATE HAS BEEN TRIGGERED");
 
-    const mutation = `
-    mutation {
-      productUpdate(
-        input: {
-          id: "${productId}",
-          metafields: [
-            ${updatedMetafields
-              .map(
-                (metafield) => `
-              {
-                id: "${metafield.id}",
-                value: "${metafield.value}",
-                namespace: "${metafield.namespace}",
-                key: "${metafield.key}",
-                type: "${metafield.type}"
-              }
-            `,
-              )
-              .join(",")}
-          ]
-        }
+    // Format metafields with the required transformations
+    const formattedMetafields = metafields.map((metafield) => {
+      if (
+        metafield &&
+        metafield.id &&
+        metafield.key &&
+        metafield.namespace &&
+        metafield.type &&
+        metafield.value !== undefined
       ) {
-        userErrors {
-          field
-          message
+        let valueToSend;
+        switch (metafield.type) {
+          case "boolean":
+          case "number_integer":
+          case "number_decimal":
+          case "color":
+          case "single_line_text_field":
+          case "multi_line_text_field":
+          case "url":
+          case "json":
+            valueToSend = JSON.stringify(metafield.value); // Use JSON.stringify for escape
+            break;
+          case "date":
+            const date = new Date(metafield.value);
+            if (!isNaN(date.getTime())) {
+              valueToSend = JSON.stringify(date.toISOString().split("T")[0]);
+            } else {
+              throw new Error("Invalid date format");
+            }
+            break;
+          default:
+            throw new Error("Unsupported metafield type");
+        }
+
+        return `
+          {
+            id: "${metafield.id}",
+            value: ${valueToSend},
+            namespace: "${metafield.namespace}",
+            key: "${metafield.key}",
+            type: "${metafield.type}"
+          }
+        `;
+      } else {
+        throw new Error("Invalid metafield data");
+      }
+    });
+
+    console.log("Formatted Metafields:", formattedMetafields);
+
+    // Construct the mutation with embedded productId and formattedMetafields
+    const mutation = `
+      mutation {
+        productUpdate(input: {
+          id: "${productId}",
+          metafields: [${formattedMetafields.join(",")}]
+        }) {
+          userErrors {
+            field
+            message
+          }
         }
       }
-    }
-  `;
+    `;
 
     try {
+      console.log("Generated mutation with embedded data:", mutation);
       const response = await admin.graphql(mutation);
-      const responseData = await response.json();
 
+      // Log raw response
+      console.log("Raw response from GraphQL:", response);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Response not OK:", response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      console.log("Response in JSON format:", responseData);
+
+      // Check for userErrors in the GraphQL response
       if (
         responseData.errors ||
         (responseData.data.productUpdate &&
@@ -112,29 +173,31 @@ export const action = async ({ request, params }) => {
 
       return json({ success: true });
     } catch (error) {
-      console.error("Error saving metafields:", error);
-      return json({ error: "Error saving metafields" }, { status: 500 });
+      console.error("Error updating metafields:", error);
+      return json({ error: "Error updating metafields" }, { status: 500 });
     }
   }
-  //DELETING PART OF THE ACTION CODE:
+
+  //DELETE PART OF THE ACTION FUNCTION
   else if (actionType === "delete") {
-    console.log("Deleting action has been initiated");
-    const metafieldId = formData.get("metafieldId");
-    console.log("Metafield to be deleted is", metafieldId);
+    console.log("Delete part of action triggered");
     const deleteMutation = `
-      mutation {
-        metafieldDelete(input: {
-          id: "${metafieldId}"
-        }) {
-          deletedId
-          userErrors {
-            field
-            message
-          }
-        }
-      }`;
+  mutation {
+    metafieldDelete(input: { id: "${metafieldId}" }) {
+      deletedId
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
 
     try {
+      console.log(
+        "Executing delete mutation with embedded ID:",
+        deleteMutation,
+      );
       const response = await admin.graphql(deleteMutation);
       const responseData = await response.json();
 
@@ -165,13 +228,14 @@ export default function Productmetaview() {
   const { product, metafields } = data;
 
   const productId = product.id.split("/")[4];
-  console.log("Product ID from the productmetaview", productId);
+  // console.log("Product ID from the productmetaview", productId);
 
   const [showModal, setShowModal] = useState(false);
   const [confirmationModalActive, setConfirmationModalActive] = useState(false); // State for the confirmation modal
   const [loaderview, setloaderview] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("Copy Crystal code");
   const [errormessage, setErrorMessage] = useState("");
+  const [successmessage , setSuccessmessage] = useState("");
   const [errorfound, seterrorfound] = useState(false);
   const [deleteModalActive, setDeleteModalActive] = useState(false);
   const [metafieldToDelete, setMetafieldToDelete] = useState(null); // Store the metafield to delete
@@ -188,6 +252,7 @@ export default function Productmetaview() {
 
   const handleInputChange = (index, key, value) => {
     const newFields = [...editedFields];
+    console.log("New fields that are changed", newFields);
     newFields[index][key] = value;
     setEditedFields(newFields);
   };
@@ -198,54 +263,134 @@ export default function Productmetaview() {
     seterrorfound(false);
   };
 
-  // Function to handle confirmation of save action
   const handleConfirmSave = async () => {
     seterrorfound(false);
     setloaderview(true);
-    console.log("Handle Confirm Save have been triggered");
-    console.log("Edited fields being sent json:", JSON.stringify(editedFields));
-    console.log("Product id that is used in handleConfirmSave", product.id.split("/")[4]);
-
+    console.log("Handle Confirm Save has been triggered");
+  
+    // Prepare the request body
+    const requestBody = {
+      actionType: "update",
+      productId: product?.id,
+    };
+  
+    // Check editedFields content
+    if (!Array.isArray(editedFields) || editedFields.length === 0) {
+      console.error("editedFields is empty or not an array:", editedFields);
+      setErrorMessage("No metafields to update.");
+      seterrorfound(true);
+      setloaderview(false);
+      return; // Stop further processing
+    }
+  
+    // Add metafields to the request body
+    requestBody.metafields = editedFields.map((metafield) => {
+      if (
+        metafield &&
+        metafield.id &&
+        metafield.key &&
+        metafield.namespace &&
+        metafield.type &&
+        metafield.value !== undefined
+      ) {
+        // Convert the value to the correct type based on the metafield type
+        let valueToSend;
+  
+        switch (metafield.type) {
+          case "boolean":
+          case "number_integer":
+            valueToSend = metafield.value; // Convert to integer
+            break;
+          case "number_decimal":
+            valueToSend = metafield.value; // Decimal Keep it as String
+            break;
+          case "color":
+          case "single_line_text_field":
+          case "multi_line_text_field":
+          case "url":
+            valueToSend = metafield.value; // Keep as string
+            break;
+          case "json":
+            valueToSend = metafield.value;
+            break;
+          case "date":
+            const date = new Date(metafield.value);
+            if (!isNaN(date.getTime())) {
+              valueToSend = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+            } else {
+              console.error("Invalid date format:", metafield.value);
+              setErrorMessage("Invalid date format for metafield.");
+              seterrorfound(true);
+              setloaderview(false);
+              throw new Error("Invalid date format");
+            }
+            break;
+          default:
+            console.error("Unsupported metafield type:", metafield.type);
+            setErrorMessage("Unsupported metafield type.");
+            seterrorfound(true);
+            setloaderview(false);
+            throw new Error("Unsupported metafield type");
+        }
+  
+        return {
+          id: metafield.id,
+          value: valueToSend,
+          namespace: metafield.namespace,
+          key: metafield.key,
+          type: metafield.type,
+        };
+      } else {
+        console.error("Invalid metafield data:", metafield);
+        setErrorMessage("One or more metafields are invalid.");
+        seterrorfound(true);
+        setloaderview(false);
+        throw new Error("Invalid metafield data");
+      }
+    });
+  
     try {
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json", // Ensure you're sending JSON
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            actionType: "update",
-            metafields: editedFields, // Keep this as an object/array, no need for extra JSON.stringify
-            productId: product.id,
-          }),
+          body: JSON.stringify(requestBody), // Send JSON
         },
       );
-
-      console.log("actual response", response);
+  
+      // Check for HTTP errors
       if (response.ok) {
-        console.log("Response from the POST on Confirm change", response);
-        seterrorfound(false);
+        // If the response is OK, proceed to show success message
+        console.log("Metafields updated successfully!");
+        setSuccessmessage("Metafields updated successfully!");
+  
+        // Close confirmation modal and open success modal
         setConfirmationModalActive(false);
         setSuccessModalActive(true);
         setloaderview(false);
+  
+        // Automatically close success modal after a delay
         setTimeout(() => {
           setSuccessModalActive(false);
-        }, 3000);
+        }, 2000);
       } else {
-        console.log("THE POST IN THE HANDLECONFIRMSAVE FAILED");
-        setloaderview(false);
+        // If the response is not OK, handle the error
+        console.error("Failed to save metadata with status:", response.status);
         setErrorMessage("Failed to save metadata");
         seterrorfound(true);
-        const errorData = await response.json();
-        console.error("Error saving metafields:", errorData.error);
       }
     } catch (error) {
-      setErrorMessage("Sorry failed to save metafield");
+      setErrorMessage("Sorry, failed to save metafield");
       seterrorfound(true);
       console.error("Failed to save metafields:", error.message);
+    } finally {
+      setloaderview(false); // Ensure the loader is stopped
     }
   };
+  
 
   // Function to discard the changes
   const handleDiscard = () => {
@@ -255,17 +400,27 @@ export default function Productmetaview() {
   const handleConfirmDelete = async () => {
     setDeleteModalActive(false);
     setloaderview(true);
+    console.log("Confirm Delete action triggered for productID", product.id);
+    console.log("Metafield to delete are", metafieldToDelete);
     try {
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
         {
           method: "POST",
-          body: new URLSearchParams({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
             actionType: "delete",
             metafieldId: metafieldToDelete,
           }),
         },
       );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server responded with an error page:", errorText);
+      }
 
       if (response.ok) {
         console.log("Metafield deleted successfully!", response);
@@ -295,10 +450,10 @@ export default function Productmetaview() {
     { label: "Integer", value: "number_integer" },
     { label: "Decimal", value: "number_decimal" },
     { label: "Multi Line Text", value: "multi_line_text_field" },
-    { label: "Money", value: "money" },
-    { label: "Link", value: "link" },
+    // { label: "Money", value: "money" },
+    // { label: "Link", value: "link" },
     { label: "JSON", value: "json" },
-    { label: "Dimension", value: "dimension" },
+    // { label: "Dimension", value: "dimension" },
     { label: "URL", value: "url" },
   ];
 
@@ -441,13 +596,24 @@ export default function Productmetaview() {
                     }
                   />
                 ) : field.type === "color" ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <input
+                    type="color"
+                    value={field.value.startsWith("#") ? field.value : `#${field.value}`}
+                    onChange={(e) => handleInputChange(index, "value", e.target.value)}
+                    style={{
+                      border: "none",
+                      padding: "0",
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                      marginRight: "5px",
+                    }}
+                  />
                   <input
                     type="text"
-                    value={
-                      field.value.startsWith("#")
-                        ? field.value
-                        : `#${field.value}`
-                    }
+                    value={field.value.startsWith("#") ? field.value : `#${field.value}`}
                     onChange={(e) => {
                       let colorValue = e.target.value;
                       if (!colorValue.startsWith("#")) {
@@ -455,16 +621,24 @@ export default function Productmetaview() {
                       }
                       handleInputChange(index, "value", colorValue);
                     }}
-                    maxLength="7"
                     placeholder="#000000"
+                    maxLength="7"
+                    style={{
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      flex: "1",
+                    }}
                   />
+                </div>
+                
                 ) : field.type === "boolean" ? (
                   <select
                     className="boolenType"
-                    value={field.value}
+                    value={field.value} // Use the current value directly (it should be "true" or "false")
                     onChange={(e) =>
                       handleInputChange(index, "value", e.target.value)
-                    }
+                    } // Pass the string value directly
                   >
                     <option value="true">True</option>
                     <option value="false">False</option>
