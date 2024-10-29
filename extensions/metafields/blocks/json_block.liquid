@@ -4,36 +4,32 @@
 {% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
 
 {% if metafield_value %}
-  <div style="
+  <pre style="
       font-size: {{ block.settings.text_size }}; 
       font-weight: {{ block.settings.font_weight }};
-      color: {{ block.settings.font_color }};
       background-color: {{ block.settings.background_color }}; 
       padding: 10px; 
       border-radius: 5px;">
-    {{ metafield_value.value }}
-  </div>
+    {{ metafield_value.value | json }}
+  </pre>
 {% else %}
   <span>No data available</span>
 {% endif %}
 
 {% schema %}
 {
-  "name": "Text",
+  "name": "JSON",
   "target": "section",
   "settings": [
     { "type": "product", "id": "product", "label": "Product", "autofill": true },
-    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "demo" },
-    { "type": "text", "id": "key", "label": "Metafield Key", "default": "description" },
+    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "json_namespace" },
+    { "type": "text", "id": "key", "label": "Metafield Key", "default": "json_key" },
     { "type": "select", "id": "font_weight", "label": "Font Weight", "options": [
         { "value": "normal", "label": "Normal" },
-        { "value": "bold", "label": "Bold" },
-        { "value": "bolder", "label": "Bolder" },
-        { "value": "lighter", "label": "Lighter" }
+        { "value": "bold", "label": "Bold" }
       ], "default": "normal" },
-    { "type": "text", "id": "text_size", "label": "Text Size", "default": "16px" },
-    { "type": "color", "id": "background_color", "label": "Background Color", "default": "#FFFFFF" },
-    { "type": "color", "id": "font_color", "label": "Font Color", "default": "#000000" }
+    { "type": "text", "id": "text_size", "label": "Text Size", "default": "14px" },
+    { "type": "color", "id": "background_color", "label": "Background Color", "default": "#EFEFEF" }
   ]
 }
 {% endschema %}

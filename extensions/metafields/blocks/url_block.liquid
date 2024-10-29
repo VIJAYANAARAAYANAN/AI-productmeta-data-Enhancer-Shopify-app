@@ -4,36 +4,33 @@
 {% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
 
 {% if metafield_value %}
-  <div style="
+  <a href="{{ metafield_value.value }}" target="_blank" style="
       font-size: {{ block.settings.text_size }}; 
       font-weight: {{ block.settings.font_weight }};
-      color: {{ block.settings.font_color }};
       background-color: {{ block.settings.background_color }}; 
       padding: 10px; 
       border-radius: 5px;">
-    {{ metafield_value.value }}
-  </div>
+    {{ block.settings.link_text }}
+  </a>
 {% else %}
   <span>No data available</span>
 {% endif %}
 
 {% schema %}
 {
-  "name": "Text",
+  "name": "URL",
   "target": "section",
   "settings": [
     { "type": "product", "id": "product", "label": "Product", "autofill": true },
-    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "demo" },
-    { "type": "text", "id": "key", "label": "Metafield Key", "default": "description" },
+    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "url_namespace" },
+    { "type": "text", "id": "key", "label": "Metafield Key", "default": "url_key" },
+    { "type": "text", "id": "link_text", "label": "Link Text", "default": "Visit Link" },
     { "type": "select", "id": "font_weight", "label": "Font Weight", "options": [
         { "value": "normal", "label": "Normal" },
-        { "value": "bold", "label": "Bold" },
-        { "value": "bolder", "label": "Bolder" },
-        { "value": "lighter", "label": "Lighter" }
+        { "value": "bold", "label": "Bold" }
       ], "default": "normal" },
     { "type": "text", "id": "text_size", "label": "Text Size", "default": "16px" },
-    { "type": "color", "id": "background_color", "label": "Background Color", "default": "#FFFFFF" },
-    { "type": "color", "id": "font_color", "label": "Font Color", "default": "#000000" }
+    { "type": "color", "id": "background_color", "label": "Background Color", "default": "#FFFFFF" }
   ]
 }
 {% endschema %}

@@ -11,7 +11,7 @@
       background-color: {{ block.settings.background_color }}; 
       padding: 10px; 
       border-radius: 5px;">
-    {{ metafield_value.value }}
+    {{ metafield_value.value | newline_to_br }}
   </div>
 {% else %}
   <span>No data available</span>
@@ -19,17 +19,15 @@
 
 {% schema %}
 {
-  "name": "Text",
+  "name": "Multiline Text",
   "target": "section",
   "settings": [
     { "type": "product", "id": "product", "label": "Product", "autofill": true },
-    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "demo" },
-    { "type": "text", "id": "key", "label": "Metafield Key", "default": "description" },
+    { "type": "text", "id": "namespace", "label": "Metafield Namespace", "default": "text_namespace" },
+    { "type": "text", "id": "key", "label": "Metafield Key", "default": "multiline_text_key" },
     { "type": "select", "id": "font_weight", "label": "Font Weight", "options": [
         { "value": "normal", "label": "Normal" },
-        { "value": "bold", "label": "Bold" },
-        { "value": "bolder", "label": "Bolder" },
-        { "value": "lighter", "label": "Lighter" }
+        { "value": "bold", "label": "Bold" }
       ], "default": "normal" },
     { "type": "text", "id": "text_size", "label": "Text Size", "default": "16px" },
     { "type": "color", "id": "background_color", "label": "Background Color", "default": "#FFFFFF" },
