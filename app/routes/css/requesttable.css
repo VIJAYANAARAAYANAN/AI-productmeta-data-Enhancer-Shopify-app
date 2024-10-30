@@ -54,9 +54,7 @@
   align-items: center;
   justify-content: center;
 }
-.grid-row .div{
- 
-}
+
 .grid-row p {
   /* margin-top: auto;
   margin-bottom: auto; */
@@ -125,8 +123,7 @@
 
   font-weight: 500;
 }
-.status p {
-}
+
 .completedStatus {
   justify-content: center;
   display: flex;
