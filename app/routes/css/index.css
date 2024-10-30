@@ -1,4 +1,4 @@
-.mainindex{
+.mainindex {
   width: 90%;
   margin: 0 auto;
 }
@@ -12,14 +12,14 @@
   font-size: 14px;
   margin-bottom: 10px;
 }
-.marginclass{
+.marginclass {
   margin-bottom: 17px;
 }
 .SecondDiv h2 {
   font-size: 15px;
   font-weight: 600;
 }
-.redirectbutton{
+.redirectbutton {
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -30,7 +30,7 @@
   font-size: 14px;
   margin-bottom: 12px;
 }
-.ThirdDivision h1{
+.ThirdDivision h1 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 5px;
@@ -41,23 +41,23 @@
   font-weight: 500;
   margin-bottom: 7px;
 }
-.ThirdDivision h4{
+.ThirdDivision h4 {
   font-size: 14px;
   margin-bottom: 10px;
 }
-.ThirdDivision p{
-    margin-top: 10px
+.ThirdDivision p {
+  margin-top: 10px;
 }
-.videoContainer{
+.videoContainer {
   display: flex;
   justify-content: center;
   margin-top: 20px;
   align-items: center;
 }
-.bottompart{
+.bottompart {
   margin-bottom: 15px;
 }
-.bottompart span{
+.bottompart span {
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -65,59 +65,169 @@
   text-decoration: underline;
 }
 
-.instructionArea p{
+.instructionArea p {
   margin: 0;
   font-size: 14px;
 }
-.instructionArea img{
+.instructionArea img {
   width: 100%;
   border-radius: 12px;
   padding: 13px 0px;
 }
-.pageimages{
+.pageimages {
   border-radius: 12px;
 }
-.addblockpart{
+.addblockpart {
   display: flex;
 }
-.addblockpart img{
+.addblockpart img {
   width: 55%;
   height: 250px;
 }
-.subtexts-add{
+.subtexts-add {
   /* color: #5e5dc2; */
   font-size: 14px;
   font-weight: 600;
 }
-.subtexts-app{
+.subtexts-app {
   /* color: #008f6e; */
   font-size: 14px;
   font-weight: 600;
 }
-.subtexts-block{
+.subtexts-block {
   /* color: #f9d02e; */
   font-size: 14px;
   font-weight: 600;
 }
-.subpro{
+.subpro {
   font-size: 14px;
   font-weight: 600;
 }
-.addBlockimg{
+.addBlockimg {
   width: 50%;
   height: 270px;
 }
-.steps{
+.steps {
   font-weight: 600;
 }
-.whymajik h2{
+.whymajik h2 {
   font-size: 14px;
   font-weight: 500;
 }
-.whymajik p{
+.whymajik p {
   font-size: 13px;
-  margin-bottom:8px ;
+  margin-bottom: 8px;
 }
-.metafieldonstore{
+.metafieldonstore {
   height: 300px;
+}
+.pricingArea {
+  background-color: white;
+  border-radius: 5px;
+  width: fit-content;
+  padding: 3px 7px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+.indexpricing-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  border-radius: 12px;
+  border: none;
+  padding: 20px;
+  background-color: white;
+}
+
+.indexpricing-plan {
+  width: 300px;
+}
+
+.indexpricing-header {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.indexpricing-price {
+  font-size: 2em;
+  font-weight: bold;
+  color: #1a202c;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.indexpricing-features {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.indexpricing-features li {
+  font-size: 1em;
+  margin: 5px 0;
+  text-align: center;
+}
+
+button {
+  margin-top: 10px;
+}
+
+.indexpricing-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.indexpricing-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.priceinfoarea{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.indexpricing-cards a{
+  margin-left: auto;
+}
+.pricedata{
+  border-radius: 5px;
+  border: 1px solid lightgray;
+  padding: 10px;
+}
+.indexpricing-cards h3 {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px 0px;
+}
+.indexpricing-cards p {
+  font-size: 14px;
+  font-weight: 500;
+}
+.indexpricingdetail {
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.selected-plan {
+  border: 2px solid #5c6ac4; /* Add a bold border for the selected plan */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Add shadow to make it stand out */
+  background-color: #f4f6f8; /* Subtle background color change */
+}
+
+.pricing-cards .Polaris-Card {
+  transition: all 0.3s ease;
+}
+
+.pricing-cards .Polaris-Card.subdued {
+  opacity: 0.7;
 }

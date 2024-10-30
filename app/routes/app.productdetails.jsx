@@ -402,7 +402,7 @@ export default function Products() {
 
   const handleReviewNavigate = () => navigate("/app/review");
   const handlePricingRedirect = () => {
-    navigate("/app/pricing"); // Redirect to pricing page
+    navigate("/app"); 
   };
   const handleModalClose = () => setIsModalOpen(false);
 

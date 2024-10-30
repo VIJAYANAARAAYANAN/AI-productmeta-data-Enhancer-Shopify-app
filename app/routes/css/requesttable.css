@@ -15,7 +15,7 @@
 .grid-container {
   padding: 5px 10px 5px 10px;
   border: 1px solid #e1e1e1;;
-  width: 90%;
+  width: 92%;
   border-radius: 12px;
   background-color: white;
 }
@@ -46,10 +46,16 @@
 }
 
 .grid-row > div {
-  padding: 10px 0;
+  padding: 12px 0;
 }
 .grid-row div {
   border-bottom: 1px solid lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grid-row .div{
+ 
 }
 .grid-row p {
   /* margin-top: auto;
@@ -98,9 +104,9 @@
 }
 .allrows {
   display: grid;
-  width: 90%;
+  width: 92%;
   grid-template-columns: repeat(6, 1fr);
-  padding: 10px 20px 20px 20px;
+  padding: 10px 0px 20px 20px;
   background-color: white;
   border-radius: 20px;
   margin-top: 5px;
