@@ -182,3 +182,8 @@
   border: 1px solid #ddd;
   border-radius: 5px;
 }
+.ratingboxes{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}

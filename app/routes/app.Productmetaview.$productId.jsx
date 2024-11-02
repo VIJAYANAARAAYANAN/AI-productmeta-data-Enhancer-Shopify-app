@@ -76,6 +76,7 @@ export const action = async ({ request, params }) => {
 
   if (actionType === "update") {
     console.log("ACTION FUNCTION FOR UPDATE HAS BEEN TRIGGERED");
+    console.log("Metafield on action", metafields);
 
     // Format metafields with the required transformations
     const formattedMetafields = metafields.map((metafield) => {
@@ -88,6 +89,7 @@ export const action = async ({ request, params }) => {
         metafield.value !== undefined
       ) {
         let valueToSend;
+
         switch (metafield.type) {
           case "boolean":
           case "number_integer":
@@ -99,6 +101,7 @@ export const action = async ({ request, params }) => {
           case "json":
             valueToSend = JSON.stringify(metafield.value); // Use JSON.stringify for escape
             break;
+
           case "date":
             const date = new Date(metafield.value);
             if (!isNaN(date.getTime())) {
@@ -107,6 +110,51 @@ export const action = async ({ request, params }) => {
               throw new Error("Invalid date format");
             }
             break;
+
+          case "rating":
+            let ratingData;
+            try {
+              // First, parse the outer JSON to get the ratingData object
+              ratingData = JSON.parse(metafield.value);
+              console.log("Rating Data", ratingData);
+
+              // Now parse the inner JSON from ratingData.value
+              const ratingValues = JSON.parse(ratingData.value);
+              console.log("Parsed Rating Values", ratingValues);
+
+              // Ensure we access the right properties directly from the parsed inner JSON
+              const scaleMin = parseFloat(ratingValues.scale_min);
+              const scaleMax = parseFloat(ratingValues.scale_max);
+              const ratingValue = parseFloat(ratingValues.value);
+
+              // Debugging statements to confirm the values
+              console.log("Parsed Scale Min:", scaleMin);
+              console.log("Parsed Scale Max:", scaleMax);
+              console.log("Parsed Rating Value:", ratingValue);
+
+              // Check for NaN and assign default values if necessary
+              const validatedScaleMin = !isNaN(scaleMin) ? scaleMin : 0;
+              const validatedScaleMax = !isNaN(scaleMax) ? scaleMax : 5;
+              const validatedRatingValue = !isNaN(ratingValue)
+                ? ratingValue
+                : 0;
+
+              // Prepare the final structured object for rating
+              valueToSend = JSON.stringify({
+                value: validatedRatingValue.toString(), // Keep the value as a string
+                scale_min: validatedScaleMin.toString(), // Keep scale_min as a string
+                scale_max: validatedScaleMax.toString(), // Keep scale_max as a string
+              });
+
+              // Ensure the value is properly escaped
+              valueToSend = valueToSend.replace(/"/g, '\\"'); // Escape double quotes
+              valueToSend = `"${valueToSend}"`; // Enclose in double quotes
+            } catch (error) {
+              console.error("Error parsing rating data:", error);
+              throw new Error("Invalid rating data format");
+            }
+            break;
+
           default:
             throw new Error("Unsupported metafield type");
         }
@@ -235,7 +283,7 @@ export default function Productmetaview() {
   const [loaderview, setloaderview] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("Copy Crystal code");
   const [errormessage, setErrorMessage] = useState("");
-  const [successmessage , setSuccessmessage] = useState("");
+  const [successmessage, setSuccessmessage] = useState("");
   const [errorfound, seterrorfound] = useState(false);
   const [deleteModalActive, setDeleteModalActive] = useState(false);
   const [metafieldToDelete, setMetafieldToDelete] = useState(null); // Store the metafield to delete
@@ -252,8 +300,24 @@ export default function Productmetaview() {
 
   const handleInputChange = (index, key, value) => {
     const newFields = [...editedFields];
-    console.log("New fields that are changed", newFields);
-    newFields[index][key] = value;
+
+    // For rating type, parse value as JSON, update the specific key, then re-stringify
+    if (newFields[index].type === "rating") {
+      // Parse existing rating JSON or use defaults if empty
+      const parsedValue = newFields[index].value
+        ? JSON.parse(newFields[index].value)
+        : { scale_min: 0, scale_max: 5, value: 0 };
+
+      // Update the specific key (scale_min, scale_max, or value)
+      parsedValue[key] = value;
+
+      // Stringify and set the updated value back to newFields[index].value
+      newFields[index].value = JSON.stringify(parsedValue);
+    } else {
+      // For non-rating types, update value normally
+      newFields[index][key] = value;
+    }
+    console.log("Newly edited fields", newFields);
     setEditedFields(newFields);
   };
 
@@ -267,23 +331,20 @@ export default function Productmetaview() {
     seterrorfound(false);
     setloaderview(true);
     console.log("Handle Confirm Save has been triggered");
-  
-    // Prepare the request body
+
     const requestBody = {
       actionType: "update",
       productId: product?.id,
     };
-  
-    // Check editedFields content
+
     if (!Array.isArray(editedFields) || editedFields.length === 0) {
       console.error("editedFields is empty or not an array:", editedFields);
       setErrorMessage("No metafields to update.");
       seterrorfound(true);
       setloaderview(false);
-      return; // Stop further processing
+      return;
     }
-  
-    // Add metafields to the request body
+
     requestBody.metafields = editedFields.map((metafield) => {
       if (
         metafield &&
@@ -293,22 +354,21 @@ export default function Productmetaview() {
         metafield.type &&
         metafield.value !== undefined
       ) {
-        // Convert the value to the correct type based on the metafield type
         let valueToSend;
-  
+
         switch (metafield.type) {
           case "boolean":
           case "number_integer":
-            valueToSend = metafield.value; // Convert to integer
+            valueToSend = metafield.value;
             break;
           case "number_decimal":
-            valueToSend = metafield.value; // Decimal Keep it as String
+            valueToSend = metafield.value;
             break;
           case "color":
           case "single_line_text_field":
           case "multi_line_text_field":
           case "url":
-            valueToSend = metafield.value; // Keep as string
+            valueToSend = metafield.value;
             break;
           case "json":
             valueToSend = metafield.value;
@@ -316,7 +376,7 @@ export default function Productmetaview() {
           case "date":
             const date = new Date(metafield.value);
             if (!isNaN(date.getTime())) {
-              valueToSend = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+              valueToSend = date.toISOString().split("T")[0];
             } else {
               console.error("Invalid date format:", metafield.value);
               setErrorMessage("Invalid date format for metafield.");
@@ -325,6 +385,14 @@ export default function Productmetaview() {
               throw new Error("Invalid date format");
             }
             break;
+          case "rating":
+            // Format rating as a JSON object
+            valueToSend = JSON.stringify({
+              scale_min: metafield.scale_min,
+              scale_max: metafield.scale_max,
+              value: metafield.value,
+            });
+            break;
           default:
             console.error("Unsupported metafield type:", metafield.type);
             setErrorMessage("Unsupported metafield type.");
@@ -332,7 +400,7 @@ export default function Productmetaview() {
             setloaderview(false);
             throw new Error("Unsupported metafield type");
         }
-  
+
         return {
           id: metafield.id,
           value: valueToSend,
@@ -348,7 +416,7 @@ export default function Productmetaview() {
         throw new Error("Invalid metafield data");
       }
     });
-  
+
     try {
       const response = await fetch(
         `/app/Productmetaview/${product.id.split("/")[4]}`,
@@ -360,18 +428,18 @@ export default function Productmetaview() {
           body: JSON.stringify(requestBody), // Send JSON
         },
       );
-  
+
       // Check for HTTP errors
       if (response.ok) {
         // If the response is OK, proceed to show success message
         console.log("Metafields updated successfully!");
         setSuccessmessage("Metafields updated successfully!");
-  
+
         // Close confirmation modal and open success modal
         setConfirmationModalActive(false);
         setSuccessModalActive(true);
         setloaderview(false);
-  
+
         // Automatically close success modal after a delay
         setTimeout(() => {
           setSuccessModalActive(false);
@@ -390,7 +458,6 @@ export default function Productmetaview() {
       setloaderview(false); // Ensure the loader is stopped
     }
   };
-  
 
   // Function to discard the changes
   const handleDiscard = () => {
@@ -455,6 +522,7 @@ export default function Productmetaview() {
     { label: "JSON", value: "json" },
     // { label: "Dimension", value: "dimension" },
     { label: "URL", value: "url" },
+    { label: "Rating", value: "rating" },
   ];
 
   const navigate = useNavigate();
@@ -597,41 +665,50 @@ export default function Productmetaview() {
                   />
                 ) : field.type === "color" ? (
                   <div style={{ display: "flex", alignItems: "center" }}>
-                  <input
-                    type="color"
-                    value={field.value.startsWith("#") ? field.value : `#${field.value}`}
-                    onChange={(e) => handleInputChange(index, "value", e.target.value)}
-                    style={{
-                      border: "none",
-                      padding: "0",
-                      width: "30px",
-                      height: "30px",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                      marginRight: "5px",
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={field.value.startsWith("#") ? field.value : `#${field.value}`}
-                    onChange={(e) => {
-                      let colorValue = e.target.value;
-                      if (!colorValue.startsWith("#")) {
-                        colorValue = `#${colorValue}`;
+                    <input
+                      type="color"
+                      value={
+                        field.value.startsWith("#")
+                          ? field.value
+                          : `#${field.value}`
                       }
-                      handleInputChange(index, "value", colorValue);
-                    }}
-                    placeholder="#000000"
-                    maxLength="7"
-                    style={{
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      flex: "1",
-                    }}
-                  />
-                </div>
-                
+                      onChange={(e) =>
+                        handleInputChange(index, "value", e.target.value)
+                      }
+                      style={{
+                        border: "none",
+                        padding: "0",
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        marginRight: "5px",
+                      }}
+                    />
+                    <input
+                      type="text"
+                      value={
+                        field.value.startsWith("#")
+                          ? field.value
+                          : `#${field.value}`
+                      }
+                      onChange={(e) => {
+                        let colorValue = e.target.value;
+                        if (!colorValue.startsWith("#")) {
+                          colorValue = `#${colorValue}`;
+                        }
+                        handleInputChange(index, "value", colorValue);
+                      }}
+                      placeholder="#000000"
+                      maxLength="7"
+                      style={{
+                        padding: "8px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        flex: "1",
+                      }}
+                    />
+                  </div>
                 ) : field.type === "boolean" ? (
                   <select
                     className="boolenType"
@@ -652,6 +729,103 @@ export default function Productmetaview() {
                     }
                     placeholder="Enter URL"
                   />
+                ) : field.type === "rating" ? (
+                  (() => {
+                    let parsedValue = { scale_min: 0, scale_max: 5, value: 0 };
+
+                    // Check if value is a valid JSON string, otherwise use defaults
+                    if (
+                      typeof field.value === "string" &&
+                      field.value.startsWith("{")
+                    ) {
+                      try {
+                        parsedValue = JSON.parse(field.value);
+                      } catch (error) {
+                        console.error("Error parsing rating value:", error);
+                      }
+                    } else {
+                      console.warn(
+                        "Unexpected format for rating value:",
+                        field.value,
+                      );
+                      parsedValue.value = Number(field.value) || 0;
+                    }
+
+                    return (
+                      <div
+                        className="rating-cell"
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "5px",
+                        }}
+                      >
+                        <div className="ratingboxes">
+                          <label>Min:</label>
+                          <input
+                            type="number"
+                            value={parsedValue.scale_min}
+                            onChange={(e) =>
+                              handleInputChange(
+                                index,
+                                "scale_min",
+                                e.target.value,
+                              )
+                            }
+                            min="0"
+                            step="0.1"
+                            style={{
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                              width: "60px",
+                            }}
+                          />
+                        </div>
+                        <div className="ratingboxes">
+                          <label>Max:</label>
+                          <input
+                            type="number"
+                            value={parsedValue.scale_max}
+                            onChange={(e) =>
+                              handleInputChange(
+                                index,
+                                "scale_max",
+                                e.target.value,
+                              )
+                            }
+                            min="0"
+                            step="0.1"
+                            style={{
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                              width: "60px",
+                            }}
+                          />
+                        </div>
+                        <div className="ratingboxes">
+                          <label>Value:</label>
+                          <input
+                            type="number"
+                            min={parsedValue.scale_min}
+                            max={parsedValue.scale_max}
+                            step="0.1"
+                            value={parsedValue.value}
+                            onChange={(e) =>
+                              handleInputChange(index, "value", e.target.value)
+                            }
+                            style={{
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                              width: "60px",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()
                 ) : (
                   <input
                     type="text"

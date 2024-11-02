@@ -73,44 +73,53 @@ export const action = async ({ request, params }) => {
   const productId = `gid://shopify/Product/${params.productId}`;
   const metafields = JSON.parse(formData.get("metafields"));
 
-  console.log("Form Data received on action",formData);
+  console.log("Form Data received on action", formData);
   console.log("Product_id of ", productId);
   console.log("Metafields Fetched on Action ", metafields);
-  
-  const metafieldsString = metafields
-  .map(({ namespace, key, value, type }) => {
-    // Escape inner quotes only without re-stringifying
-    const escapedValue = type === "json" ? value.replace(/"/g, '\\"') : value;
 
-    return `{
-      namespace: "${namespace}",
-      key: "${key}",
-      value: "${escapedValue}",
-      type: "${type}"
-    }`;
-  })
-  .join(", ");
+  const metafieldsString = metafields
+    .map(({ namespace, key, value, type }) => {
+      // Ensure value is formatted correctly for "rating" type
+      let formattedValue;
+
+      if (type === "rating") {
+        const parsedValue = JSON.parse(value);
+        formattedValue = `"{\\"value\\":\\"${parsedValue.value}\\",\\"scale_min\\":\\"${parsedValue.scale_min}\\",\\"scale_max\\":\\"${parsedValue.scale_max}\\"}"`;
+      } else {
+        // Escape inner quotes for non-rating types
+        formattedValue = value.replace(/"/g, '\\"');
+      }
+
+      return `{
+          namespace: "${namespace}",
+          key: "${key}",
+          value: ${formattedValue},
+          type: "${type}"
+        }`;
+    })
+    .join(", ");
 
   const mutation = `
-    mutation UpdateProductMetafield {
-      productUpdate(
-        input: {
-          id: "${productId}",
-          metafields: [${metafieldsString}]
-        }
-      ) {
-        product {
-          id
-        }
-        userErrors {
-          field
-          message
+      mutation UpdateProductMetafield {
+        productUpdate(
+          input: {
+            id: "${productId}",
+            metafields: [${metafieldsString}]
+          }
+        ) {
+          product {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
         }
       }
-    }
-  `;
+    `;
 
   try {
+    console.log("The mutation query on the action with data", mutation);
     const result = await admin.graphql(mutation);
 
     if (result.errors) {
@@ -132,8 +141,6 @@ export const action = async ({ request, params }) => {
   }
 };
 
-
-
 export default function DynamicRowsWithProductId() {
   const { productId } = useParams();
   const { product } = useLoaderData(); // Get product data from loader
@@ -152,13 +159,33 @@ export default function DynamicRowsWithProductId() {
   ]);
 
   // Handle input change for each row
+
   const handleInputChange = (index, key, value) => {
-    
     const newRows = [...rows];
-    if (newRows[index].type === "boolean" && !newRows[index].value) {
-      newRows[index].value = "True";
+
+    // Check if the row type is "rating"
+    if (newRows[index].type === "rating") {
+      // Parse existing rating JSON or use defaults if empty
+      const parsedValue = newRows[index].value
+        ? JSON.parse(newRows[index].value)
+        : { scale_min: 0, scale_max: 5, value: 0 };
+
+      // Update the specific key (scale_min, scale_max, value, or key)
+      if (key === "scale_min" || key === "scale_max" || key === "value") {
+        parsedValue[key] = value; // Update the specific rating property
+        newRows[index].value = JSON.stringify(parsedValue); // Update value
+      } else {
+        newRows[index][key] = value; // This will handle key updates
+      }
+    } else {
+      // Handle other row types normally
+      if (newRows[index].type === "boolean" && !newRows[index].value) {
+        newRows[index].value = "True"; // Default to "True" if no value
+      }
+      newRows[index][key] = value; // Update for non-rating types
     }
-    newRows[index][key] = value;
+
+    console.log("Newly edited rows", newRows);
     setRows(newRows);
   };
 
@@ -201,10 +228,12 @@ export default function DynamicRowsWithProductId() {
     console.log("Metafields to be sent:", metafields); // Log metafields to be sent
     // Send metafields to the action function (using form submission)
     const formData = new FormData();
-  
+
     formData.append("metafields", JSON.stringify(metafields));
-    console.log("Formdata to be saved",formData)
-    console.log("Passing POST request on the URL /app/ProductMetafieldAdd/ ",{productId});
+    console.log("Formdata to be saved", formData);
+    console.log("Passing POST request on the URL /app/ProductMetafieldAdd/ ", {
+      productId,
+    });
     // Create a POST request to trigger the action function
     fetch(`/app/ProductMetafieldAdd/${productId}`, {
       method: "POST",
@@ -253,6 +282,7 @@ export default function DynamicRowsWithProductId() {
     { label: "JSON", value: "json" },
     // { label: "Dimension", value: "dimension" },
     { label: "URL", value: "url" },
+    { label: "Rating", value: "rating" },
   ];
 
   return (
@@ -479,6 +509,13 @@ export default function DynamicRowsWithProductId() {
                   }
                   placeholder="Enter multiple lines of text"
                   className="jsontextbox"
+                  style={{
+                    padding: "8px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    width: "100%",
+                    resize: "vertical",
+                  }}
                 />
               ) : row.type === "link" ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -588,6 +625,103 @@ export default function DynamicRowsWithProductId() {
                     ↗
                   </button>
                 </div>
+              ) : row.type === "rating" ? (
+                (() => {
+                  let parsedValue = { scale_min: 0, scale_max: 5, value: 0 };
+
+                  // Check if value is a valid JSON string, otherwise use defaults
+                  if (
+                    typeof row.value === "string" &&
+                    row.value.startsWith("{")
+                  ) {
+                    try {
+                      parsedValue = JSON.parse(row.value);
+                    } catch (error) {
+                      console.error("Error parsing rating value:", error);
+                    }
+                  } else {
+                    console.warn(
+                      "Unexpected format for rating value:",
+                      row.value,
+                    );
+                    parsedValue.value = Number(row.value) || 0;
+                  }
+
+                  return (
+                    <div
+                      className="rating-cell"
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "5px",
+                      }}
+                    >
+                      <div className="ratingboxes">
+                        <label>Min:</label>
+                        <input
+                          type="number"
+                          value={parsedValue.scale_min}
+                          onChange={(e) =>
+                            handleInputChange(
+                              index,
+                              "scale_min",
+                              e.target.value,
+                            )
+                          }
+                          min="0"
+                          step="0.1"
+                          style={{
+                            padding: "8px",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            width: "60px",
+                          }}
+                        />
+                      </div>
+                      <div className="ratingboxes">
+                        <label>Max:</label>
+                        <input
+                          type="number"
+                          value={parsedValue.scale_max}
+                          onChange={(e) =>
+                            handleInputChange(
+                              index,
+                              "scale_max",
+                              e.target.value,
+                            )
+                          }
+                          min="0"
+                          step="0.1"
+                          style={{
+                            padding: "8px",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            width: "60px",
+                          }}
+                        />
+                      </div>
+                      <div className="ratingboxes">
+                        <label>Rating:</label>
+                        <input
+                          type="number"
+                          value={parsedValue.value}
+                          onChange={(e) =>
+                            handleInputChange(index, "value", e.target.value)
+                          }
+                          min={parsedValue.scale_min}
+                          max={parsedValue.scale_max}
+                          step="0.1"
+                          style={{
+                            padding: "8px",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            width: "60px",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()
               ) : (
                 <input
                   type="text"
