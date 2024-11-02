@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://destinations-inns-statements-reality.trycloudflare.com"
+application_url = "https://packard-encounter-thy-pee.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://destinations-inns-statements-reality.trycloudflare.com/auth/callback",
-  "https://destinations-inns-statements-reality.trycloudflare.com/auth/shopify/callback",
-  "https://destinations-inns-statements-reality.trycloudflare.com/api/auth/callback"
+  "https://packard-encounter-thy-pee.trycloudflare.com/auth/callback",
+  "https://packard-encounter-thy-pee.trycloudflare.com/auth/shopify/callback",
+  "https://packard-encounter-thy-pee.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -1,30 +1,39 @@
+{% assign metafield_namespace = block.settings.namespace %}
+{% assign metafield_key = block.settings.key %}
 {% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
 
 {% if metafield_value %}
   {% assign metafield_value_json = metafield_value.value %}
+
+  <!-- Extract the 'value' and 'scale_max' from the JSON string -->
   {% assign value_start = metafield_value_json | split: '"value":"' | last | split: '"' | first | plus: 0 %}
   {% assign scale_max_start = metafield_value_json | split: '"scale_max":"' | last | split: '"' | first | plus: 0 %}
-  
-  {% assign avg_rating = value_start %}
-  {% assign scale_max = scale_max_start %}
 
-  <!-- Calculate the number of filled stars and partial stars -->
+  <!-- Assign extracted values to variables for easier reference -->
+  {% assign avg_rating = value_start %}
+  {% assign scale_max = scale_max_start | default: 5 %} <!-- Set to 5 if scale_max is not defined or is less than 5 -->
+
+  <!-- Calculate the number of full and partial stars -->
   {% assign full_stars = avg_rating | floor %}
   {% assign partial_star = avg_rating | modulo: 1 %}
-  {% assign max_stars = 5 %} <!-- Total number of stars displayed -->
+  {% assign next_star = full_stars | plus: 1 %}
+  {% assign max_stars = 5 %} <!-- Display a maximum of 5 stars -->
 
-  <div style="display: flex; align-items: center; font-size: {{ block.settings.text_size }};">
+  <div style="display: flex; align-items: center;">
+    <!-- Star display with customizable star size -->
     {% for i in (1..max_stars) %}
-      {% if i <= full_stars %}
-        <span style="color: {{ block.settings.star_color }};">&#9733;</span> <!-- Filled star -->
-      {% elsif i == full_stars | plus: 1 and partial_star > 0 %}
-        <span style="color: {{ block.settings.star_color }};">&#9733;</span> <!-- Half-filled star -->
-      {% else %}
-        <span style="color: #ccc;">&#9734;</span> <!-- Empty star -->
-      {% endif %}
-    {% endfor %}
-    <span style="margin-left: 8px; color: {{ block.settings.font_color }};">
-      {{ avg_rating }} of {{ scale_max }}
+  {% if i <= full_stars %}
+    <span style="color: {{ block.settings.star_color }}; font-size: {{ block.settings.star_size }};">★</span> <!-- Filled rounded star -->
+  {% elsif i == next_star and partial_star > 0 %}
+    <span style="color: {{ block.settings.star_color }}; font-size: {{ block.settings.star_size }};">★</span> <!-- Half-filled rounded star -->
+  {% else %}
+    <span style="color: #ccc; font-size: {{ block.settings.star_size }};">☆</span> <!-- Empty rounded star -->
+  {% endif %}
+{% endfor %}
+    
+    <!-- Text display with customizable text size -->
+    <span style="margin-left: 8px; color: {{ block.settings.font_color }}; font-size: {{ block.settings.text_size }};">
+      {{ avg_rating | floor }} of {{ max_stars }}
     </span>
   </div>
 {% else %}
@@ -32,7 +41,7 @@
 {% endif %}
 
 {% schema %}
-{
+{ 
   "name": "Star Rating",
   "target": "section",
   "settings": [
@@ -41,7 +50,8 @@
     { "type": "text", "id": "key", "label": "Metafield Key", "default": "TestRating" },
     { "type": "color", "id": "star_color", "label": "Star Color", "default": "#FFD700" },
     { "type": "color", "id": "font_color", "label": "Font Color", "default": "#000000" },
-    { "type": "text", "id": "text_size", "label": "Text Size", "default": "16px" }
+    { "type": "text", "id": "text_size", "label": "Text Size", "default": "16px" },
+    { "type": "text", "id": "star_size", "label": "Star Size", "default": "24px" }
   ]
 }
 {% endschema %}
