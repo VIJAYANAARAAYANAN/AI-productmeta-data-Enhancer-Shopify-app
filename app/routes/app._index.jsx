@@ -547,6 +547,7 @@ export default function Index() {
   const [namespace, setNamespace] = useState("cartesian");
   const [isLoading, setIsLoading] = useState(false);
 
+  
   //useEffect to handle the data passing and storing of the store domain ID
   useEffect(() => {
     console.log("The useEffect has been executed");
