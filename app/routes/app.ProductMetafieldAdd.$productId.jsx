@@ -83,17 +83,25 @@ export const action = async ({ request, params }) => {
       let formattedValue;
 
       if (type === "rating") {
-        const parsedValue = JSON.parse(value);
-        formattedValue = `"{\\"value\\":\\"${parsedValue.value}\\",\\"scale_min\\":\\"${parsedValue.scale_min}\\",\\"scale_max\\":\\"${parsedValue.scale_max}\\"}"`;
+        // Parse the value, or set default values if it's an empty string
+        let parsedValue =
+          value && value.trim() !== ""
+            ? JSON.parse(value)
+            : { scale_min: 0.0, scale_max: 5.0, value: 0.0 };
+
+        formattedValue = `{\\"value\\":\\"${parsedValue.value}\\",\\"scale_min\\":\\"${parsedValue.scale_min}\\",\\"scale_max\\":\\"${parsedValue.scale_max}\\"}`;
+      } else if (type === "boolean") {
+        formattedValue = `${value === "True" ? "true" : "false"}`;
+      } else if (type === "multi_line_text_field") {
+        formattedValue = `${value.replace(/\n/g, "\\n")}`;
       } else {
-        // Escape inner quotes for non-rating types
         formattedValue = value.replace(/"/g, '\\"');
       }
 
       return `{
           namespace: "${namespace}",
           key: "${key}",
-          value: ${formattedValue},
+          value: "${formattedValue}",
           type: "${type}"
         }`;
     })
@@ -148,6 +156,7 @@ export default function DynamicRowsWithProductId() {
   const [confirmationModalActive, setConfirmationModalActive] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [loaderview, setloaderview] = useState(false);
+  const [warnings, setWarnings] = useState({});
 
   const [rows, setRows] = useState([
     {
@@ -159,32 +168,26 @@ export default function DynamicRowsWithProductId() {
   ]);
 
   // Handle input change for each row
-
   const handleInputChange = (index, key, value) => {
     const newRows = [...rows];
 
-    // Check if the row type is "rating"
     if (newRows[index].type === "rating") {
-      // Parse existing rating JSON or use defaults if empty
+      console.log("RATING TEST", newRows[index]);
       const parsedValue = newRows[index].value
         ? JSON.parse(newRows[index].value)
-        : { scale_min: 0, scale_max: 5, value: 0 };
-
-      // Update the specific key (scale_min, scale_max, value, or key)
+        : { scale_min: 0.0, scale_max: 5.0, value: 0.0 };
       if (key === "scale_min" || key === "scale_max" || key === "value") {
-        parsedValue[key] = value; // Update the specific rating property
-        newRows[index].value = JSON.stringify(parsedValue); // Update value
+        parsedValue[key] = value;
+        newRows[index].value = JSON.stringify(parsedValue);
       } else {
-        newRows[index][key] = value; // This will handle key updates
+        newRows[index][key] = value;
       }
+    } else if (newRows[index].type === "boolean") {
+      newRows[index].value = value === "True" ? "True" : "False";
+      newRows[index][key] = value;
     } else {
-      // Handle other row types normally
-      if (newRows[index].type === "boolean" && !newRows[index].value) {
-        newRows[index].value = "True"; // Default to "True" if no value
-      }
-      newRows[index][key] = value; // Update for non-rating types
+      newRows[index][key] = value;
     }
-
     console.log("Newly edited rows", newRows);
     setRows(newRows);
   };
@@ -218,6 +221,120 @@ export default function DynamicRowsWithProductId() {
   const handleConfirmSave = () => {
     console.log("Handle Confirm Save has been clicked");
     setloaderview(true);
+
+    // Validation logic for each metafield type and key presence
+    const invalidFields = rows.filter((row) => {
+      if (!row.key || row.key.trim() === "") {
+        return true; // Invalid if key is missing or empty
+      }
+
+      switch (row.type) {
+        case "number_integer":
+          return (
+            isNaN(Number(row.value)) || !Number.isInteger(Number(row.value))
+          );
+
+        case "number_decimal":
+          return isNaN(Number(row.value)) || row.value.toString().includes(" ");
+
+        case "single_line_text_field":
+          return typeof row.value !== "string" || row.value.includes("\n");
+
+        case "multi_line_text_field":
+          return typeof row.value !== "string";
+
+        case "url":
+          try {
+            new URL(row.value);
+            return false;
+          } catch {
+            return true;
+          }
+
+        case "boolean":
+          return !(
+            row.value.toLowerCase() === "true" ||
+            row.value.toLowerCase() === "false"
+          );
+
+        case "color":
+          const colorRegex = /^#([0-9A-F]{3}){1,2}$/i;
+          const rgbRegex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
+          return !(colorRegex.test(row.value) || rgbRegex.test(row.value));
+
+        case "json":
+          try {
+            JSON.parse(row.value);
+            return false;
+          } catch {
+            return true;
+          }
+
+        case "rating":
+          let parsedRating;
+          try {
+            parsedRating = JSON.parse(row.value); // Parse the JSON string
+          } catch {
+            return true; // Invalid if parsing fails
+          }
+
+          const { scale_min, scale_max, value } = parsedRating;
+          const ratingValue = Number(value);
+
+          return (
+            isNaN(ratingValue) ||
+            ratingValue < scale_min ||
+            ratingValue > scale_max
+          );
+
+        default:
+          return row.value == null || row.value.trim() === "";
+      }
+    });
+
+    if (invalidFields.length > 0) {
+      console.log("Invalid fields:", invalidFields);
+
+      const errorMessages = invalidFields.map((field) => {
+        if (!field.key || field.key.trim() === "") {
+          return `Field ${field.key || "[no key]"} is missing a key.`;
+        }
+
+        switch (field.type) {
+          case "number_integer":
+            return `Value for field ${field.key} should be a valid integer (no decimals).`;
+          case "number_decimal":
+            return `Value for field ${field.key} should be a valid decimal number.`;
+          case "single_line_text_field":
+            return `Value for field ${field.key} should be a single line of text without newlines.`;
+          case "multi_line_text_field":
+            return `Value for field ${field.key} should be a valid string, allowing newlines.`;
+          case "url":
+            return `Value for field ${field.key} should be a valid URL.`;
+          case "boolean":
+            return `Value for field ${field.key} should be 'true' or 'false'.`;
+          case "color":
+            return `Value for field ${field.key} should be a valid color (e.g., Hex or RGB).`;
+          case "json":
+            return `Value for field ${field.key} should be valid JSON.`;
+          case "rating":
+            const parsedField = JSON.parse(field.value); // Parse JSON string for error message
+            console.log("Parsed Field on the rating return",parsedField);
+            return `Value for field ${field.key} should be a number between ${parsedField.scale_min} and ${parsedField.scale_max}.`;
+          default:
+            return `Value for field ${field.key} should not be empty.`;
+        }
+      });
+
+      alert(
+        `There are invalid entries in the metafields:\n\n${errorMessages.join("\n")}`
+      );
+
+      console.log("Error messages on validation:", errorMessages);
+      setloaderview(false);
+      return;
+    }
+
     const metafields = rows.map((row) => ({
       namespace: row.namespace,
       key: row.key,
@@ -225,31 +342,26 @@ export default function DynamicRowsWithProductId() {
       type: row.type,
     }));
 
-    console.log("Metafields to be sent:", metafields); // Log metafields to be sent
-    // Send metafields to the action function (using form submission)
+    console.log("Metafields to be sent:", metafields);
     const formData = new FormData();
-
     formData.append("metafields", JSON.stringify(metafields));
-    console.log("Formdata to be saved", formData);
-    console.log("Passing POST request on the URL /app/ProductMetafieldAdd/ ", {
-      productId,
-    });
-    // Create a POST request to trigger the action function
+    console.log("FormData to be saved", formData);
+
     fetch(`/app/ProductMetafieldAdd/${productId}`, {
       method: "POST",
       body: formData,
     }).then((response) => {
       if (response.ok) {
-        console.log("Metafields successfully updated!"); // Log success message
+        console.log("Metafields successfully updated!");
         setConfirmationModalActive(false);
         setloaderview(false);
         setIsPopupVisible(true);
-        // window.location.reload();
       } else {
-        console.error("Error updating metafields"); // Log error message
+        console.error("Error updating metafields");
       }
     });
   };
+
 
   const handleDiscard = () => {
     setConfirmationModalActive(false);
@@ -390,28 +502,6 @@ export default function DynamicRowsWithProductId() {
                     width: "100%",
                   }}
                 />
-              ) : row.type === "money" ? (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ marginRight: "5px", fontWeight: "bold" }}>
-                    INR
-                  </span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    inputMode="decimal"
-                    value={row.value}
-                    onChange={(e) =>
-                      handleInputChange(index, "value", e.target.value)
-                    }
-                    placeholder="Enter Amount"
-                    style={{
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      flex: "1",
-                    }}
-                  />
-                </div>
               ) : row.type === "color" ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <input
@@ -456,7 +546,7 @@ export default function DynamicRowsWithProductId() {
                 </div>
               ) : row.type === "boolean" ? (
                 <select
-                  value={row.value}
+                  value={row.value || "True"} // Default to "True" if value is empty
                   onChange={(e) =>
                     handleInputChange(index, "value", e.target.value)
                   }
@@ -517,35 +607,6 @@ export default function DynamicRowsWithProductId() {
                     resize: "vertical",
                   }}
                 />
-              ) : row.type === "link" ? (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <input
-                    type="url"
-                    value={row.value}
-                    onChange={(e) =>
-                      handleInputChange(index, "value", e.target.value)
-                    }
-                    placeholder="Enter URL"
-                    style={{
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      flex: "1",
-                    }}
-                  />
-                  <button
-                    onClick={() => window.open(row.value, "_blank")}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      marginLeft: "5px",
-                      fontSize: "18px",
-                    }}
-                  >
-                    ↗
-                  </button>
-                </div>
               ) : row.type === "json" ? (
                 <textarea
                   value={row.displayValue || row.value} // Show display value or last valid JSON
@@ -563,39 +624,6 @@ export default function DynamicRowsWithProductId() {
                     overflowX: "auto",
                   }}
                 />
-              ) : row.type === "dimension" ? (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <input
-                    type="number"
-                    value={row.value}
-                    onChange={(e) =>
-                      handleInputChange(index, "value", e.target.value)
-                    }
-                    placeholder="Enter Dimension"
-                    style={{
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      flex: "1",
-                    }}
-                  />
-                  <select
-                    onChange={(e) =>
-                      handleInputChange(index, "unit", e.target.value)
-                    }
-                    style={{
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      marginLeft: "5px",
-                    }}
-                  >
-                    <option value="cm">cm</option>
-                    <option value="mm">mm</option>
-                    <option value="m">m</option>
-                    {/* Add more units as needed */}
-                  </select>
-                </div>
               ) : row.type === "url" ? (
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <input
@@ -627,7 +655,11 @@ export default function DynamicRowsWithProductId() {
                 </div>
               ) : row.type === "rating" ? (
                 (() => {
-                  let parsedValue = { scale_min: 0, scale_max: 5, value: 0 };
+                  let parsedValue = {
+                    scale_min: 0.0,
+                    scale_max: 5.0,
+                    value: 0.0,
+                  };
 
                   // Check if value is a valid JSON string, otherwise use defaults
                   if (
