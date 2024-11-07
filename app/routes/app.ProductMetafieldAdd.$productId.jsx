@@ -7,6 +7,9 @@ import { useLoaderData, redirect } from "@remix-run/react";
 import { json } from "@remix-run/node"; // Import useLoaderData
 import deleteicon from "./assets/delete.svg";
 import loadergif from "./assets/loader.gif";
+
+import ErrorPopup from "./utils/ErrorPopup";
+
 export const loader = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
   const productId = `gid://shopify/Product/${params.productId}`;
@@ -153,6 +156,9 @@ export default function DynamicRowsWithProductId() {
   const { productId } = useParams();
   const { product } = useLoaderData(); // Get product data from loader
 
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [isErrorPopupVisible, setIsErrorPopupVisible] = useState(false);
+
   const [confirmationModalActive, setConfirmationModalActive] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [loaderview, setloaderview] = useState(false);
@@ -271,14 +277,21 @@ export default function DynamicRowsWithProductId() {
           }
 
         case "rating":
+          if (!row.value || row.value.trim() === "") {
+            setloaderview(false);
+            setConfirmationModalActive(false);
+             alert(`Please enter a value for the rating field: ${row.key}`);
+            return true;
+          }
           let parsedRating;
           try {
-            parsedRating = JSON.parse(row.value); // Parse the JSON string
+            parsedRating = JSON.parse(row.value);
           } catch {
-            return true; // Invalid if parsing fails
+            setloaderview(false);
+            return true;
           }
 
-          const { scale_min, scale_max, value } = parsedRating;
+          const { scale_min, scale_max, value } = parsedRating || {};
           const ratingValue = Number(value);
 
           return (
@@ -293,48 +306,56 @@ export default function DynamicRowsWithProductId() {
     });
 
     if (invalidFields.length > 0) {
-      console.log("Invalid fields:", invalidFields);
+      setloaderview(false);
 
-      const errorMessages = invalidFields.map((field) => {
+      // Prepare error messages for each invalid field
+      const errors = invalidFields.map((field) => {
         if (!field.key || field.key.trim() === "") {
           return `Field ${field.key || "[no key]"} is missing a key.`;
         }
-
         switch (field.type) {
           case "number_integer":
             return `Value for field ${field.key} should be a valid integer (no decimals).`;
+
           case "number_decimal":
             return `Value for field ${field.key} should be a valid decimal number.`;
+
           case "single_line_text_field":
             return `Value for field ${field.key} should be a single line of text without newlines.`;
+
           case "multi_line_text_field":
             return `Value for field ${field.key} should be a valid string, allowing newlines.`;
+
           case "url":
             return `Value for field ${field.key} should be a valid URL.`;
+
           case "boolean":
             return `Value for field ${field.key} should be 'true' or 'false'.`;
+
           case "color":
             return `Value for field ${field.key} should be a valid color (e.g., Hex or RGB).`;
+
           case "json":
             return `Value for field ${field.key} should be valid JSON.`;
+
           case "rating":
-            const parsedField = JSON.parse(field.value); // Parse JSON string for error message
-            console.log("Parsed Field on the rating return",parsedField);
+            const parsedField = JSON.parse(field.value);
             return `Value for field ${field.key} should be a number between ${parsedField.scale_min} and ${parsedField.scale_max}.`;
+
           default:
             return `Value for field ${field.key} should not be empty.`;
         }
       });
 
-      alert(
-        `There are invalid entries in the metafields:\n\n${errorMessages.join("\n")}`
-      );
+      // Set error messages and show popup
+      setErrorMessages(errors);
+      setConfirmationModalActive(false);
+      setIsErrorPopupVisible(true);
 
-      console.log("Error messages on validation:", errorMessages);
-      setloaderview(false);
       return;
     }
 
+    // Proceed with submitting data
     const metafields = rows.map((row) => ({
       namespace: row.namespace,
       key: row.key,
@@ -342,17 +363,14 @@ export default function DynamicRowsWithProductId() {
       type: row.type,
     }));
 
-    console.log("Metafields to be sent:", metafields);
     const formData = new FormData();
     formData.append("metafields", JSON.stringify(metafields));
-    console.log("FormData to be saved", formData);
 
     fetch(`/app/ProductMetafieldAdd/${productId}`, {
       method: "POST",
       body: formData,
     }).then((response) => {
       if (response.ok) {
-        console.log("Metafields successfully updated!");
         setConfirmationModalActive(false);
         setloaderview(false);
         setIsPopupVisible(true);
@@ -361,7 +379,6 @@ export default function DynamicRowsWithProductId() {
       }
     });
   };
-
 
   const handleDiscard = () => {
     setConfirmationModalActive(false);
@@ -422,7 +439,6 @@ export default function DynamicRowsWithProductId() {
           )}
         </div>
       </Card>
-
       <div className="button-container">
         <Button onClick={handleAddRow} variant="primary">
           Add Row
@@ -657,7 +673,7 @@ export default function DynamicRowsWithProductId() {
                 (() => {
                   let parsedValue = {
                     scale_min: 0.0,
-                    scale_max: 5.0,
+                    scale_max: 0.0,
                     value: 0.0,
                   };
 
@@ -784,6 +800,18 @@ export default function DynamicRowsWithProductId() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div>
+        {/* Other components and content */}
+
+        {/* Show the error popup if there are validation errors */}
+        {isErrorPopupVisible && (
+          <ErrorPopup
+            errorMessages={errorMessages}
+            onClose={() => setIsErrorPopupVisible(false)}
+          />
+        )}
       </div>
 
       {/* Confirmation Modal for saving meatfields*/}

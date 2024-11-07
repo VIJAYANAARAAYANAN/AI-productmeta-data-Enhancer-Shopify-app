@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://extract-manchester-jewel-shape.trycloudflare.com"
+application_url = "https://beverages-prev-automation-findarticles.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://extract-manchester-jewel-shape.trycloudflare.com/auth/callback",
-  "https://extract-manchester-jewel-shape.trycloudflare.com/auth/shopify/callback",
-  "https://extract-manchester-jewel-shape.trycloudflare.com/api/auth/callback"
+  "https://beverages-prev-automation-findarticles.trycloudflare.com/auth/callback",
+  "https://beverages-prev-automation-findarticles.trycloudflare.com/auth/shopify/callback",
+  "https://beverages-prev-automation-findarticles.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
