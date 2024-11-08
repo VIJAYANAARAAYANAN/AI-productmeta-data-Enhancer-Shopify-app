@@ -3,37 +3,47 @@
 {% assign metafield_value = block.settings.product.metafields[metafield_namespace][metafield_key] %}
 
 {% if metafield_value %}
-  {% assign metafield_value_json = metafield_value.value %}
 
-  <!-- Extract the 'value' and 'scale_max' from the JSON string -->
-  {% assign value_start = metafield_value_json | split: '"value":"' | last | split: '"' | first | plus: 0 %}
-  {% assign scale_max_start = metafield_value_json | split: '"scale_max":"' | last | split: '"' | first | plus: 0 %}
+  
+  <!-- Extract 'value', 'scale_min', and 'scale_max' from the JSON string -->
+  {% assign rating_value = metafield_value | split: '"value":"' | last | split: '"' | first | plus: 0.0 %}
+  {% assign scale_min = metafield_value | split: '"scale_min":"' | last | split: '"' | first | plus: 0.0 %}
+  {% assign scale_max = metafield_value | split: '"scale_max":"' | last | split: '"' | first | plus: 0.0 %}
 
-  <!-- Assign extracted values to variables for easier reference -->
-  {% assign avg_rating = value_start %}
-  {% assign scale_max = scale_max_start | default: 5 %} <!-- Set to 5 if scale_max is not defined or is less than 5 -->
+  <!-- Set defaults for scale_min and scale_max if they are not defined -->
+  {% assign scale_min = scale_min | default: 0 %}
+  {% assign scale_max = scale_max | default: 10 %} <!-- Default scale_max to 10 if not provided -->
 
-  <!-- Calculate the number of full and partial stars -->
-  {% assign full_stars = avg_rating | floor %}
-  {% assign partial_star = avg_rating | modulo: 1 %}
+  
+
+  <!-- Calculate the normalized rating (adjusted to the max scale) -->
+  {% assign normalized_rating = rating_value | divided_by: scale_max | times: scale_max %}
+
+  <!-- Calculate the number of full stars and if a half star is needed -->
+  {% assign full_stars = normalized_rating | floor %}
+  {% assign partial_star = normalized_rating | modulo: 1 %}
   {% assign next_star = full_stars | plus: 1 %}
-  {% assign max_stars = 5 %} <!-- Display a maximum of 5 stars -->
+  {% assign total_stars = scale_max | ceil %} <!-- Ensure total stars match scale_max -->
 
+  <!-- Display the stars -->
   <div style="display: flex; align-items: center;">
-    <!-- Star display with customizable star size -->
-    {% for i in (1..max_stars) %}
-  {% if i <= full_stars %}
-    <span style="color: {{ block.settings.star_color }}; font-size: {{ block.settings.star_size }};">★</span> <!-- Filled rounded star -->
-  {% elsif i == next_star and partial_star > 0 %}
-    <span style="color: {{ block.settings.star_color }}; font-size: {{ block.settings.star_size }};">★</span> <!-- Half-filled rounded star -->
-  {% else %}
-    <span style="color: #ccc; font-size: {{ block.settings.star_size }};">☆</span> <!-- Empty rounded star -->
-  {% endif %}
-{% endfor %}
+    {% for i in (1..total_stars) %}
+      {% if i <= full_stars %}
+        <span style="color: {{ block.settings.star_color }}; font-size: {{ block.settings.star_size }};">★</span> <!-- Filled star -->
+      {% elsif i == next_star and partial_star > 0 %}
+  <span style="color: #ccc; font-size: {{ block.settings.star_size }}; position: relative;">
+    ★
+    <span style="color: {{ block.settings.star_color }}; font-size: {{ block.settings.star_size }}; position: absolute; left: 0; clip-path: inset(0 50% 0 0);">★</span> <!-- Left half-filled star -->
+  </span>
+{% else %}
+
+        <span style="color: #ccc; font-size: {{ block.settings.star_size }};">☆</span> <!-- Empty star -->
+      {% endif %}
+    {% endfor %}
     
-    <!-- Text display with customizable text size -->
+    <!-- Display the actual rating value and max scale as text -->
     <span style="margin-left: 8px; color: {{ block.settings.font_color }}; font-size: {{ block.settings.text_size }};">
-      {{ avg_rating | floor }} of {{ max_stars }}
+      {{ rating_value }} of {{ scale_max }}
     </span>
   </div>
 {% else %}
@@ -41,7 +51,7 @@
 {% endif %}
 
 {% schema %}
-{ 
+{
   "name": "Star Rating",
   "target": "section",
   "settings": [
