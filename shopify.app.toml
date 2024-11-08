@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://architecture-peripherals-organizing-administrative.trycloudflare.com"
+application_url = "https://cafe-ham-houses-labor.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://architecture-peripherals-organizing-administrative.trycloudflare.com/auth/callback",
-  "https://architecture-peripherals-organizing-administrative.trycloudflare.com/auth/shopify/callback",
-  "https://architecture-peripherals-organizing-administrative.trycloudflare.com/api/auth/callback"
+  "https://cafe-ham-houses-labor.trycloudflare.com/auth/callback",
+  "https://cafe-ham-houses-labor.trycloudflare.com/auth/shopify/callback",
+  "https://cafe-ham-houses-labor.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

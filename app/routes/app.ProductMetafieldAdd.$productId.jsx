@@ -576,8 +576,8 @@ export default function DynamicRowsWithProductId() {
                     width: "100%",
                   }}
                 >
-                  <option value="True">True</option>
                   <option value="False">False</option>
+                  <option value="True">True</option>
                 </select>
               ) : row.type === "integer" ? (
                 <input
