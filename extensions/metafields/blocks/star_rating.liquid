@@ -14,8 +14,6 @@
   {% assign scale_min = scale_min | default: 0 %}
   {% assign scale_max = scale_max | default: 10 %} <!-- Default scale_max to 10 if not provided -->
 
-  
-
   <!-- Calculate the normalized rating (adjusted to the max scale) -->
   {% assign normalized_rating = rating_value | divided_by: scale_max | times: scale_max %}
 
