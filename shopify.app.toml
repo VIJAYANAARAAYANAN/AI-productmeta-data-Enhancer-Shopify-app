@@ -3,7 +3,7 @@
 client_id = "194a5c6bd1568aafe7c4edd70301f8fb"
 name = "Majik"
 handle = "Majik"
-application_url = "https://prepaid-raymond-desire-cu.trycloudflare.com"
+application_url = "https://architecture-peripherals-organizing-administrative.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_content,read_metaobject_definitions,read_metaobjects,read_product
 
 [auth]
 redirect_urls = [
-  "https://prepaid-raymond-desire-cu.trycloudflare.com/auth/callback",
-  "https://prepaid-raymond-desire-cu.trycloudflare.com/auth/shopify/callback",
-  "https://prepaid-raymond-desire-cu.trycloudflare.com/api/auth/callback"
+  "https://architecture-peripherals-organizing-administrative.trycloudflare.com/auth/callback",
+  "https://architecture-peripherals-organizing-administrative.trycloudflare.com/auth/shopify/callback",
+  "https://architecture-peripherals-organizing-administrative.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

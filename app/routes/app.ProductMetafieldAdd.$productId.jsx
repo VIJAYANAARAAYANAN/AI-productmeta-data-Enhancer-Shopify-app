@@ -228,10 +228,10 @@ export default function DynamicRowsWithProductId() {
     console.log("Handle Confirm Save has been clicked");
     setloaderview(true);
 
-    // Validation logic for each metafield type and key presence
+   
     const invalidFields = rows.filter((row) => {
-      if (!row.key || row.key.trim() === "") {
-        return true; // Invalid if key is missing or empty
+      if (!row.key || row.key.trim() === "" || !row.value || row.value.trim() === "") {
+        return true;
       }
 
       switch (row.type) {
@@ -312,6 +312,9 @@ export default function DynamicRowsWithProductId() {
       const errors = invalidFields.map((field) => {
         if (!field.key || field.key.trim() === "") {
           return `Field ${field.key || "[no key]"} is missing a key.`;
+        }
+        if (!field.value || field.value.trim() === "") {
+          return `Field ${field.key} is missing a value.`;
         }
         switch (field.type) {
           case "number_integer":
